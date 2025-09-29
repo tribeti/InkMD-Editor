@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "InkMD_Editor (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "InkMD_Editor (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
