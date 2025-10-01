@@ -16,7 +16,7 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <StackPanel>
+    <StackPanel Spacing="8">
         <controls:TabbedCommandBar>
             <controls:TabbedCommandBar.AutoSuggestBox>
                 <AutoSuggestBox AutomationProperties.Name="Search" QueryIcon="Find" />
@@ -33,10 +33,7 @@
                     <AppBarButton Icon="{ui:FontIcon Glyph=&#xE7A6;}" Label="Redo" />
                     <AppBarButton Icon="{ui:FontIcon Glyph=&#xE77F;}" Label="Paste" />
                     <AppBarSeparator />
-                    <!--  TO DO: Enable when ColorPicker is merged  -->
-                    <!--<AppBarElementContainer>
-                        <controls:ColorPickerButton SelectedColor="{ThemeResource Brand-Color}"/>
-                    </AppBarElementContainer>-->
+
                     <AppBarElementContainer>
                         <ComboBox MinWidth="175" SelectedIndex="0">
                             <ComboBoxItem Content="Arial" />
@@ -64,113 +61,38 @@
                             </MenuFlyout>
                         </AppBarButton.Flyout>
                     </AppBarButton>
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xF156;}" Label="Shapes" />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xED58;}" Label="Icons" />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xF158;}" Label="3D Models" />
-                    <AppBarSeparator />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" Label="Add-ins" />
-                    <controls:TabbedCommandBarItem.SecondaryCommands>
-                        <AppBarButton Icon="{ui:FontIcon Glyph=&#xE710;}" Label="New item" />
-                    </controls:TabbedCommandBarItem.SecondaryCommands>
-                </controls:TabbedCommandBarItem>
-                <controls:TabbedCommandBarItem x:Name="PictureFormat" Header="Picture Format">
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE706;}" Label="Remove background" />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xF4A5;}" Label="Picture effects" />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE7AD;}" Label="Rotate" />
-                    <AppBarElementContainer>
-                        <muxc:SplitButton>
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <FontIcon
-                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                    FontSize="16"
-                                    Glyph="&#xE7A8;" />
-                                <TextBlock FontSize="12" Text="Crop" />
-                            </StackPanel>
-                            <muxc:SplitButton.Flyout>
-                                <MenuFlyout>
-                                    <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE7A8;}" Text="Crop" />
-                                    <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xF407;}" Text="Crop to Shape" />
-                                    <MenuFlyoutItem Text="Aspect Ratio" />
-                                    <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem Text="Fill" />
-                                    <MenuFlyoutItem Text="Fit" />
-                                </MenuFlyout>
-                            </muxc:SplitButton.Flyout>
-                        </muxc:SplitButton>
-                    </AppBarElementContainer>
                 </controls:TabbedCommandBarItem>
             </controls:TabbedCommandBar.MenuItems>
         </controls:TabbedCommandBar>
 
-        <Grid
-            Height="300"
-            BorderBrush="{ThemeResource SystemControlHighlightChromeHighBrush}"
-            BorderThickness="0,0,1,1">
-            <Grid.RowDefinitions>
-                <RowDefinition MinHeight="100" MaxHeight="300" />
-                <RowDefinition Height="200" />
-            </Grid.RowDefinitions>
+        <Grid BorderBrush="{ThemeResource SystemControlHighlightChromeHighBrush}" BorderThickness="0,0,1,1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="100" MaxWidth="300" />
-                <ColumnDefinition />
-                <ColumnDefinition Width="200" MinWidth="100" />
-                <ColumnDefinition Width="200" MinWidth="100" />
+                <ColumnDefinition
+                    Width="Auto"
+                    MinWidth="600"
+                    MaxWidth="800" />
+                <ColumnDefinition
+                    Width="Auto"
+                    MinWidth="600"
+                    MaxWidth="800" />
             </Grid.ColumnDefinitions>
 
             <Border Grid.Row="0" Grid.Column="0">
-                <TextBlock Text="This is a Column with a Min 100 / Max 300 width - This text to simulate the resizing feature of the Grid Splitter Control, try to move the splitter to see the effect RowDefinition MinHeight='100'" />
+                <RichEditBox
+                    x:Name="REBCustom"
+                    Width="800"
+                    Height="200"
+                    AutomationProperties.Name="editor with custom menu"
+                    Loaded="REBCustom_Loaded"
+                    Unloaded="REBCustom_Unloaded" />
             </Border>
             <Border Grid.Row="0" Grid.Column="1">
-                <TextBlock Text="This text to simulate the resizing feature of the Grid Splitter Control, try to move the splitter to see the effect" />
-            </Border>
-            <Border Grid.Row="0" Grid.Column="2">
-                <TextBlock Text="This text to simulate the resizing feature of the Grid Splitter Control, try to move the splitter to see the effect" />
-            </Border>
-            <Border Grid.Row="0" Grid.Column="3">
-                <TextBlock Text="This text to simulate the resizing feature of the Grid Splitter Control, try to move the splitter to see the effect" />
-            </Border>
-
-            <Border Grid.Row="1" Grid.Column="0">
-                <TextBlock Text="This text to simulate the resizing feature of the Grid Splitter Control, try to move the splitter to see the effect" />
-            </Border>
-            <Border Grid.Row="1" Grid.Column="1">
-                <TextBlock Text="This text to simulate the resizing feature of the Grid Splitter Control, try to move the splitter to see the effect" />
-            </Border>
-            <Border Grid.Row="1" Grid.Column="2">
-                <TextBlock Text="This is a fixed width column - This text to simulate the resizing feature of the Grid Splitter Control, try to move the splitter to see the effect" />
-            </Border>
-            <Border Grid.Row="1" Grid.Column="3">
-                <TextBlock Text="This is a fixed width column - This text to simulate the resizing feature of the Grid Splitter Control, try to move the splitter to see the effect" />
+                <TextBlock Text="vjklxcjnv" />
             </Border>
 
             <!--  Column Grid Splitter  -->
             <controls:GridSplitter
                 Grid.Column="1"
-                Width="16"
-                HorizontalAlignment="Left"
-                ResizeBehavior="BasedOnAlignment"
-                ResizeDirection="Auto">
-                <controls:GridSplitter.RenderTransform>
-                    <TranslateTransform X="-7" />
-                </controls:GridSplitter.RenderTransform>
-            </controls:GridSplitter>
-
-            <!--  Row Grid Splitter  -->
-            <controls:GridSplitter
-                Grid.Row="1"
-                Grid.ColumnSpan="4"
-                Height="16"
-                VerticalAlignment="Top">
-                <controls:GridSplitter.RenderTransform>
-                    <TranslateTransform Y="-7" />
-                </controls:GridSplitter.RenderTransform>
-            </controls:GridSplitter>
-
-            <!--  Last 2 columns splitter  -->
-            <controls:GridSplitter
-                Grid.Row="0"
-                Grid.RowSpan="2"
-                Grid.Column="3"
                 Width="16"
                 HorizontalAlignment="Left"
                 ResizeBehavior="BasedOnAlignment"
