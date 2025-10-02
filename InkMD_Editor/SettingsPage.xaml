@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Window
-    x:Class="InkMD_Editor.MainWindow"
+<Page
+    x:Class="InkMD_Editor.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:InkMD_Editor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    xmlns:ui="using:CommunityToolkit.WinUI"
-    Title="InkMD Editor"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
-    <Window.SystemBackdrop>
-        <MicaBackdrop />
-    </Window.SystemBackdrop>
-
-    <Frame x:Name="ContentFrame" />
-</Window>
+    <Grid>
+        <TextBlock>This is setting page</TextBlock>
+        <Button Click="Button_Click" />
+    </Grid>
+</Page>
