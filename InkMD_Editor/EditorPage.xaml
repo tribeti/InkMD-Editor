@@ -3,9 +3,8 @@
     x:Class="InkMD_Editor.EditorPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:InkMD_Editor"
+    xmlns:local="using:InkMD_Editor.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
@@ -14,66 +13,17 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <MenuBar Grid.Row="0">
-            <MenuBarItem Title="File">
-                <MenuFlyoutSubItem Text="New">
-                    <MenuFlyoutItem Text="Plain Text Document" />
-                    <MenuFlyoutItem Text="Rich Text Document" />
-                    <MenuFlyoutItem Text="Other Formats..." />
-                </MenuFlyoutSubItem>
-                <MenuFlyoutItem Text="Open...">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="O" Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Save">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="S" Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Exit">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Q" Modifiers="Windows" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-            </MenuBarItem>
-
-            <MenuBarItem Title="Edit">
-                <MenuFlyoutItem Text="Undo">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Z" Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Cut">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="X" Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Copy">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="C" Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Paste">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="V" Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-            </MenuBarItem>
-
-            <MenuBarItem Title="Help">
-                <MenuFlyoutItem Text="About" />
-            </MenuBarItem>
-        </MenuBar>
-
+        <local:CustomMenuBar Grid.Row="0" />
         <!--  File Explorer Sidebar  -->
         <Grid
+            x:Name="Body"
             Grid.Row="1"
             Padding="0,0,12,0"
             Background="{ThemeResource LayerFillColorDefaultBrush}">
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -112,6 +62,99 @@
             <Grid Grid.Column="1" Background="Azure">
                 <TextBlock>Hello world</TextBlock>
             </Grid>
+
+        </Grid>
+        <Grid
+            x:Name="Footer"
+            Grid.Row="2"
+            Padding="8,0"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel
+                Grid.Column="0"
+                Orientation="Horizontal"
+                Spacing="12">
+
+                <Border
+                    Width="1"
+                    Margin="0,4"
+                    Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Glyph="&#xE8A1;" />
+                    <TextBlock
+                        x:Name="WordCountText"
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="999" />
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="words" />
+                </StackPanel>
+            </StackPanel>
+
+            <Grid Grid.Column="2" />
+
+            <StackPanel
+                Grid.Column="3"
+                Margin="12,0,0,0"
+                Orientation="Horizontal"
+                Spacing="12">
+
+                <Button
+                    x:Name="ZoomOutButton"
+                    Width="28"
+                    Height="28"
+                    Padding="0"
+                    Content="−"
+                    FontSize="16"
+                    Style="{StaticResource SubtleButtonStyle}"
+                    ToolTipService.ToolTip="Zoom Out" />
+
+                <Slider
+                    x:Name="ZoomSlider"
+                    Width="100"
+                    VerticalAlignment="Center"
+                    Maximum="200"
+                    Minimum="50"
+                    StepFrequency="10"
+                    ToolTipService.ToolTip="Zoom Level"
+                    Value="100" />
+
+                <Button
+                    x:Name="ZoomInButton"
+                    Width="28"
+                    Height="28"
+                    Padding="0"
+                    Content="+"
+                    FontSize="16"
+                    Style="{StaticResource SubtleButtonStyle}"
+                    ToolTipService.ToolTip="Zoom In" />
+
+                <TextBlock
+                    x:Name="ZoomPercentageText"
+                    Width="50"
+                    VerticalAlignment="Center"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Text="100%"
+                    TextAlignment="Right" />
+            </StackPanel>
         </Grid>
     </Grid>
 </Page>
