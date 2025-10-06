@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="InkMD_Editor.Controls.TabViewContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:InkMD_Editor.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <Style TargetType="Border">
+            <Setter Property="BorderThickness" Value="1,1,0,0" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="BorderBrush" Value="{ThemeResource SystemControlHighlightChromeHighBrush}" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid x:Name="Raw_Md" Grid.Column="0">
+            <RichEditBox />
+        </Grid>
+
+        <controls:GridSplitter Width="16" HorizontalAlignment="Left">
+            <controls:GridSplitter.RenderTransform>
+                <TranslateTransform X="-7" />
+            </controls:GridSplitter.RenderTransform>
+        </controls:GridSplitter>
+
+        <Grid x:Name="Pre_Md" Grid.Column="1">
+            <RichTextBlock />
+        </Grid>
+    </Grid>
+</UserControl>

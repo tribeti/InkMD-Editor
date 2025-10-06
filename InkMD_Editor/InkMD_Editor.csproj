@@ -12,6 +12,9 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Controls\TabViewContent.xaml" />
+	</ItemGroup>
   <ItemGroup>
 	<Content Include="Assets\SplashScreen.scale-200.png" />
 	<Content Include="Assets\LockScreenLogo.scale-200.png" />
@@ -40,6 +43,11 @@
 	<PackageReference Include="CommunityToolkit.WinUI.Controls.TabbedCommandBar" Version="8.2.250402" />
 	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6584" />
 	<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250916003" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\TabViewContent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
 	<Page Update="SettingsPage.xaml">

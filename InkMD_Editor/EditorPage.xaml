@@ -4,12 +4,21 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:InkMD_Editor.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="using:CommunityToolkit.WinUI"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <Style TargetType="Border">
+            <Setter Property="BorderThickness" Value="1,1,0,0" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="BorderBrush" Value="{ThemeResource SystemControlHighlightChromeHighBrush}" />
+        </Style>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -19,13 +28,12 @@
         </Grid.RowDefinitions>
 
         <local:CustomMenuBar Grid.Row="0" />
-        <!--  File Explorer Sidebar  -->
+
         <Grid
             x:Name="Body"
             Grid.Row="1"
             Padding="0,0,12,0"
             Background="{ThemeResource LayerFillColorDefaultBrush}">
-
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -65,10 +73,45 @@
                 </Button>
             </RelativePanel>
 
-            <Grid Grid.Column="1" Background="Azure">
-                <TextBlock>Hello world</TextBlock>
+            <controls:GridSplitter
+                Grid.Column="1"
+                Width="16"
+                HorizontalAlignment="Left"
+                ResizeBehavior="BasedOnAlignment"
+                ResizeDirection="Auto">
+                <controls:GridSplitter.RenderTransform>
+                    <TranslateTransform X="-7" />
+                </controls:GridSplitter.RenderTransform>
+            </controls:GridSplitter>
+
+            <Grid Grid.Column="1">
+                <TabView
+                    x:Name="Tabs"
+                    VerticalAlignment="Stretch"
+                    AddTabButtonClick="TabView_AddButtonClick"
+                    Loaded="EditorPage_Loaded"
+                    TabCloseRequested="TabView_TabCloseRequested" />
             </Grid>
 
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup>
+                    <VisualState x:Name="Full">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="600" />
+                        </VisualState.StateTriggers>
+                    </VisualState>
+                    <VisualState x:Name="Small">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="0" />
+                        </VisualState.StateTriggers>
+
+                        <VisualState.Setters>
+                            <Setter Target="Body.Padding" Value="12" />
+                            <Setter Target="Body.FontSize" Value="12" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
         </Grid>
 
         <Grid
