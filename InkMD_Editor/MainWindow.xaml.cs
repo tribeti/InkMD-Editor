@@ -12,5 +12,4 @@ public sealed partial class MainWindow : Window
         AppWindow.Title = "InkMD Editor";
         ContentFrame.Navigate(typeof(EditorPage));
     }
-
 }
