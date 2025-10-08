@@ -4,7 +4,7 @@ namespace InkMD_Editor.Controls;
 
 public sealed partial class TabViewContent : UserControl
 {
-    public TabViewContent()
+    public TabViewContent ()
     {
         InitializeComponent();
     }

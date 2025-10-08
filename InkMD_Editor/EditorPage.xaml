@@ -3,7 +3,6 @@
     x:Class="InkMD_Editor.EditorPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:InkMD_Editor.Controls"
@@ -11,14 +10,6 @@
     xmlns:ui="using:CommunityToolkit.WinUI"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
-
-    <Page.Resources>
-        <Style TargetType="Border">
-            <Setter Property="BorderThickness" Value="1,1,0,0" />
-            <Setter Property="Padding" Value="16" />
-            <Setter Property="BorderBrush" Value="{ThemeResource SystemControlHighlightChromeHighBrush}" />
-        </Style>
-    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -92,26 +83,6 @@
                     Loaded="EditorPage_Loaded"
                     TabCloseRequested="TabView_TabCloseRequested" />
             </Grid>
-
-            <VisualStateManager.VisualStateGroups>
-                <VisualStateGroup>
-                    <VisualState x:Name="Full">
-                        <VisualState.StateTriggers>
-                            <AdaptiveTrigger MinWindowWidth="600" />
-                        </VisualState.StateTriggers>
-                    </VisualState>
-                    <VisualState x:Name="Small">
-                        <VisualState.StateTriggers>
-                            <AdaptiveTrigger MinWindowWidth="0" />
-                        </VisualState.StateTriggers>
-
-                        <VisualState.Setters>
-                            <Setter Target="Body.Padding" Value="12" />
-                            <Setter Target="Body.FontSize" Value="12" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateManager.VisualStateGroups>
         </Grid>
 
         <Grid

@@ -19,14 +19,9 @@ public sealed partial class EditorPage : Page
 
     private void EditorPage_Loaded (object sender , RoutedEventArgs e)
     {
-        for ( int i = 0 ; i < 3 ; i++ )
+        for ( int i = 0 ; i < 1 ; i++ )
         {
             Tabs.TabItems.Add(CreateNewTab(i));
-        }
-
-        if ( Tabs.TabItems.Count > 0 )
-        {
-            Tabs.SelectedIndex = 0;
         }
     }
 

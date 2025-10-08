@@ -4,7 +4,7 @@ namespace InkMD_Editor;
 
 public sealed partial class SettingsPage : Page
 {
-    public SettingsPage()
+    public SettingsPage ()
     {
         InitializeComponent();
     }
