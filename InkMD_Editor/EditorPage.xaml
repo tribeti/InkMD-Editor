@@ -11,6 +11,18 @@
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <MenuFlyout x:Key="MyContextMenu">
+            <MenuFlyoutItem Text="Option 1" />
+            <MenuFlyoutItem Text="Option 2" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutSubItem Text="Sub-menu">
+                <MenuFlyoutItem Text="Sub-option A" />
+                <MenuFlyoutItem Text="Sub-option B" />
+            </MenuFlyoutSubItem>
+        </MenuFlyout>
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -24,7 +36,8 @@
             x:Name="Body"
             Grid.Row="1"
             Padding="0,0,12,0"
-            Background="{ThemeResource LayerFillColorDefaultBrush}">
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            ContextFlyout="{StaticResource MyContextMenu}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -41,6 +54,7 @@
                     HorizontalScrollBarVisibility="Auto"
                     RelativePanel.Below="Box"
                     VerticalScrollBarVisibility="Auto">
+
                     <TreeView SelectionMode="Single">
                         <TreeView.RootNodes>
                             <TreeViewNode Content="Flavors" IsExpanded="True">
