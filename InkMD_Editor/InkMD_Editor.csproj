@@ -77,9 +77,4 @@
 	<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
 	<PublishAot>true</PublishAot>
   </PropertyGroup>
-  <ItemGroup>
-	<Page Update="Controls\CustomMenuBar.xaml">
-	  <Generator>MSBuild:Compile</Generator>
-	</Page>
-  </ItemGroup>
 </Project>
