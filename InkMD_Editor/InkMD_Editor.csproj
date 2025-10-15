@@ -45,9 +45,9 @@
 	</PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Controls\TabViewContent.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+	<Page Update="Controls\TabViewContent.xaml">
+	  <Generator>MSBuild:Compile</Generator>
+	</Page>
   </ItemGroup>
   <ItemGroup>
 	<Page Update="SettingsPage.xaml">
@@ -74,7 +74,16 @@
 	<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
 	<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
 	<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-	<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-	<PublishAot>true</PublishAot>
+	<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
+	  <!--<PublishAot>true</PublishAot>-->
+	<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+	<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+	<PackageCertificateThumbprint>F8493499E06722E9441803E4272B82EF30EF0DDB</PackageCertificateThumbprint>
+	<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+	<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+	<GenerateTestArtifacts>True</GenerateTestArtifacts>
+	<AppxBundle>Never</AppxBundle>
+	<AppInstallerUri>D:\</AppInstallerUri>
+	<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
 </Project>

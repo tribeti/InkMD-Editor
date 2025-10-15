@@ -9,14 +9,14 @@
 
   <Identity
     Name="96f8732c-a531-4c2f-b498-1ffebbd1c5d5"
-    Publisher="CN=OS"
-    Version="1.0.0.0" />
+    Publisher="CN=tribeti"
+    Version="0.0.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="96f8732c-a531-4c2f-b498-1ffebbd1c5d5" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>InkMD_Editor</DisplayName>
-    <PublisherDisplayName>OS</PublisherDisplayName>
+    <PublisherDisplayName>tribeti</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
