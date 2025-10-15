@@ -47,13 +47,13 @@
                             <KeyboardAccelerator Key="O" Modifiers="Control" />
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
-                    <MenuFlyoutItem Text="Open folder">
+                    <MenuFlyoutItem Click="OpenFolder_Click" Text="Open folder">
                         <MenuFlyoutItem.KeyboardAccelerators>
                             <KeyboardAccelerator Key="O" Modifiers="Control,Shift" />
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Save">
+                    <MenuFlyoutItem Click="Save_Click" Text="Save">
                         <MenuFlyoutItem.KeyboardAccelerators>
                             <KeyboardAccelerator Key="S" Modifiers="Control" />
                         </MenuFlyoutItem.KeyboardAccelerators>
@@ -64,7 +64,7 @@
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Exit" />
+                    <MenuFlyoutItem Click="Exit_Click" Text="Exit" />
                 </MenuBarItem>
 
                 <MenuBarItem Title="Edit">
