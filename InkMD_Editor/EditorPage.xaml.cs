@@ -1,18 +1,61 @@
 using InkMD_Editor.Controls;
+using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.Storage.Pickers;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 
 namespace InkMD_Editor;
 
 public sealed partial class EditorPage : Page
 {
+    public ObservableCollection<ExplorerItem> DataSource { get; set; }
+    public WordCountViewModel? ViewModel { get; } = new();
     public EditorPage ()
     {
         InitializeComponent();
         Loaded += EditorPage_Loaded;
+        DataSource = GetData();
+    }
+
+    private ObservableCollection<ExplorerItem> GetData ()
+    {
+        return new ObservableCollection<ExplorerItem>
+            {
+                new ExplorerItem
+                {
+                    Name = "Documents",
+                    Type = ExplorerItem.ExplorerItemType.Folder,
+                    Children =
+                    {
+                        new ExplorerItem
+                        {
+                            Name = "ProjectProposal",
+                            Type = ExplorerItem.ExplorerItemType.File,
+                        },
+                        new ExplorerItem
+                        {
+                            Name = "BudgetReport",
+                            Type = ExplorerItem.ExplorerItemType.File,
+                        },
+                    },
+                },
+                new ExplorerItem
+                {
+                    Name = "Projects",
+                    Type = ExplorerItem.ExplorerItemType.Folder,
+                    Children =
+                    {
+                        new ExplorerItem
+                        {
+                            Name = "Project Plan",
+                            Type = ExplorerItem.ExplorerItemType.File,
+                        },
+                    },
+                },
+            };
     }
 
     private void Button_Click (object sender , RoutedEventArgs e)
@@ -28,6 +71,10 @@ public sealed partial class EditorPage : Page
             {
                 Tabs.TabItems.Add(CreateNewTab(i));
             }
+        }
+        if ( Tabs.TabItems.Count > 0 )
+        {
+            Tabs.SelectedIndex = 0;
         }
     }
 
@@ -50,13 +97,11 @@ public sealed partial class EditorPage : Page
             IconSource = new SymbolIconSource { Symbol = Symbol.Document }
         };
 
-        var content = new TabViewContent
-        {
-            DataContext = $"Document {index}"
-        };
+        var content = new TabViewContent();
+        var viewModel = (WordCountViewModel) content.DataContext;
+        //viewModel.FileName = $"Document {index}";
 
         newItem.Content = content;
-
         return newItem;
     }
 
@@ -132,5 +177,36 @@ public sealed partial class EditorPage : Page
     private void Exit_Click (object sender , RoutedEventArgs e)
     {
         App.MainWindow?.Close();
+    }
+
+    private void Tabs_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    {
+        // Update the ViewModel when the selected tab changes
+    }
+}
+
+public class ExplorerItem
+{
+    public enum ExplorerItemType
+    {
+        Folder,
+        File,
+    }
+
+    public string? Name { get; set; }
+    public ExplorerItemType Type { get; set; }
+    public ObservableCollection<ExplorerItem> Children { get; set; } = new ObservableCollection<ExplorerItem>();
+}
+
+class ExplorerItemTemplateSelector : DataTemplateSelector
+{
+    public DataTemplate? FolderTemplate { get; set; }
+    public DataTemplate? FileTemplate { get; set; }
+    protected override DataTemplate? SelectTemplateCore (object item)
+    {
+        var explorerItem = (ExplorerItem) item;
+        return explorerItem.Type == ExplorerItem.ExplorerItemType.Folder
+            ? FolderTemplate
+            : FileTemplate;
     }
 }

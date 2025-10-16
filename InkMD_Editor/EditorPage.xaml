@@ -5,22 +5,61 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:InkMD_Editor.Controls"
+    xmlns:local="using:InkMD_Editor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="using:CommunityToolkit.WinUI"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
+
     <Page.Resources>
         <MenuFlyout x:Key="MyContextMenu">
-            <MenuFlyoutItem Text="Option 1" />
-            <MenuFlyoutItem Text="Option 2" />
-            <MenuFlyoutSeparator />
-            <MenuFlyoutSubItem Text="Sub-menu">
-                <MenuFlyoutItem Text="Sub-option A" />
-                <MenuFlyoutItem Text="Sub-option B" />
-            </MenuFlyoutSubItem>
+            <MenuFlyoutItem Text="New Markdown File">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="N" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="New Folder">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="N" Modifiers="Control,Shift" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Paste">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="V" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
         </MenuFlyout>
+
+        <DataTemplate x:Key="FolderTemplate" x:DataType="local:ExplorerItem">
+            <TreeViewItem
+                AutomationProperties.Name="{x:Bind Name}"
+                IsExpanded="True"
+                ItemsSource="{x:Bind Children}">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xED41;" />
+                    <TextBlock Margin="0,0,10,0" />
+                    <TextBlock Text="{x:Bind Name}" />
+                </StackPanel>
+            </TreeViewItem>
+        </DataTemplate>
+
+        <!--  DataTemplate for files  -->
+        <DataTemplate x:Key="FileTemplate" x:DataType="local:ExplorerItem">
+            <TreeViewItem AutomationProperties.Name="{x:Bind Name}">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE8A5;" />
+                    <TextBlock Margin="0,0,10,0" />
+                    <TextBlock Text="{x:Bind Name}" />
+                </StackPanel>
+            </TreeViewItem>
+        </DataTemplate>
+
+        <!--  Template selector for ExplorerItem types  -->
+        <local:ExplorerItemTemplateSelector
+            x:Key="ExplorerItemTemplateSelector"
+            FileTemplate="{StaticResource FileTemplate}"
+            FolderTemplate="{StaticResource FolderTemplate}" />
     </Page.Resources>
 
     <Grid>
@@ -132,17 +171,11 @@
                     RelativePanel.Below="Box"
                     VerticalScrollBarVisibility="Auto">
 
-                    <TreeView SelectionMode="Single">
-                        <TreeView.RootNodes>
-                            <TreeViewNode Content="Flavors" IsExpanded="True">
-                                <TreeViewNode.Children>
-                                    <TreeViewNode Content="Vanilla" />
-                                    <TreeViewNode Content="Strawberry" />
-                                    <TreeViewNode Content="Chocolate" />
-                                </TreeViewNode.Children>
-                            </TreeViewNode>
-                        </TreeView.RootNodes>
-                    </TreeView>
+                    <!--  TreeView bound to DataSource, using the ItemTemplateSelector  -->
+                    <TreeView
+                        ItemTemplateSelector="{StaticResource ExplorerItemTemplateSelector}"
+                        ItemsSource="{x:Bind DataSource}"
+                        SelectionMode="Single" />
                 </ScrollViewer>
 
                 <Button
@@ -172,6 +205,7 @@
                     VerticalAlignment="Stretch"
                     AddTabButtonClick="TabView_AddButtonClick"
                     Loaded="EditorPage_Loaded"
+                    SelectionChanged="Tabs_SelectionChanged"
                     TabCloseRequested="TabView_TabCloseRequested" />
             </Grid>
         </Grid>
@@ -187,7 +221,7 @@
                     Padding="8"
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                     Style="{StaticResource BodyTextBlockStyle}"
-                    Text="999" />
+                    Text="{x:Bind ViewModel.WordCount}" />
                 <TextBlock
                     Padding="8"
                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"

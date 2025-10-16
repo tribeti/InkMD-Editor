@@ -16,7 +16,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid x:Name="Raw_Md" Grid.Column="0">
-            <RichEditBox />
+            <RichEditBox x:Name="MdEditor" TextChanged="MdEditor_TextChanged" />
         </Grid>
 
         <controls:GridSplitter Width="16" HorizontalAlignment="Right">
