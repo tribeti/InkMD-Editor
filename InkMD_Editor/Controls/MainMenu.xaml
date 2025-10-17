@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="InkMD_Editor.Controls.MainMenu"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:InkMD_Editor.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <MenuBar>
+        <MenuBarItem Title="File">
+            <!--  new file and folder section  -->
+            <MenuFlyoutItem Text="New Markdown File">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="N" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="New file" />
+            <MenuFlyoutSeparator />
+            <!--  open section  -->
+            <MenuFlyoutItem Command="{x:Bind MenuBarViewModel.OpenFileCommand}" Text="Open file">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="O" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Command="{x:Bind MenuBarViewModel.OpenFolderCommand}" Text="Open folder">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="O" Modifiers="Control,Shift" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Command="{x:Bind MenuBarViewModel.SaveFileCommand}" Text="Save">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="S" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Save As">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="S" Modifiers="Control,Shift" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Command="{x:Bind MenuBarViewModel.ExitApplicationCommand}" Text="Exit" />
+        </MenuBarItem>
+
+        <MenuBarItem Title="Edit">
+            <MenuFlyoutItem Text="Undo">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Z" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Redo">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Y" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="Cut">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="X" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Copy">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="C" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Paste">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="V" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuBarItem>
+
+        <MenuBarItem Title="Help">
+            <MenuFlyoutItem Text="About" />
+        </MenuBarItem>
+    </MenuBar>
+</UserControl>
