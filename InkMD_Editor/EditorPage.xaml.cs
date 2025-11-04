@@ -1,79 +1,105 @@
-using InkMD_Editor.Controls;
+﻿using InkMD_Editor.Controls;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Collections.ObjectModel;
-
+using System;
+using System.Collections.Generic;
+using Windows.Storage;
 namespace InkMD_Editor;
 
 public sealed partial class EditorPage : Page
 {
-    public ObservableCollection<ExplorerItem> DataSource { get; set; }
+    public string rootPath = "D:\\Project\\aichatbot";
     public WordCountViewModel? ViewModel { get; } = new();
     public MenuBarViewModel? MenuBarViewModel { get; } = new();
+
     public EditorPage ()
     {
         InitializeComponent();
-        Loaded += EditorPage_Loaded;
-        DataSource = GetData();
+        InitTreeView();
     }
 
-    private ObservableCollection<ExplorerItem> GetData ()
+    public async void InitTreeView ()
     {
-        return new ObservableCollection<ExplorerItem>
+        try
+        {
+            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(rootPath);
+            TreeViewNode node = new TreeViewNode();
+            node.Content = folder;
+            node.IsExpanded = true;
+            node.HasUnrealizedChildren = true;
+            treeview.RootNodes.Add(node);
+            FillTreeNode(node);
+
+        }
+        catch ( Exception ) { }
+    }
+
+    private async void FillTreeNode (TreeViewNode node)
+    {
+        StorageFolder? folder = null;
+        if ( node.Content is StorageFolder && node.HasUnrealizedChildren == true )
+        {
+            folder = node.Content as StorageFolder;
+        }
+        else
+        {
+            return;
+        }
+
+        if ( folder is null )
+        {
+            return;
+        }
+
+        IReadOnlyList<IStorageItem> itemsList = await folder.GetItemsAsync();
+
+        if ( itemsList.Count == 0 )
+        {
+            return;
+        }
+
+        foreach ( var item in itemsList )
+        {
+            var newNode = new TreeViewNode();
+            newNode.Content = item;
+
+            if ( item is StorageFolder )
             {
-                new ExplorerItem
-                {
-                    Name = "Documents",
-                    Type = ExplorerItem.ExplorerItemType.Folder,
-                    Children =
-                    {
-                        new ExplorerItem
-                        {
-                            Name = "ProjectProposal",
-                            Type = ExplorerItem.ExplorerItemType.File,
-                        },
-                        new ExplorerItem
-                        {
-                            Name = "BudgetReport",
-                            Type = ExplorerItem.ExplorerItemType.File,
-                        },
-                    },
-                },
-                new ExplorerItem
-                {
-                    Name = "Projects",
-                    Type = ExplorerItem.ExplorerItemType.Folder,
-                    Children =
-                    {
-                        new ExplorerItem
-                        {
-                            Name = "Project Plan",
-                            Type = ExplorerItem.ExplorerItemType.File,
-                        },
-                    },
-                },
-            };
+                newNode.HasUnrealizedChildren = true;
+            }
+            node.Children.Add(newNode);
+        }
+        node.HasUnrealizedChildren = false;
+    }
+
+
+    private void SampleTreeView_Expanding (TreeView sender , TreeViewExpandingEventArgs args)
+    {
+        if ( args.Node.HasUnrealizedChildren )
+        {
+            FillTreeNode(args.Node);
+        }
+    }
+
+    private void SampleTreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args)
+    {
+        args.Node.Children.Clear();
+        args.Node.HasUnrealizedChildren = true;
+    }
+
+    private void SampleTreeView_ItemInvoked (TreeView sender , TreeViewItemInvokedEventArgs args)
+    {
+        var node = args.InvokedItem as TreeViewNode;
+        if ( node?.Content is StorageFolder folder )
+        {
+            node.IsExpanded = !node.IsExpanded;
+        }
     }
 
     private void Button_Click (object sender , RoutedEventArgs e)
     {
         Frame.Navigate(typeof(SettingsPage));
-    }
-
-    private void EditorPage_Loaded (object sender , RoutedEventArgs e)
-    {
-        if ( Tabs.TabItems.Count == 0 )
-        {
-            for ( int i = 0 ; i < 2 ; i++ )
-            {
-                Tabs.TabItems.Add(CreateNewTab(i));
-            }
-        }
-        if ( Tabs.TabItems.Count > 0 )
-        {
-            Tabs.SelectedIndex = 0;
-        }
     }
 
     private void TabView_AddButtonClick (TabView sender , object args)
@@ -117,18 +143,22 @@ public class ExplorerItem
 
     public string? Name { get; set; }
     public ExplorerItemType Type { get; set; }
-    public ObservableCollection<ExplorerItem> Children { get; set; } = new ObservableCollection<ExplorerItem>();
+    public string? FullPath { get; set; }
+    public bool HasUnloadedChildren { get; set; }
 }
 
 class ExplorerItemTemplateSelector : DataTemplateSelector
 {
     public DataTemplate? FolderTemplate { get; set; }
     public DataTemplate? FileTemplate { get; set; }
+
     protected override DataTemplate? SelectTemplateCore (object item)
     {
-        var explorerItem = (ExplorerItem) item;
-        return explorerItem.Type == ExplorerItem.ExplorerItemType.Folder
-            ? FolderTemplate
-            : FileTemplate;
+        if ( item is TreeViewNode node )
+        {
+            return node.Content is StorageFolder ? FolderTemplate : FileTemplate;
+        }
+
+        return item is StorageFolder ? FolderTemplate : FileTemplate;
     }
 }

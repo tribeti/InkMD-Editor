@@ -35,10 +35,6 @@ public partial class MenuBarViewModel
             // Perform this conversion if you have business logic that uses StorageFile
             var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(result.Path);
         }
-        else
-        {
-            // Add error handling logic here
-        }
     }
 
     [RelayCommand]
@@ -52,10 +48,6 @@ public partial class MenuBarViewModel
         if ( result != null )
         {
             var storageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(result.Path);
-        }
-        else
-        {
-            // Add error handling logic here
         }
     }
 
@@ -72,10 +64,6 @@ public partial class MenuBarViewModel
         {
             string savePath = result.Path;
             await File.WriteAllTextAsync(savePath , "# Hello World");
-        }
-        else
-        {
-            // Add error handling logic here
         }
     }
 

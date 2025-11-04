@@ -8,6 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:InkMD_Editor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:storage="using:Windows.Storage"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:vm="using:InkMD_Editor.ViewModels"
     NavigationCacheMode="Enabled"
@@ -32,28 +33,21 @@
             </MenuFlyoutItem>
         </MenuFlyout>
 
-        <DataTemplate x:Key="FolderTemplate" x:DataType="local:ExplorerItem">
-            <TreeViewItem
-                AutomationProperties.Name="{x:Bind Name}"
-                IsExpanded="True"
-                ItemsSource="{x:Bind Children}">
-                <StackPanel Orientation="Horizontal">
-                    <FontIcon Glyph="&#xED41;" />
-                    <TextBlock Margin="0,0,10,0" />
-                    <TextBlock Text="{x:Bind Name}" />
-                </StackPanel>
-            </TreeViewItem>
+        <DataTemplate x:Key="FolderTemplate" x:DataType="TreeViewNode">
+            <StackPanel Orientation="Horizontal">
+                <FontIcon Glyph="&#xED41;" />
+                <TextBlock Margin="0,0,10,0" />
+                <TextBlock Text="{x:Bind ((storage:StorageFolder)Content).DisplayName}" />
+            </StackPanel>
         </DataTemplate>
 
         <!--  DataTemplate for files  -->
-        <DataTemplate x:Key="FileTemplate" x:DataType="local:ExplorerItem">
-            <TreeViewItem AutomationProperties.Name="{x:Bind Name}">
-                <StackPanel Orientation="Horizontal">
-                    <FontIcon Glyph="&#xE8A5;" />
-                    <TextBlock Margin="0,0,10,0" />
-                    <TextBlock Text="{x:Bind Name}" />
-                </StackPanel>
-            </TreeViewItem>
+        <DataTemplate x:Key="FileTemplate" x:DataType="TreeViewNode">
+            <StackPanel Orientation="Horizontal">
+                <FontIcon Glyph="&#xE8A5;" />
+                <TextBlock Margin="0,0,10,0" />
+                <TextBlock Text="{x:Bind ((storage:StorageFile)Content).Name}" />
+            </StackPanel>
         </DataTemplate>
 
         <!--  Template selector for ExplorerItem types  -->
@@ -93,32 +87,31 @@
             </Grid.ColumnDefinitions>
 
             <RelativePanel Grid.Column="0">
+                <TextBlock
+                    x:Name="dir"
+                    Padding="16,8,0,0"
+                    Text="{x:Bind rootPath}" />
                 <AutoSuggestBox
                     x:Name="Box"
                     Margin="12,8"
                     PlaceholderText="Search files..."
-                    QueryIcon="Find" />
-
+                    QueryIcon="Find"
+                    RelativePanel.Below="dir" />
                 <ScrollViewer
                     HorizontalScrollBarVisibility="Auto"
                     RelativePanel.Below="Box"
                     VerticalScrollBarVisibility="Auto">
-
-                    <!--  TreeView bound to DataSource, using the ItemTemplateSelector  -->
                     <TreeView
+                        x:Name="treeview"
+                        Padding="8"
+                        Collapsed="SampleTreeView_Collapsed"
+                        Expanding="SampleTreeView_Expanding"
+                        ItemInvoked="SampleTreeView_ItemInvoked"
                         ItemTemplateSelector="{StaticResource ExplorerItemTemplateSelector}"
-                        ItemsSource="{x:Bind DataSource}"
                         SelectionMode="Single" />
                 </ScrollViewer>
 
-                <Button
-                    Margin="8"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Click="Button_Click"
-                    RelativePanel.AlignBottomWithPanel="True">
-                    <FontIcon Glyph="&#xE713;" />
-                </Button>
+
             </RelativePanel>
 
             <controls:GridSplitter
@@ -137,7 +130,6 @@
                     x:Name="Tabs"
                     VerticalAlignment="Stretch"
                     AddTabButtonClick="TabView_AddButtonClick"
-                    Loaded="EditorPage_Loaded"
                     SelectionChanged="Tabs_SelectionChanged"
                     TabCloseRequested="TabView_TabCloseRequested" />
             </Grid>
@@ -148,6 +140,15 @@
             Grid.Row="2"
             Padding="8,0"
             BorderThickness="0,1,0,0">
+            <RelativePanel HorizontalAlignment="Left">
+                <Button
+                    Margin="8"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="Button_Click">
+                    <FontIcon Glyph="&#xE713;" />
+                </Button>
+            </RelativePanel>
             <RelativePanel HorizontalAlignment="Right">
                 <TextBlock
                     x:Name="WordCountText"
