@@ -21,10 +21,10 @@ public sealed partial class TabViewContent : UserControl
         ViewModel?.UpdateWordCount(text);
     }
 
-    public void SetContent (string text, string fileName)
+    public void SetContent (string text , string fileName)
     {
         var doc = MdEditor.Document;
-        doc.SetText(TextSetOptions.None, text);
+        doc.SetText(TextSetOptions.None , text);
         ViewModel.FileName = fileName;
         ViewModel.UpdateWordCount(text);
     }

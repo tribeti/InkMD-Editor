@@ -6,6 +6,8 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace InkMD_Editor.Views;
@@ -62,7 +64,7 @@ public sealed partial class EditorPage : Page
 
         IReadOnlyList<IStorageItem> itemsList = await folder.GetItemsAsync();
 
-        if ( itemsList.Count ==0 )
+        if ( itemsList.Count == 0 )
         {
             return;
         }
@@ -100,7 +102,7 @@ public sealed partial class EditorPage : Page
     {
         var node = args.InvokedItem as TreeViewNode;
 
-        if (node is null)
+        if ( node is null )
             return;
 
         if ( node.Content is IStorageItem item )
@@ -115,11 +117,10 @@ public sealed partial class EditorPage : Page
             {
                 try
                 {
-                    // can not read file content properly some characters can not be displayed or not renedered correctly
-                    var text = await FileIO.ReadTextAsync(file);
+                    var text = await ReadFileTextAsync(file);
                     var newTab = CreateNewTab(Tabs.TabItems.Count);
-                    var content = (TabViewContent)newTab.Content!;
-                    content.SetContent(text, file.Name);
+                    var content = (TabViewContent) newTab.Content!;
+                    content.SetContent(text , file.Name);
                     newTab.Header = file.Name;
 
                     Tabs.TabItems.Add(newTab);
@@ -166,6 +167,60 @@ public sealed partial class EditorPage : Page
     private void Tabs_SelectionChanged (object sender , SelectionChangedEventArgs e)
     {
 
+    }
+
+    private async Task<string> ReadFileTextAsync (StorageFile file)
+    {
+        try
+        {
+            var buffer = await FileIO.ReadBufferAsync(file);
+            byte [] bytes;
+            using ( var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(buffer) )
+            {
+                bytes = new byte [buffer.Length];
+                dataReader.ReadBytes(bytes);
+            }
+
+            // BOM detection
+            if ( bytes.Length >= 3 && bytes [0] == 0xEF && bytes [1] == 0xBB && bytes [2] == 0xBF )
+            {
+                // UTF-8 with BOM
+                return Encoding.UTF8.GetString(bytes , 3 , bytes.Length - 3);
+            }
+
+            if ( bytes.Length >= 2 && bytes [0] == 0xFF && bytes [1] == 0xFE )
+            {
+                // UTF-16 LE
+                return Encoding.Unicode.GetString(bytes , 2 , bytes.Length - 2);
+            }
+
+            if ( bytes.Length >= 2 && bytes [0] == 0xFE && bytes [1] == 0xFF )
+            {
+                // UTF-16 BE
+                return Encoding.BigEndianUnicode.GetString(bytes , 2 , bytes.Length - 2);
+            }
+
+            // No BOM — try UTF-8 first, then UTF-16, then fall back to system/default encoding
+            try
+            {
+                var s = Encoding.UTF8.GetString(bytes);
+                return s;
+            }
+            catch { }
+
+            try
+            {
+                var s = Encoding.Unicode.GetString(bytes);
+                return s;
+            }
+            catch { }
+
+            return Encoding.Default.GetString(bytes);
+        }
+        catch
+        {
+            return string.Empty;
+        }
     }
 }
 
