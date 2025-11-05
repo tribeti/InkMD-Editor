@@ -19,18 +19,18 @@
             <MenuFlyoutItem Text="New file" />
             <MenuFlyoutSeparator />
             <!--  open section  -->
-            <MenuFlyoutItem Command="{x:Bind MenuBarViewModel.OpenFileCommand}" Text="Open file">
+            <MenuFlyoutItem Command="{x:Bind storagePickerViewModel.OpenFileCommand}" Text="Open file">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="O" Modifiers="Control" />
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
-            <MenuFlyoutItem Command="{x:Bind MenuBarViewModel.OpenFolderCommand}" Text="Open folder">
+            <MenuFlyoutItem Command="{x:Bind storagePickerViewModel.OpenFolderCommand}" Text="Open folder">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="O" Modifiers="Control,Shift" />
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
             <MenuFlyoutSeparator />
-            <MenuFlyoutItem Command="{x:Bind MenuBarViewModel.SaveFileCommand}" Text="Save">
+            <MenuFlyoutItem Command="{x:Bind storagePickerViewModel.SaveFileCommand}" Text="Save">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="S" Modifiers="Control" />
                 </MenuFlyoutItem.KeyboardAccelerators>
@@ -41,7 +41,7 @@
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
             <MenuFlyoutSeparator />
-            <MenuFlyoutItem Command="{x:Bind MenuBarViewModel.ExitApplicationCommand}" Text="Exit" />
+            <MenuFlyoutItem Command="{x:Bind storagePickerViewModel.ExitApplicationCommand}" Text="Exit" />
         </MenuBarItem>
 
         <MenuBarItem Title="Edit">

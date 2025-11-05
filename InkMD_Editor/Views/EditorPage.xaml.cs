@@ -6,26 +6,27 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace InkMD_Editor;
+namespace InkMD_Editor.Views;
 
 public sealed partial class EditorPage : Page
 {
     public string rootPath = "D:\\Project\\aichatbot";
     public WordCountViewModel? ViewModel { get; } = new();
-    public MenuBarViewModel? MenuBarViewModel { get; } = new();
+    public StoragePickerViewModel? MenuBarViewModel { get; } = new();
 
     public EditorPage ()
     {
         InitializeComponent();
         InitTreeView();
-        WeakReferenceMessenger.Default.Register<WordCountMessage>(
-        this ,
-        (r , msg) => {
-            WordCountText.Text = msg.WordCount?.ToString() ?? "0";
-        }
-    );
+        WeakReferenceMessenger.Default.Register<WordCountMessage>(this , (r , msg) =>
+            {
+                WordCountText.Text = msg.WordCount?.ToString() ?? "0";
+            }
+        );
     }
 
     public async void InitTreeView ()
@@ -97,12 +98,38 @@ public sealed partial class EditorPage : Page
         args.Node.HasUnrealizedChildren = true;
     }
 
-    private void TreeView_ItemInvoked (TreeView sender , TreeViewItemInvokedEventArgs args)
+    private async void TreeView_ItemInvoked (TreeView sender , TreeViewItemInvokedEventArgs args)
     {
         var node = args.InvokedItem as TreeViewNode;
-        if ( node?.Content is StorageFolder folder )
+
+        if ( node is null )
+            return;
+
+        if ( node.Content is IStorageItem item )
         {
-            node.IsExpanded = !node.IsExpanded;
+            if ( node.Content is StorageFolder )
+            {
+                node.IsExpanded = !node.IsExpanded;
+                return;
+            }
+
+            if ( item is StorageFile file )
+            {
+                try
+                {
+                    var text = await ReadFileTextAsync(file);
+                    var newTab = CreateNewTab(Tabs.TabItems.Count);
+                    var content = (TabViewContent) newTab.Content!;
+                    content.SetContent(text , file.Name);
+                    newTab.Header = file.Name;
+
+                    Tabs.TabItems.Add(newTab);
+                    Tabs.SelectedItem = newTab;
+                }
+                catch ( Exception )
+                {
+                }
+            }
         }
 
     }
@@ -132,29 +159,69 @@ public sealed partial class EditorPage : Page
         };
 
         var content = new TabViewContent();
-        var viewModel = (WordCountViewModel) content.DataContext;
+        var _ = (WordCountViewModel) content.DataContext;
         newItem.Content = content;
         return newItem;
     }
 
     private void Tabs_SelectionChanged (object sender , SelectionChangedEventArgs e)
     {
-        // Update the ViewModel when the selected tab changes
-    }
-}
 
-public class ExplorerItem
-{
-    public enum ExplorerItemType
+    }
+
+    private async Task<string> ReadFileTextAsync (StorageFile file)
     {
-        Folder,
-        File,
-    }
+        try
+        {
+            var buffer = await FileIO.ReadBufferAsync(file);
+            byte [] bytes;
+            using ( var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(buffer) )
+            {
+                bytes = new byte [buffer.Length];
+                dataReader.ReadBytes(bytes);
+            }
 
-    public string? Name { get; set; }
-    public ExplorerItemType Type { get; set; }
-    public string? FullPath { get; set; }
-    public bool HasUnloadedChildren { get; set; }
+            // BOM detection
+            if ( bytes.Length >= 3 && bytes [0] == 0xEF && bytes [1] == 0xBB && bytes [2] == 0xBF )
+            {
+                // UTF-8 with BOM
+                return Encoding.UTF8.GetString(bytes , 3 , bytes.Length - 3);
+            }
+
+            if ( bytes.Length >= 2 && bytes [0] == 0xFF && bytes [1] == 0xFE )
+            {
+                // UTF-16 LE
+                return Encoding.Unicode.GetString(bytes , 2 , bytes.Length - 2);
+            }
+
+            if ( bytes.Length >= 2 && bytes [0] == 0xFE && bytes [1] == 0xFF )
+            {
+                // UTF-16 BE
+                return Encoding.BigEndianUnicode.GetString(bytes , 2 , bytes.Length - 2);
+            }
+
+            // No BOM — try UTF-8 first, then UTF-16, then fall back to system/default encoding
+            try
+            {
+                var s = Encoding.UTF8.GetString(bytes);
+                return s;
+            }
+            catch { }
+
+            try
+            {
+                var s = Encoding.Unicode.GetString(bytes);
+                return s;
+            }
+            catch { }
+
+            return Encoding.Default.GetString(bytes);
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
 }
 
 class ExplorerItemTemplateSelector : DataTemplateSelector

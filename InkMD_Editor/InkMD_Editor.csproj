@@ -50,9 +50,9 @@
 	</PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Controls\MainMenu.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+	<Page Update="Controls\MainMenu.xaml">
+	  <Generator>MSBuild:Compile</Generator>
+	</Page>
   </ItemGroup>
   <ItemGroup>
 	<Page Update="Controls\TabViewContent.xaml">
@@ -60,14 +60,17 @@
 	</Page>
   </ItemGroup>
   <ItemGroup>
-	<Page Update="SettingsPage.xaml">
+	<Page Update="Views\SettingsPage.xaml">
 	  <Generator>MSBuild:Compile</Generator>
 	</Page>
   </ItemGroup>
   <ItemGroup>
-	<Page Update="EditorPage.xaml">
+	<Page Update="Views\EditorPage.xaml">
 	  <Generator>MSBuild:Compile</Generator>
 	</Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
 
   <!--
