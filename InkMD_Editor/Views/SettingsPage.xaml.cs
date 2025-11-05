@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 
-namespace InkMD_Editor;
+namespace InkMD_Editor.Views;
 
 public sealed partial class SettingsPage : Page
 {

@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Messagers;
-using System.Diagnostics;
 
 namespace InkMD_Editor.ViewModels;
 

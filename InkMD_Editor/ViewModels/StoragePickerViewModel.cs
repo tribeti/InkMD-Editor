@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace InkMD_Editor.ViewModels;
 
-public partial class MenuBarViewModel
+public partial class StoragePickerViewModel
 {
     private WindowId GetWindowsId ()
     {

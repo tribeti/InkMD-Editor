@@ -10,6 +10,6 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         AppWindow.TitleBar.PreferredTheme = TitleBarTheme.UseDefaultAppMode;
         AppWindow.Title = "InkMD Editor";
-        ContentFrame.Navigate(typeof(EditorPage));
+        ContentFrame.Navigate(typeof(Views.EditorPage));
     }
 }
