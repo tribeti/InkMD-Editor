@@ -1,10 +1,13 @@
-﻿using InkMD_Editor.Controls;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using InkMD_Editor.Controls;
+using InkMD_Editor.Messagers;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using Windows.Storage;
+
 namespace InkMD_Editor;
 
 public sealed partial class EditorPage : Page
@@ -17,6 +20,12 @@ public sealed partial class EditorPage : Page
     {
         InitializeComponent();
         InitTreeView();
+        WeakReferenceMessenger.Default.Register<WordCountMessage>(
+        this ,
+        (r , msg) => {
+            WordCountText.Text = msg.WordCount?.ToString() ?? "0";
+        }
+    );
     }
 
     public async void InitTreeView ()
@@ -74,7 +83,7 @@ public sealed partial class EditorPage : Page
     }
 
 
-    private void SampleTreeView_Expanding (TreeView sender , TreeViewExpandingEventArgs args)
+    private void TreeView_Expanding (TreeView sender , TreeViewExpandingEventArgs args)
     {
         if ( args.Node.HasUnrealizedChildren )
         {
@@ -82,19 +91,20 @@ public sealed partial class EditorPage : Page
         }
     }
 
-    private void SampleTreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args)
+    private void TreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args)
     {
         args.Node.Children.Clear();
         args.Node.HasUnrealizedChildren = true;
     }
 
-    private void SampleTreeView_ItemInvoked (TreeView sender , TreeViewItemInvokedEventArgs args)
+    private void TreeView_ItemInvoked (TreeView sender , TreeViewItemInvokedEventArgs args)
     {
         var node = args.InvokedItem as TreeViewNode;
         if ( node?.Content is StorageFolder folder )
         {
             node.IsExpanded = !node.IsExpanded;
         }
+
     }
 
     private void Button_Click (object sender , RoutedEventArgs e)

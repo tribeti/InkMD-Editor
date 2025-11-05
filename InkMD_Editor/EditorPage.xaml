@@ -104,9 +104,9 @@
                     <TreeView
                         x:Name="treeview"
                         Padding="8"
-                        Collapsed="SampleTreeView_Collapsed"
-                        Expanding="SampleTreeView_Expanding"
-                        ItemInvoked="SampleTreeView_ItemInvoked"
+                        Collapsed="TreeView_Collapsed"
+                        Expanding="TreeView_Expanding"
+                        ItemInvoked="TreeView_ItemInvoked"
                         ItemTemplateSelector="{StaticResource ExplorerItemTemplateSelector}"
                         SelectionMode="Single" />
                 </ScrollViewer>
