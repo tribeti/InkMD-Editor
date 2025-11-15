@@ -18,7 +18,8 @@
         <Grid x:Name="Raw_Md" Grid.Column="0">
             <RichEditBox
                 x:Name="MdEditor"
-                FontFamily="Consolas"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                FontFamily="Cascadia Mono"
                 IsSpellCheckEnabled="False"
                 TextChanged="MdEditor_TextChanged" />
         </Grid>
@@ -30,7 +31,7 @@
         </controls:GridSplitter>
 
         <Grid x:Name="Pre_Md" Grid.Column="1">
-            <RichEditBox />
+            <RichEditBox Background="{ThemeResource LayerFillColorAltBrush}" />
         </Grid>
     </Grid>
 </UserControl>

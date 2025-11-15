@@ -1,7 +1,8 @@
 {
   "profiles": {
     "InkMD_Editor (Package)": {
-      "commandName": "MsixPackage"
+      "commandName": "MsixPackage",
+      "alwaysReinstallApp": true
     },
     "InkMD_Editor (Unpackaged)": {
       "commandName": "Project"

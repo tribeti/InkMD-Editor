@@ -3,78 +3,177 @@
     x:Class="InkMD_Editor.Controls.MainMenu"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:InkMD_Editor.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
-    <MenuBar>
-        <MenuBarItem Title="File">
-            <!--  new file and folder section  -->
-            <MenuFlyoutItem Text="New Markdown File">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="N" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem Text="New file" />
-            <MenuFlyoutSeparator />
-            <!--  open section  -->
-            <MenuFlyoutItem Command="{x:Bind storagePickerViewModel.OpenFileCommand}" Text="Open file">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="O" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem Command="{x:Bind storagePickerViewModel.OpenFolderCommand}" Text="Open folder">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="O" Modifiers="Control,Shift" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutSeparator />
-            <MenuFlyoutItem Command="{x:Bind storagePickerViewModel.SaveFileCommand}" Text="Save">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="S" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem Text="Save As">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="S" Modifiers="Control,Shift" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutSeparator />
-            <MenuFlyoutItem Command="{x:Bind storagePickerViewModel.ExitApplicationCommand}" Text="Exit" />
-        </MenuBarItem>
+    <muxc:RelativePanel>
+        <MenuBar x:Name="MenuBar">
+            <MenuBarItem Title="File">
+                <!--  new file and folder section  -->
+                <MenuFlyoutItem Text="New Markdown File">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="N" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="New file" />
+                <MenuFlyoutSeparator />
+                <!--  open section  -->
+                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.OpenFileCommand}" Text="Open file">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="O" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.OpenFolderCommand}" Text="Open folder">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="O" Modifiers="Control,Shift" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.SaveFileCommand}" Text="Save">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="S" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Save As">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="S" Modifiers="Control,Shift" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.ExitApplicationCommand}" Text="Exit" />
+            </MenuBarItem>
 
-        <MenuBarItem Title="Edit">
-            <MenuFlyoutItem Text="Undo">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Z" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem Text="Redo">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Y" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutSeparator />
-            <MenuFlyoutItem Text="Cut">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="X" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem Text="Copy">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="C" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem Text="Paste">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="V" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-        </MenuBarItem>
+            <MenuBarItem Title="Edit">
+                <MenuFlyoutItem Text="Undo">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Z" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Redo">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Y" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Cut">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="X" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Copy">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="C" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Paste">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="V" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+            </MenuBarItem>
 
-        <MenuBarItem Title="Help">
-            <MenuFlyoutItem Text="About" />
-        </MenuBarItem>
-    </MenuBar>
+            <MenuBarItem Title="Help">
+                <MenuFlyoutItem Text="About" />
+            </MenuBarItem>
+
+        </MenuBar>
+        <controls:Segmented
+            Margin="0,8,8,0"
+            HorizontalAlignment="Right"
+            RelativePanel.AlignRightWithPanel="True"
+            SelectionMode="Single">
+            <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE7C3;}" ToolTipService.ToolTip="Markdown" />
+            <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE89A;}" ToolTipService.ToolTip="Split view" />
+            <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8FF;}" ToolTipService.ToolTip="Preview" />
+        </controls:Segmented>
+
+        <controls:TabbedCommandBar RelativePanel.Below="MenuBar">
+            <controls:TabbedCommandBar.AutoSuggestBox>
+                <AutoSuggestBox AutomationProperties.Name="Search" QueryIcon="Find" />
+            </controls:TabbedCommandBar.AutoSuggestBox>
+            <controls:TabbedCommandBar.PaneFooter>
+                <CommandBar Background="Transparent" DefaultLabelPosition="Right">
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE72D;}" Label="Share" />
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE8BD;}" Label="Comments" />
+                </CommandBar>
+            </controls:TabbedCommandBar.PaneFooter>
+            <controls:TabbedCommandBar.MenuItems>
+                <controls:TabbedCommandBarItem Header="Home">
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE7A7;}" Label="Undo" />
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE7A6;}" Label="Redo" />
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE77F;}" Label="Paste" />
+                    <AppBarSeparator />
+                    <AppBarElementContainer>
+                        <ComboBox MinWidth="175" SelectedIndex="0">
+                            <ComboBoxItem Content="Arial" />
+                            <ComboBoxItem Content="Calibri" />
+                            <ComboBoxItem Content="JetBrains Mono" />
+                            <ComboBoxItem Content="Roboto" />
+                            <ComboBoxItem Content="Segoe UI" />
+                            <ComboBoxItem Content="Segoe UI Semibold" />
+                        </ComboBox>
+                    </AppBarElementContainer>
+                    <AppBarElementContainer>
+                        <TextBox PlaceholderText="Size" />
+                    </AppBarElementContainer>
+                    <AppBarToggleButton Icon="{ui:FontIcon Glyph=&#xE8DD;}" Label="Bold" />
+                    <AppBarToggleButton Icon="{ui:FontIcon Glyph=&#xE8DB;}" Label="Italic" />
+                    <AppBarToggleButton Icon="{ui:FontIcon Glyph=&#xE8DC;}" Label="Underline" />
+                </controls:TabbedCommandBarItem>
+                <controls:TabbedCommandBarItem Header="Insert">
+                    <AppBarButton Icon="Pictures" Label="Pictures">
+                        <AppBarButton.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xEC4E;}" Text="This device" />
+                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE721;}" Text="Stock images" />
+                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE774;}" Text="Online pictures" />
+                            </MenuFlyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xF156;}" Label="Shapes" />
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xED58;}" Label="Icons" />
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xF158;}" Label="3D Models" />
+                    <AppBarSeparator />
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" Label="Add-ins" />
+                    <controls:TabbedCommandBarItem.SecondaryCommands>
+                        <AppBarButton Icon="{ui:FontIcon Glyph=&#xE710;}" Label="New item" />
+                    </controls:TabbedCommandBarItem.SecondaryCommands>
+                </controls:TabbedCommandBarItem>
+                <controls:TabbedCommandBarItem
+                    x:Name="PictureFormat"
+                    Header="Picture Format"
+                    IsContextual="True">
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE706;}" Label="Remove background" />
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xF4A5;}" Label="Picture effects" />
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE7AD;}" Label="Rotate" />
+                    <AppBarElementContainer>
+                        <muxc:SplitButton>
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <FontIcon
+                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                    FontSize="16"
+                                    Glyph="&#xE7A8;" />
+                                <TextBlock FontSize="12" Text="Crop" />
+                            </StackPanel>
+                            <muxc:SplitButton.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE7A8;}" Text="Crop" />
+                                    <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xF407;}" Text="Crop to Shape" />
+                                    <MenuFlyoutItem Text="Aspect Ratio" />
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem Text="Fill" />
+                                    <MenuFlyoutItem Text="Fit" />
+                                </MenuFlyout>
+                            </muxc:SplitButton.Flyout>
+                        </muxc:SplitButton>
+                    </AppBarElementContainer>
+                </controls:TabbedCommandBarItem>
+            </controls:TabbedCommandBar.MenuItems>
+        </controls:TabbedCommandBar>
+    </muxc:RelativePanel>
 </UserControl>

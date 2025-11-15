@@ -4,7 +4,7 @@ using InkMD_Editor.Messagers;
 
 namespace InkMD_Editor.ViewModels;
 
-public partial class WordCountViewModel : ObservableObject
+public partial class TabViewContentViewModel : ObservableObject
 {
     [ObservableProperty]
     public partial int? WordCount { get; set; }
@@ -12,7 +12,7 @@ public partial class WordCountViewModel : ObservableObject
     [ObservableProperty]
     public partial string? FileName { get; set; }
 
-    public WordCountViewModel ()
+    public TabViewContentViewModel ()
     {
         WordCount = 0;
         FileName = "Untitled";

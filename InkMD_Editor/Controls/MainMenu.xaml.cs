@@ -5,7 +5,7 @@ namespace InkMD_Editor.Controls;
 
 public sealed partial class MainMenu : UserControl
 {
-    public StoragePickerViewModel? storagePickerViewModel { get; } = new();
+    public StoragePickerViewModel? StoragePickerViewModel { get; } = new();
     public MainMenu ()
     {
         InitializeComponent();

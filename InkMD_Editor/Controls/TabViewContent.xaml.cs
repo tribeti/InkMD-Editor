@@ -1,12 +1,13 @@
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Text;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace InkMD_Editor.Controls;
 
 public sealed partial class TabViewContent : UserControl
 {
-    public WordCountViewModel ViewModel { get; set; } = new();
+    public TabViewContentViewModel ViewModel { get; set; } = new();
 
     public TabViewContent ()
     {
@@ -14,7 +15,7 @@ public sealed partial class TabViewContent : UserControl
         this.DataContext = ViewModel;
     }
 
-    private void MdEditor_TextChanged (object sender , Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void MdEditor_TextChanged (object sender , RoutedEventArgs e)
     {
         var doc = MdEditor.Document;
         doc.GetText(TextGetOptions.None , out string text);

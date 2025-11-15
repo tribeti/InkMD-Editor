@@ -15,7 +15,7 @@ namespace InkMD_Editor.Views;
 public sealed partial class EditorPage : Page
 {
     public string rootPath = "D:\\Project\\aichatbot";
-    public WordCountViewModel? ViewModel { get; } = new();
+    public TabViewContentViewModel? ViewModel { get; } = new();
     public StoragePickerViewModel? MenuBarViewModel { get; } = new();
 
     public EditorPage ()
@@ -159,14 +159,9 @@ public sealed partial class EditorPage : Page
         };
 
         var content = new TabViewContent();
-        var _ = (WordCountViewModel) content.DataContext;
+        var _ = (TabViewContentViewModel) content.DataContext;
         newItem.Content = content;
         return newItem;
-    }
-
-    private void Tabs_SelectionChanged (object sender , SelectionChangedEventArgs e)
-    {
-
     }
 
     private async Task<string> ReadFileTextAsync (StorageFile file)

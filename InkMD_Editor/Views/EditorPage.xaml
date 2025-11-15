@@ -69,29 +69,21 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Padding="0,0,12,0">
+        <Grid Grid.Row="0" Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
             <customcontrols:MainMenu />
-
-            <controls:Segmented HorizontalAlignment="Right" SelectionMode="Single">
-                <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE7C3;}" ToolTipService.ToolTip="Markdown" />
-                <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE89A;}" ToolTipService.ToolTip="Split view" />
-                <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8FF;}" ToolTipService.ToolTip="Preview" />
-            </controls:Segmented>
-
         </Grid>
 
         <Grid
             x:Name="Body"
             Grid.Row="1"
-            Padding="0,0,12,0"
             Background="{ThemeResource LayerFillColorDefaultBrush}"
-            ContextFlyout="{StaticResource MyContextMenu}">
+            ContextFlyout="{ThemeResource MyContextMenu}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <RelativePanel Grid.Column="0">
+            <RelativePanel Grid.Column="0" Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
                 <TextBlock
                     x:Name="dir"
                     Padding="16,8,0,0"
@@ -112,7 +104,7 @@
                         Collapsed="TreeView_Collapsed"
                         Expanding="TreeView_Expanding"
                         ItemInvoked="TreeView_ItemInvoked"
-                        ItemTemplateSelector="{StaticResource ExplorerItemTemplateSelector}"
+                        ItemTemplateSelector="{ThemeResource ExplorerItemTemplateSelector}"
                         SelectionMode="Single" />
                 </ScrollViewer>
             </RelativePanel>
@@ -133,8 +125,9 @@
                     x:Name="Tabs"
                     VerticalAlignment="Stretch"
                     AddTabButtonClick="TabView_AddButtonClick"
-                    SelectionChanged="Tabs_SelectionChanged"
-                    TabCloseRequested="TabView_TabCloseRequested" />
+                    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                    TabCloseRequested="TabView_TabCloseRequested"
+                    TabWidthMode="SizeToContent" />
             </Grid>
         </Grid>
 
@@ -142,6 +135,7 @@
             x:Name="Footer"
             Grid.Row="2"
             Padding="8,0"
+            Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
             BorderThickness="0,1,0,0">
             <RelativePanel HorizontalAlignment="Left">
                 <Button
@@ -157,13 +151,13 @@
                     x:Name="WordCountText"
                     Padding="8"
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{StaticResource BodyTextBlockStyle}"
+                    Style="{ThemeResource BodyTextBlockStyle}"
                     Text="{x:Bind ViewModel.WordCount}" />
                 <TextBlock
                     Padding="8"
                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                     RelativePanel.RightOf="WordCountText"
-                    Style="{StaticResource BodyTextBlockStyle}"
+                    Style="{ThemeResource BodyTextBlockStyle}"
                     Text="words" />
             </RelativePanel>
         </Grid>
