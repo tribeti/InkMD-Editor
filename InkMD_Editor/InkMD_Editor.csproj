@@ -44,6 +44,7 @@
 	<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.250402" />
 	<PackageReference Include="CommunityToolkit.WinUI.Controls.TabbedCommandBar" Version="8.2.250402" />
 	<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.250402" />
+	<PackageReference Include="Markdig" Version="0.43.0" />
 	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6584" />
 	<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251003001">
 	  <TreatAsUsed>true</TreatAsUsed>

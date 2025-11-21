@@ -31,7 +31,7 @@
         </controls:GridSplitter>
 
         <Grid x:Name="Pre_Md" Grid.Column="1">
-            <RichEditBox Background="{ThemeResource LayerFillColorAltBrush}" />
+            <WebView2 x:Name="MarkdownPreview" />
         </Grid>
     </Grid>
 </UserControl>
