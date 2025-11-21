@@ -14,7 +14,7 @@ namespace InkMD_Editor.Views;
 
 public sealed partial class EditorPage : Page
 {
-    public string rootPath = "D:\\Project\\aichatbot";
+    public string rootPath = "D:\\VS\\TestFolder";
     public TabViewContentViewModel? ViewModel { get; } = new();
     public StoragePickerViewModel? MenuBarViewModel { get; } = new();
 
