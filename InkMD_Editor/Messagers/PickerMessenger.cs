@@ -2,74 +2,33 @@
 
 namespace InkMD_Editor.Messagers;
 
-public class FileOpenedMessage
+public class FileOpenedMessage (StorageFile file)
 {
-    public StorageFile File { get; }
-
-    public FileOpenedMessage (StorageFile file)
-    {
-        File = file;
-    }
+    public StorageFile File { get; } = file;
 }
 
-public class FolderOpenedMessage
+public class FolderOpenedMessage (StorageFolder folder)
 {
-    public StorageFolder Folder { get; }
-
-    public FolderOpenedMessage (StorageFolder folder)
-    {
-        Folder = folder;
-    }
+    public StorageFolder Folder { get; } = folder;
 }
 
-public class ErrorMessage
+public class ErrorMessage (string message)
 {
-    public string Message { get; }
-
-    public ErrorMessage (string message)
-    {
-        Message = message;
-    }
+    public string Message { get; } = message;
 }
 
-public class GetEditorContentMessage
+public class SaveFileMessage (bool isNewFile = false)
 {
-    public string? Content { get; set; }
-    public string? FileName { get; set; }
+    public bool IsNewFile { get; set; } = isNewFile;
 }
 
-public class SaveFileMessage
+public class SaveFileRequestMessage (string filePath)
 {
-    public bool IsNewFile { get; set; }
-
-    public SaveFileMessage (bool isNewFile = false)
-    {
-        IsNewFile = isNewFile;
-    }
+    public string FilePath { get; } = filePath;
 }
 
-public class SaveAsFileMessage
+public class FileSavedMessage (string filePath , string fileName)
 {
-}
-
-public class SaveFileRequestMessage
-{
-    public string FilePath { get; }
-
-    public SaveFileRequestMessage (string filePath)
-    {
-        FilePath = filePath;
-    }
-}
-
-public class FileSavedMessage
-{
-    public string FilePath { get; }
-    public string FileName { get; }
-
-    public FileSavedMessage (string filePath , string fileName)
-    {
-        FilePath = filePath;
-        FileName = fileName;
-    }
+    public string FilePath { get; } = filePath;
+    public string FileName { get; } = fileName;
 }
