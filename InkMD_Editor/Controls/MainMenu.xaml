@@ -83,6 +83,7 @@
 
         </MenuBar>
         <controls:Segmented
+            x:Name="DisplayMode"
             Margin="0,8,8,0"
             HorizontalAlignment="Right"
             RelativePanel.AlignRightWithPanel="True"

@@ -23,10 +23,7 @@ public partial class StoragePickerViewModel
     [RelayCommand]
     private async Task OpenFile ()
     {
-        var lastPath = AppSettings.GetLastOpenFolderPath();
-        var startLocation = string.IsNullOrEmpty(lastPath)
-            ? PickerLocationId.ComputerFolder
-            : PickerLocationId.ComputerFolder;
+        var startLocation = PickerLocationId.ComputerFolder;
         var picker = new FileOpenPicker(GetWindowsId())
         {
             FileTypeFilter = { ".txt" , ".md" } ,
@@ -56,13 +53,10 @@ public partial class StoragePickerViewModel
     [RelayCommand]
     private async Task OpenFolder ()
     {
-        var lastPath = AppSettings.GetLastFolderPath();
-        var startLocation = string.IsNullOrEmpty(lastPath)
-            ? PickerLocationId.DocumentsLibrary
-            : PickerLocationId.ComputerFolder;
+        var startLocation = PickerLocationId.ComputerFolder;
         var picker = new FolderPicker(GetWindowsId())
         {
-            SuggestedStartLocation = startLocation,
+            SuggestedStartLocation = startLocation ,
         };
         var result = await picker.PickSingleFolderAsync();
         if ( result is not null )
@@ -90,14 +84,13 @@ public partial class StoragePickerViewModel
     [RelayCommand]
     private async Task SaveAsFile ()
     {
-        var lastPath = AppSettings.GetLastFolderPath();
         var picker = new FileSavePicker(GetWindowsId())
         {
             SuggestedStartLocation = PickerLocationId.ComputerFolder ,
             DefaultFileExtension = ".md" ,
         };
-        picker.FileTypeChoices.Add("Markdown" , new [] { ".md" });
-        picker.FileTypeChoices.Add("Text" , new [] { ".txt" });
+        picker.FileTypeChoices.Add("Markdown" , [".md"]);
+        picker.FileTypeChoices.Add("Text" , [".txt"]);
         var result = await picker.PickSaveFileAsync();
         if ( result is not null )
         {
@@ -115,7 +108,7 @@ public partial class StoragePickerViewModel
     }
 
     [RelayCommand]
-    private void ExitApplication ()
+    private static void ExitApplication ()
     {
         App.Current.Exit();
     }

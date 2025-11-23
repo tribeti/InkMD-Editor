@@ -75,10 +75,12 @@ public sealed partial class EditorPage : Page
         try
         {
             StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(rootPath);
-            TreeViewNode node = new TreeViewNode();
-            node.Content = folder;
-            node.IsExpanded = true;
-            node.HasUnrealizedChildren = true;
+            TreeViewNode node = new()
+            {
+                Content = folder ,
+                IsExpanded = true ,
+                HasUnrealizedChildren = true
+            };
             treeview.RootNodes.Add(node);
             FillTreeNode(node);
 
@@ -94,10 +96,12 @@ public sealed partial class EditorPage : Page
         try
         {
             treeview.RootNodes.Clear();
-            TreeViewNode node = new TreeViewNode();
-            node.Content = folder;
-            node.IsExpanded = true;
-            node.HasUnrealizedChildren = true;
+            TreeViewNode node = new()
+            {
+                Content = folder ,
+                IsExpanded = true ,
+                HasUnrealizedChildren = true
+            };
             treeview.RootNodes.Add(node);
             FillTreeNode(node);
             rootPath = folder.Path;
@@ -130,7 +134,7 @@ public sealed partial class EditorPage : Page
         var viewModel = content.ViewModel;
         if ( !string.IsNullOrEmpty(viewModel.FilePath) )
         {
-            SaveFileToPath(viewModel.FilePath);
+            await SaveFileToPath(viewModel.FilePath);
         }
         else
         {
@@ -141,7 +145,7 @@ public sealed partial class EditorPage : Page
     /// <summary>
     /// Lưu file vào đường dẫn cụ thể
     /// </summary>
-    private async void SaveFileToPath (string filePath)
+    private async Task SaveFileToPath (string filePath)
     {
         try
         {
@@ -199,25 +203,7 @@ public sealed partial class EditorPage : Page
     {
         try
         {
-            var selectedTab = Tabs.SelectedItem as TabViewItem;
-            if ( selectedTab == null )
-            {
-                ShowErrorDialog("Không có tab nào được chọn");
-                return;
-            }
-
-            var content = selectedTab.Content as TabViewContent;
-            if ( content == null )
-            {
-                ShowErrorDialog("Không thể lấy nội dung tab");
-                return;
-            }
-
-            string editorText = content.GetContent();
-            await File.WriteAllTextAsync(filePath , editorText , Encoding.UTF8);
-            selectedTab.Header = Path.GetFileName(filePath);
-
-            ShowSuccessNotification($"Đã lưu file: {Path.GetFileName(filePath)}");
+            await SaveFileToPath(filePath);
         }
         catch ( Exception ex )
         {
@@ -332,7 +318,7 @@ public sealed partial class EditorPage : Page
                     {
                         // show segment
                     }
-                        
+
                     var text = await ReadFileTextAsync(file);
                     var newTab = CreateNewTab(Tabs.TabItems.Count);
                     var content = (TabViewContent) newTab.Content!;
@@ -369,7 +355,7 @@ public sealed partial class EditorPage : Page
 
     private TabViewItem CreateNewTab (int index)
     {
-        TabViewItem newItem = new TabViewItem
+        TabViewItem newItem = new()
         {
             Header = $"Document {index}" ,
             IconSource = new SymbolIconSource { Symbol = Symbol.Document }
@@ -437,7 +423,7 @@ public sealed partial class EditorPage : Page
     }
 }
 
-class ExplorerItemTemplateSelector : DataTemplateSelector
+partial class ExplorerItemTemplateSelector : DataTemplateSelector
 {
     public DataTemplate? FolderTemplate { get; set; }
     public DataTemplate? FileTemplate { get; set; }
