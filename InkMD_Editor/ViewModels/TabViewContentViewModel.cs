@@ -12,6 +12,14 @@ public partial class TabViewContentViewModel : ObservableObject
     [ObservableProperty]
     public partial string? FileName { get; set; }
 
+    [ObservableProperty]
+    public partial string? FilePath { get; set; } 
+
+    /// <summary>
+    /// Kiểm tra xem file đã được lưu chưa
+    /// </summary>
+    public bool IsSaved => !string.IsNullOrEmpty(FilePath);
+
     public TabViewContentViewModel ()
     {
         WordCount = 0;
@@ -29,5 +37,24 @@ public partial class TabViewContentViewModel : ObservableObject
         WeakReferenceMessenger.Default.Send(
             new WordCountMessage { WordCount = this.WordCount }
         );
+    }
+
+    /// <summary>
+    /// Gọi khi file được lưu thành công
+    /// </summary>
+    public void SetFilePath (string path , string name)
+    {
+        FilePath = path;
+        FileName = name;
+    }
+
+    /// <summary>
+    /// Reset khi tạo tab mới
+    /// </summary>
+    public void ResetForNewFile ()
+    {
+        FilePath = null;
+        FileName = "New Document";
+        WordCount = 0;
     }
 }

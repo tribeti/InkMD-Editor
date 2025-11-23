@@ -34,12 +34,12 @@
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.SaveFileCommand}" Text="Save">
+                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.SaveCommand}" Text="Save">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control" />
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Save As">
+                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.SaveAsFileCommand}" Text="Save As">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control,Shift" />
                     </MenuFlyoutItem.KeyboardAccelerators>

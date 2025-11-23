@@ -4,6 +4,7 @@ using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Diagnostics;
 
 namespace InkMD_Editor.Controls;
 
@@ -43,6 +44,34 @@ public sealed partial class TabViewContent : UserControl
         ViewModel.FileName = fileName;
         ViewModel.UpdateWordCount(text);
         UpdateMarkdownPreview(text);
+    }
+
+    public string GetContent ()
+    {
+        try
+        {
+            if ( MdEditor is null )
+            {
+                Debug.WriteLine("MdEditor is null");
+                return string.Empty;
+            }
+
+            var doc = MdEditor.Document;
+            if ( doc is null )
+            {
+                Debug.WriteLine("Document is null");
+                return string.Empty;
+            }
+
+            doc.GetText(TextGetOptions.None , out string text);
+            Debug.WriteLine($"GetContent: Retrieved {text?.Length ?? 0} characters");
+            return text ?? string.Empty;
+        }
+        catch ( Exception ex )
+        {
+            Debug.WriteLine($"GetContent error: {ex.Message}");
+            return string.Empty;
+        }
     }
 
     private async void InitializeWebView ()
