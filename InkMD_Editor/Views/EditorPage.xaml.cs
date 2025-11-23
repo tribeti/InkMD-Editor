@@ -314,10 +314,8 @@ public sealed partial class EditorPage : Page
                 try
                 {
                     string extension = file.FileType.ToLower();
-                    if ( extension == ".md" )
-                    {
-                        // show segment
-                    }
+                    bool isMarkdownFile = extension == ".md";
+                    mainMenu.SetVisibility(isMarkdownFile);
 
                     var text = await ReadFileTextAsync(file);
                     var newTab = CreateNewTab(Tabs.TabItems.Count);

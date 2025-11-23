@@ -70,7 +70,7 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
-            <customcontrols:MainMenu />
+            <customcontrols:MainMenu x:Name="mainMenu" />
         </Grid>
 
         <Grid
