@@ -1,4 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using InkMD_Editor.Helpers;
+using InkMD_Editor.Messagers;
 using Microsoft.UI;
 using Microsoft.Windows.Storage.Pickers;
 using System;
@@ -20,55 +23,92 @@ public partial class StoragePickerViewModel
     [RelayCommand]
     private async Task OpenFile ()
     {
+        var startLocation = PickerLocationId.ComputerFolder;
         var picker = new FileOpenPicker(GetWindowsId())
         {
             FileTypeFilter = { ".txt" , ".md" } ,
-            SuggestedStartLocation = PickerLocationId.ComputerFolder ,
+            SuggestedStartLocation = startLocation ,
         };
 
         // error cause picker to crash
         //picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
 
         var result = await picker.PickSingleFileAsync();
-        if ( result != null )
+        if ( result is not null )
         {
-            // Perform this conversion if you have business logic that uses StorageFile
-            var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(result.Path);
+            try
+            {
+                AppSettings.SetLastOpenFolderPath(Path.GetDirectoryName(result.Path) ?? "");
+
+                var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(result.Path);
+                WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
+            }
+            catch ( Exception ex )
+            {
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Error: {ex.Message}"));
+            }
         }
     }
 
     [RelayCommand]
     private async Task OpenFolder ()
     {
+        var startLocation = PickerLocationId.ComputerFolder;
         var picker = new FolderPicker(GetWindowsId())
         {
-            SuggestedStartLocation = PickerLocationId.ComputerFolder ,
+            SuggestedStartLocation = startLocation ,
         };
         var result = await picker.PickSingleFolderAsync();
-        if ( result != null )
+        if ( result is not null )
         {
-            var storageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(result.Path);
+            try
+            {
+                AppSettings.SetLastFolderPath(result.Path);
+
+                var storageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(result.Path);
+                WeakReferenceMessenger.Default.Send(new FolderOpenedMessage(storageFolder));
+            }
+            catch ( Exception ex )
+            {
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Lỗi mở folder: {ex.Message}"));
+            }
         }
     }
 
     [RelayCommand]
-    private async Task SaveFile ()
+    private async Task Save ()
+    {
+        WeakReferenceMessenger.Default.Send(new SaveFileMessage(isNewFile: false));
+    }
+
+    [RelayCommand]
+    private async Task SaveAsFile ()
     {
         var picker = new FileSavePicker(GetWindowsId())
         {
             SuggestedStartLocation = PickerLocationId.ComputerFolder ,
             DefaultFileExtension = ".md" ,
         };
+        picker.FileTypeChoices.Add("Markdown" , [".md"]);
+        picker.FileTypeChoices.Add("Text" , [".txt"]);
         var result = await picker.PickSaveFileAsync();
-        if ( result != null )
+        if ( result is not null )
         {
-            string savePath = result.Path;
-            await File.WriteAllTextAsync(savePath , "# Hello World");
+            try
+            {
+                AppSettings.SetLastFolderPath(Path.GetDirectoryName(result.Path) ?? "");
+
+                WeakReferenceMessenger.Default.Send(new SaveFileRequestMessage(result.Path));
+            }
+            catch ( Exception ex )
+            {
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Lỗi lưu file: {ex.Message}"));
+            }
         }
     }
 
     [RelayCommand]
-    private void ExitApplication ()
+    private static void ExitApplication ()
     {
         App.Current.Exit();
     }

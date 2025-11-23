@@ -34,12 +34,12 @@
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.SaveFileCommand}" Text="Save">
+                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.SaveCommand}" Text="Save">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control" />
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Save As">
+                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.SaveAsFileCommand}" Text="Save As">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control,Shift" />
                     </MenuFlyoutItem.KeyboardAccelerators>
@@ -83,10 +83,12 @@
 
         </MenuBar>
         <controls:Segmented
+            x:Name="DisplayMode"
             Margin="0,8,8,0"
             HorizontalAlignment="Right"
             RelativePanel.AlignRightWithPanel="True"
-            SelectionMode="Single">
+            SelectionMode="Single"
+            Visibility="Collapsed">
             <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE7C3;}" ToolTipService.ToolTip="Markdown" />
             <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE89A;}" ToolTipService.ToolTip="Split view" />
             <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8FF;}" ToolTipService.ToolTip="Preview" />
