@@ -23,29 +23,29 @@
                 <MenuFlyoutItem Text="New file" />
                 <MenuFlyoutSeparator />
                 <!--  open section  -->
-                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.OpenFileCommand}" Text="Open file">
+                <MenuFlyoutItem Command="{x:Bind OpenFileCommand}" Text="Open file">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="O" Modifiers="Control" />
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.OpenFolderCommand}" Text="Open folder">
+                <MenuFlyoutItem Command="{x:Bind OpenFolderCommand}" Text="Open folder">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="O" Modifiers="Control,Shift" />
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.SaveCommand}" Text="Save">
+                <MenuFlyoutItem Command="{x:Bind SaveCommand}" Text="Save">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control" />
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.SaveAsFileCommand}" Text="Save As">
+                <MenuFlyoutItem Command="{x:Bind SaveAsFileCommand}" Text="Save As">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control,Shift" />
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Command="{x:Bind StoragePickerViewModel.ExitApplicationCommand}" Text="Exit" />
+                <MenuFlyoutItem Command="{x:Bind ExitApplicationCommand}" Text="Exit" />
             </MenuBarItem>
 
             <MenuBarItem Title="Edit">

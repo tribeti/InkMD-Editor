@@ -1,16 +1,62 @@
-using InkMD_Editor.ViewModels;
-using Microsoft.UI.Xaml.Controls;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using InkMD_Editor.Messagers;
+using InkMD_Editor.Services;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using System.Threading.Tasks;
 
 namespace InkMD_Editor.Controls;
 
 public sealed partial class MainMenu : UserControl
 {
-    public StoragePickerViewModel? StoragePickerViewModel { get; } = new();
-    
+    private readonly FileService _fileService = new();
+
     public MainMenu ()
     {
         InitializeComponent();
+    }
+
+    [RelayCommand]
+    private async Task OpenFile ()
+    {
+        var storageFile = await _fileService.OpenFileAsync();
+        if ( storageFile is not null )
+        {
+            WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
+        }
+    }
+
+    [RelayCommand]
+    private async Task OpenFolder ()
+    {
+        var storageFolder = await _fileService.OpenFolderAsync();
+        if ( storageFolder is not null )
+        {
+            WeakReferenceMessenger.Default.Send(new FolderOpenedMessage(storageFolder));
+        }
+    }
+
+    [RelayCommand]
+    private void Save ()
+    {
+        WeakReferenceMessenger.Default.Send(new SaveFileMessage(isNewFile: false));
+    }
+
+    [RelayCommand]
+    private async Task SaveAsFile ()
+    {
+        var filePath = await _fileService.SaveFileAsync();
+        if ( filePath is not null )
+        {
+            WeakReferenceMessenger.Default.Send(new SaveFileRequestMessage(filePath));
+        }
+    }
+
+    [RelayCommand]
+    private static void ExitApplication ()
+    {
+        App.Current.Exit();
     }
 
     public void SetVisibility (bool isVisible)

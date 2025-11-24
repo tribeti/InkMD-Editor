@@ -1,0 +1,41 @@
+﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using System;
+using System.Threading.Tasks;
+
+namespace InkMD_Editor.Services;
+
+public class DialogService
+{
+    private XamlRoot? _xamlRoot;
+
+    public void SetXamlRoot (XamlRoot xamlRoot) => _xamlRoot = xamlRoot;
+
+    public async Task ShowErrorAsync (string message)
+    {
+        if ( _xamlRoot is null )
+            return;
+        var dialog = new ContentDialog
+        {
+            Title = "Error" ,
+            Content = message ,
+            CloseButtonText = "OK" ,
+            XamlRoot = _xamlRoot
+        };
+        await dialog.ShowAsync();
+    }
+
+    public async Task ShowSuccessAsync (string message)
+    {
+        if ( _xamlRoot is null )
+            return;
+        var dialog = new ContentDialog
+        {
+            Title = "Done" ,
+            Content = message ,
+            CloseButtonText = "OK" ,
+            XamlRoot = _xamlRoot
+        };
+        await dialog.ShowAsync();
+    }
+}

@@ -2,6 +2,7 @@
 using InkMD_Editor.Controls;
 using InkMD_Editor.Helpers;
 using InkMD_Editor.Messagers;
+using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -17,6 +18,8 @@ namespace InkMD_Editor.Views;
 public sealed partial class EditorPage : Page
 {
     private string rootPath = "";
+    private readonly FileService _fileService = new();
+    private readonly DialogService _dialogService = new();
 
     private void InitializeRootPath ()
     {
@@ -27,7 +30,6 @@ public sealed partial class EditorPage : Page
         }
     }
     public TabViewContentViewModel? ViewModel { get; } = new();
-    public StoragePickerViewModel? MenuBarViewModel { get; } = new();
 
     public EditorPage ()
     {
@@ -35,6 +37,7 @@ public sealed partial class EditorPage : Page
         InitializeRootPath();
         InitTreeView();
         SetupMessengers();
+        _dialogService.SetXamlRoot(this.XamlRoot);
     }
 
     private void SetupMessengers ()
@@ -64,6 +67,11 @@ public sealed partial class EditorPage : Page
             ShowErrorDialog(msg.Message);
         });
 
+        //WeakReferenceMessenger.Default.Register<ErrorMessage>(this , (r , msg) =>
+        //{
+        //    _ = _dialogService.ShowErrorAsync(msg.Message);
+        //});
+
         WeakReferenceMessenger.Default.Register<WordCountMessage>(this , (r , msg) =>
         {
             WordCountText.Text = msg.WordCount?.ToString() ?? "0";
@@ -87,7 +95,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            ShowErrorDialog($"Lỗi khởi tạo TreeView: {ex.Message}");
+            _ = _dialogService.ShowErrorAsync($"Lỗi khởi tạo TreeView: {ex.Message}");
         }
     }
 
@@ -108,7 +116,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            ShowErrorDialog($"Lỗi làm mới TreeView: {ex.Message}");
+            _ = _dialogService.ShowErrorAsync($"Lỗi làm mới TreeView: {ex.Message}");
         }
     }
 
@@ -120,14 +128,14 @@ public sealed partial class EditorPage : Page
         var selectedTab = Tabs.SelectedItem as TabViewItem;
         if ( selectedTab is null )
         {
-            ShowErrorDialog("Không có tab nào được chọn");
+            _ = _dialogService.ShowErrorAsync("Không có tab nào được chọn");
             return;
         }
 
         var content = selectedTab.Content as TabViewContent;
         if ( content is null )
         {
-            ShowErrorDialog("Không thể lấy nội dung tab");
+            _ = _dialogService.ShowErrorAsync("Không thể lấy nội dung tab");
             return;
         }
 
@@ -138,7 +146,11 @@ public sealed partial class EditorPage : Page
         }
         else
         {
-            await MenuBarViewModel?.SaveAsFileCommand.ExecuteAsync(null)!;
+            var filePath = await _fileService.SaveFileAsync();
+            if ( filePath is not null )
+            {
+                await SaveFileToPath(filePath);
+            }
         }
     }
 
@@ -152,14 +164,14 @@ public sealed partial class EditorPage : Page
             var selectedTab = Tabs.SelectedItem as TabViewItem;
             if ( selectedTab is null )
             {
-                ShowErrorDialog("Không có tab nào được chọn");
+                _ = _dialogService.ShowErrorAsync("Không có tab nào được chọn");
                 return;
             }
 
             var content = selectedTab.Content as TabViewContent;
             if ( content is null )
             {
-                ShowErrorDialog("Không thể lấy nội dung tab");
+                _ = _dialogService.ShowErrorAsync("Không thể lấy nội dung tab");
                 return;
             }
 
@@ -195,7 +207,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            ShowErrorDialog($"Lỗi mở file: {ex.Message}");
+            _ = _dialogService.ShowErrorAsync($"Lỗi mở file: {ex.Message}");
         }
     }
 
@@ -221,7 +233,7 @@ public sealed partial class EditorPage : Page
             XamlRoot = this.XamlRoot
         };
         await dialog.ShowAsync();
-    }
+        }
 
     private async void ShowSuccessNotification (string message)
     {
@@ -263,8 +275,10 @@ public sealed partial class EditorPage : Page
 
             foreach ( var item in itemsList )
             {
-                var newNode = new TreeViewNode();
-                newNode.Content = item;
+                var newNode = new TreeViewNode
+                {
+                    Content = item
+                };
 
                 if ( item is StorageFolder )
                 {
@@ -276,7 +290,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            ShowErrorDialog($"Lỗi tải items: {ex.Message}");
+            _ = _dialogService.ShowErrorAsync($"Lỗi tải items: {ex.Message}");
         }
     }
 
@@ -329,7 +343,7 @@ public sealed partial class EditorPage : Page
                 }
                 catch ( Exception ex )
                 {
-                    ShowErrorDialog($"Lỗi mở file: {ex.Message}");
+                    _ = _dialogService.ShowErrorAsync($"Lỗi mở file: {ex.Message}");
                 }
             }
         }

@@ -13,7 +13,7 @@ public partial class TabViewContentViewModel : ObservableObject
     public partial string? FileName { get; set; }
 
     [ObservableProperty]
-    public partial string? FilePath { get; set; } 
+    public partial string? FilePath { get; set; }
 
     /// <summary>
     /// Kiểm tra xem file đã được lưu chưa
