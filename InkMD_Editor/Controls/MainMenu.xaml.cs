@@ -16,5 +16,6 @@ public sealed partial class MainMenu : UserControl
     public void SetVisibility (bool isVisible)
     {
         DisplayMode.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
+        DisplayMode.SelectedIndex = 1;
     }
 }
