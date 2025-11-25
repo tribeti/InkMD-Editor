@@ -233,7 +233,7 @@ public sealed partial class EditorPage : Page
             XamlRoot = this.XamlRoot
         };
         await dialog.ShowAsync();
-        }
+    }
 
     private async void ShowSuccessNotification (string message)
     {
@@ -249,7 +249,7 @@ public sealed partial class EditorPage : Page
 
     private async void FillTreeNode (TreeViewNode node)
     {
-        StorageFolder? folder = null;
+        StorageFolder? folder;
         if ( node.Content is StorageFolder && node.HasUnrealizedChildren == true )
         {
             folder = node.Content as StorageFolder;

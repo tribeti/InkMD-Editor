@@ -24,7 +24,7 @@
                 TextChanged="MdEditor_TextChanged" />
         </Grid>
 
-        <controls:GridSplitter Width="16" HorizontalAlignment="Right">
+        <controls:GridSplitter Width="8" HorizontalAlignment="Right">
             <controls:GridSplitter.RenderTransform>
                 <TranslateTransform X="-7" />
             </controls:GridSplitter.RenderTransform>
