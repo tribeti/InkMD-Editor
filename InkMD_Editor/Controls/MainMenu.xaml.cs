@@ -1,9 +1,10 @@
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Messagers;
 using InkMD_Editor.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Threading.Tasks;
 
 namespace InkMD_Editor.Controls;
@@ -11,6 +12,7 @@ namespace InkMD_Editor.Controls;
 public sealed partial class MainMenu : UserControl
 {
     private readonly FileService _fileService = new();
+    private readonly TemplateService _templateService = new();
 
     public MainMenu ()
     {
@@ -63,5 +65,42 @@ public sealed partial class MainMenu : UserControl
     {
         DisplayMode.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
         DisplayMode.SelectedIndex = 1;
+    }
+
+    private async void TemplateFlyout_Opening (object sender , object e)
+    {
+        await LoadTemplatesAsync();
+    }
+
+    private async Task LoadTemplatesAsync ()
+    {
+        try
+        {
+            var templates = await _templateService.GetAllTemplatesAsync();
+            TemplateGridView.ItemsSource = templates;
+        }
+        catch ( Exception ex )
+        {
+            System.Diagnostics.Debug.WriteLine($"Error loading templates: {ex.Message}");
+            //await ShowErrorDialogAsync("Không thể load templates");
+        }
+    }
+
+    private async void TemplateGridView_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    {
+        if ( e.AddedItems.Count > 0 && e.AddedItems [0] is TemplateInfo selectedTemplate )
+        {
+            try
+            {
+                var content = await _templateService.LoadTemplateAsync(selectedTemplate.FileName);
+                WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content));
+                TemplateFlyout.Hide();
+                TemplateGridView.SelectedItem = null;
+            }
+            catch ( Exception ex )
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading template content: {ex.Message}");
+            }
+        }
     }
 }

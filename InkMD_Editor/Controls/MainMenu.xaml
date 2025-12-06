@@ -139,9 +139,53 @@
                         </AppBarButton.Flyout>
                     </AppBarButton>
                     <AppBarButton Icon="{ui:FontIcon Glyph=&#xF156;}" Label="Shapes" />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xED58;}" Label="Icons" />
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xED58;}" Label="Icons">
+                        <AppBarButton.Flyout>
+                            <Flyout>
+                                <GridView />
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
                     <AppBarSeparator />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" Label="Templates" />
+                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" Label="Templates">
+                        <AppBarButton.Flyout>
+                            <Flyout x:Name="TemplateFlyout" Opening="TemplateFlyout_Opening">
+                                <Grid Width="400" Height="300">
+                                    <GridView
+                                        x:Name="TemplateGridView"
+                                        Padding="8"
+                                        SelectionChanged="TemplateGridView_SelectionChanged"
+                                        SelectionMode="Single">
+                                        <GridView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border
+                                                    Width="150"
+                                                    Height="100"
+                                                    Padding="12"
+                                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="4">
+                                                    <StackPanel>
+                                                        <TextBlock
+                                                            FontWeight="SemiBold"
+                                                            MaxLines="2"
+                                                            Text="{Binding DisplayName}"
+                                                            TextWrapping="Wrap" />
+                                                        <TextBlock
+                                                            Margin="0,4,0,0"
+                                                            FontSize="11"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="{Binding FileName}" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </GridView.ItemTemplate>
+                                    </GridView>
+                                </Grid>
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
                 </controls:TabbedCommandBarItem>
                 <!--  help  -->
                 <controls:TabbedCommandBarItem x:Name="Help" Header="Help">

@@ -72,10 +72,7 @@ public sealed partial class EditorPage : Page
         //    _ = _dialogService.ShowErrorAsync(msg.Message);
         //});
 
-        WeakReferenceMessenger.Default.Register<WordCountMessage>(this , (r , msg) =>
-        {
-            WordCountText.Text = msg.WordCount?.ToString() ?? "0";
-        });
+        //WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , OnTemplateSelected);
     }
 
     public async void InitTreeView ()
