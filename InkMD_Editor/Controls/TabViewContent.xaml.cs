@@ -33,7 +33,6 @@ public sealed partial class TabViewContent : UserControl
     {
         var doc = MdEditor.Document;
         doc.GetText(TextGetOptions.None , out string text);
-        ViewModel?.UpdateWordCount(text);
         UpdateMarkdownPreview(text);
     }
 
@@ -42,7 +41,6 @@ public sealed partial class TabViewContent : UserControl
         var doc = MdEditor.Document;
         doc.SetText(TextSetOptions.None , text);
         ViewModel.FileName = fileName;
-        ViewModel.UpdateWordCount(text);
         UpdateMarkdownPreview(text);
     }
 

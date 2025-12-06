@@ -39,7 +39,7 @@
         </MenuFlyout>
 
         <DataTemplate x:Key="FolderTemplate" x:DataType="TreeViewNode">
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Margin="0,4,8,0" Orientation="Horizontal">
                 <FontIcon Glyph="&#xED41;" />
                 <TextBlock Margin="0,0,10,0" />
                 <TextBlock Text="{x:Bind ((storage:StorageFolder)Content).DisplayName}" />
@@ -48,7 +48,7 @@
 
         <!--  DataTemplate for files  -->
         <DataTemplate x:Key="FileTemplate" x:DataType="TreeViewNode">
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Margin="0,4,8,0" Orientation="Horizontal">
                 <FontIcon Glyph="&#xE8A5;" />
                 <TextBlock Margin="0,0,10,0" />
                 <TextBlock Text="{x:Bind ((storage:StorageFile)Content).Name}" />
@@ -91,6 +91,7 @@
                 <AutoSuggestBox
                     x:Name="Box"
                     Margin="12,8"
+                    HorizontalAlignment="Stretch"
                     PlaceholderText="Search files..."
                     QueryIcon="Find"
                     RelativePanel.Below="dir" />
@@ -101,6 +102,7 @@
                     <TreeView
                         x:Name="treeview"
                         Padding="8"
+                        CanDrag="False"
                         Collapsed="TreeView_Collapsed"
                         Expanding="TreeView_Expanding"
                         ItemInvoked="TreeView_ItemInvoked"
@@ -145,20 +147,6 @@
                     Click="Button_Click">
                     <FontIcon Glyph="&#xE713;" />
                 </Button>
-            </RelativePanel>
-            <RelativePanel HorizontalAlignment="Right">
-                <TextBlock
-                    x:Name="WordCountText"
-                    Padding="8"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{ThemeResource BodyTextBlockStyle}"
-                    Text="{x:Bind ViewModel.WordCount}" />
-                <TextBlock
-                    Padding="8"
-                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                    RelativePanel.RightOf="WordCountText"
-                    Style="{ThemeResource BodyTextBlockStyle}"
-                    Text="words" />
             </RelativePanel>
         </Grid>
     </Grid>
