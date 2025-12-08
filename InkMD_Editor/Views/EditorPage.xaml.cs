@@ -297,6 +297,10 @@ public sealed partial class EditorPage : Page
 
     private void TabView_TabCloseRequested (TabView sender , TabViewTabCloseRequestedEventArgs args)
     {
+        if ( args.Tab.Content is TabViewContent tabContent )
+        {
+            tabContent.DisposeWebView();
+        }
         sender.TabItems.Remove(args.Tab);
     }
 

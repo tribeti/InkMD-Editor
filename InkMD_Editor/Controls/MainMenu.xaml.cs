@@ -158,6 +158,17 @@ public sealed partial class MainMenu : UserControl
         stackPanel.Children.Add(previewBorder);
         dialog.Content = stackPanel;
 
+        dialog.Closed += (s , e) =>
+        {
+            if ( previewBorder.Child == previewWebView )
+            {
+                previewBorder.Child = null;
+            }
+
+            previewWebView?.Close();
+            previewWebView = null;
+        };
+
         var result = await dialog.ShowAsync();
 
         if ( result is ContentDialogResult.Primary )

@@ -86,7 +86,7 @@ public sealed partial class TabViewContent : UserControl
 
     private void UpdateMarkdownPreview (string markdownText)
     {
-        if ( MarkdownPreview?.CoreWebView2 == null )
+        if ( MarkdownPreview?.CoreWebView2 is null )
             return;
 
         try
@@ -112,6 +112,11 @@ public sealed partial class TabViewContent : UserControl
     private static string GetEmptyPreviewHtml ()
     {
         return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview sẽ hiển thị ở đây...</p>");
+    }
+
+    public void DisposeWebView ()
+    {
+        MarkdownPreview?.Close();
     }
 
     private static string WrapWithGitHubStyle (string htmlBody)
