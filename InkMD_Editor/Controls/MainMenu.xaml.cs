@@ -15,7 +15,6 @@ public sealed partial class MainMenu : UserControl
     private readonly FileService _fileService = new();
     private readonly DialogService _dialogService = new();
     private readonly MarkdownPipeline _markdownPipeline;
-    private string? _currentTemplateContent;
 
     public MainMenu ()
     {
@@ -72,24 +71,6 @@ public sealed partial class MainMenu : UserControl
         App.Current.Exit();
     }
 
-    [RelayCommand]
-    private void AddTemplate ()
-    {
-        if ( _currentTemplateContent is not null )
-        {
-            WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(_currentTemplateContent , createNewFile: true));
-        }
-    }
-
-    [RelayCommand]
-    private void InsertTemplate ()
-    {
-        if ( _currentTemplateContent is not null )
-        {
-            WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(_currentTemplateContent , createNewFile: false));
-        }
-    }
-
     public void SetVisibility (bool isVisible)
     {
         DisplayMode.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
@@ -134,7 +115,6 @@ public sealed partial class MainMenu : UserControl
 
     private async Task ShowTemplatePreviewDialog (string templateName , string content)
     {
-        _currentTemplateContent = content;
         var dialog = new ContentDialog
         {
             Title = $"Template Preview: {templateName}" ,
@@ -142,8 +122,6 @@ public sealed partial class MainMenu : UserControl
             DefaultButton = ContentDialogButton.Primary ,
             PrimaryButtonText = "Add (New File)" ,
             SecondaryButtonText = "Insert (Current Doc)" ,
-            PrimaryButtonCommand = AddTemplateCommand ,
-            SecondaryButtonCommand = InsertTemplateCommand ,
             XamlRoot = this.XamlRoot
         };
 
@@ -173,23 +151,23 @@ public sealed partial class MainMenu : UserControl
         catch ( Exception ex )
         {
             await _dialogService.ShowErrorAsync($"Không thể hiển thị preview: {ex.Message}");
+            return;
         }
 
         previewBorder.Child = previewWebView;
         stackPanel.Children.Add(previewBorder);
-
-        // Buttons section
-        var buttonPanel = new StackPanel
-        {
-            Orientation = Orientation.Horizontal ,
-            HorizontalAlignment = HorizontalAlignment.Right ,
-            Spacing = 8
-        };
-
-        stackPanel.Children.Add(buttonPanel);
         dialog.Content = stackPanel;
 
-        await dialog.ShowAsync();
+        var result = await dialog.ShowAsync();
+
+        if ( result is ContentDialogResult.Primary )
+        {
+            WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile: true));
+        }
+        else if ( result is ContentDialogResult.Secondary )
+        {
+            WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile: false));
+        }
     }
 
     private string ConvertMarkdownToHtml (string markdown)

@@ -53,23 +53,21 @@ public sealed partial class EditorPage : Page
             await _viewModel.ShowErrorAsync(msg.Message);
         });
 
-        WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , (r , msg) =>
+        WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , async (r , msg) =>
         {
-            HandleTemplateSelected(msg.Content , msg.CreateNewFile);
+            await HandleTemplateSelected(msg.Content , msg.CreateNewFile);
         });
     }
 
-    private void HandleTemplateSelected (string content , bool createNewFile)
+    private async Task HandleTemplateSelected (string content , bool createNewFile)
     {
         if ( createNewFile )
         {
-            // Create new tab with template content
             CreateNewTabWithContent(content);
         }
         else
         {
-            // Insert into current document
-            InsertIntoCurrentDocument(content);
+            await InsertIntoCurrentDocument(content);
         }
     }
 
@@ -83,7 +81,7 @@ public sealed partial class EditorPage : Page
         Tabs.SelectedItem = newTab;
     }
 
-    private async void InsertIntoCurrentDocument (string content)
+    private async Task InsertIntoCurrentDocument (string content)
     {
         if ( Tabs.TabItems.Count == 0 || Tabs.SelectedItem is null )
         {
@@ -101,7 +99,7 @@ public sealed partial class EditorPage : Page
 
         try
         {
-            string currentContent = tabContent.GetContent();
+            string? currentContent = tabContent.GetContent();
             string newContent = string.IsNullOrWhiteSpace(currentContent)
                 ? content
                 : currentContent + "\n\n" + content;
