@@ -85,26 +85,26 @@ public sealed partial class EditorPage : Page
 
     private async void InsertIntoCurrentDocument (string content)
     {
+        if ( Tabs.TabItems.Count == 0 || Tabs.SelectedItem is null )
+        {
+            await _viewModel.ShowErrorAsync("Không có document nào đang mở. Vui lòng tạo hoặc mở file trước.");
+            return;
+        }
+
         var (tab, tabContent) = GetSelectedTabContent();
 
         if ( tabContent is null )
         {
-            // No document open, create a new one
-            CreateNewTabWithContent(content);
+            await _viewModel.ShowErrorAsync("Không thể truy cập document hiện tại.");
             return;
         }
 
         try
         {
-            // Get current content
             string currentContent = tabContent.GetContent();
-
-            // Append template content
             string newContent = string.IsNullOrWhiteSpace(currentContent)
                 ? content
                 : currentContent + "\n\n" + content;
-
-            // Set the combined content
             tabContent.SetContent(newContent , tabContent.ViewModel.FileName);
         }
         catch ( Exception ex )
