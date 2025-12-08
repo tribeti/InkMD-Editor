@@ -76,8 +76,7 @@
         <Grid
             x:Name="Body"
             Grid.Row="1"
-            Background="{ThemeResource LayerFillColorDefaultBrush}"
-            ContextFlyout="{ThemeResource MyContextMenu}">
+            Background="{ThemeResource LayerFillColorDefaultBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -87,7 +86,7 @@
                 <TextBlock
                     x:Name="dir"
                     Padding="16,8,0,0"
-                    Text="{x:Bind rootPath}" />
+                    Text="{x:Bind _viewModel.RootPath}" />
                 <AutoSuggestBox
                     x:Name="Box"
                     Margin="12,8"
@@ -96,13 +95,14 @@
                     QueryIcon="Find"
                     RelativePanel.Below="dir" />
                 <ScrollViewer
+                    ContextFlyout="{StaticResource MyContextMenu}"
                     HorizontalScrollBarVisibility="Auto"
                     RelativePanel.Below="Box"
                     VerticalScrollBarVisibility="Auto">
                     <TreeView
                         x:Name="treeview"
                         Padding="8"
-                        CanDrag="False"
+                        CanReorderItems="False"
                         Collapsed="TreeView_Collapsed"
                         Expanding="TreeView_Expanding"
                         ItemInvoked="TreeView_ItemInvoked"

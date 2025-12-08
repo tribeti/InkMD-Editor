@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Controls;
-using InkMD_Editor.Helpers;
 using InkMD_Editor.Messagers;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
@@ -8,8 +7,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -17,27 +14,17 @@ namespace InkMD_Editor.Views;
 
 public sealed partial class EditorPage : Page
 {
-    private string rootPath = "";
     private readonly FileService _fileService = new();
     private readonly DialogService _dialogService = new();
-
-    private void InitializeRootPath ()
-    {
-        rootPath = AppSettings.GetLastFolderPath();
-        if ( string.IsNullOrEmpty(rootPath) )
-        {
-            rootPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-        }
-    }
-    public TabViewContentViewModel? ViewModel { get; } = new();
+    private readonly EditorPageViewModel _viewModel = new();
 
     public EditorPage ()
     {
         InitializeComponent();
-        InitializeRootPath();
+        _dialogService.SetXamlRoot(this.XamlRoot);
+        _viewModel.SetDialogService(_dialogService);
         InitTreeView();
         SetupMessengers();
-        _dialogService.SetXamlRoot(this.XamlRoot);
     }
 
     private void SetupMessengers ()
@@ -59,128 +46,69 @@ public sealed partial class EditorPage : Page
 
         WeakReferenceMessenger.Default.Register<SaveFileMessage>(this , async (r , msg) =>
         {
-            await HandleSaveFile(msg.IsNewFile);
+            await HandleSaveFile();
         });
 
         WeakReferenceMessenger.Default.Register<ErrorMessage>(this , (r , msg) =>
         {
             ShowErrorDialog(msg.Message);
         });
-
-        //WeakReferenceMessenger.Default.Register<ErrorMessage>(this , (r , msg) =>
-        //{
-        //    _ = _dialogService.ShowErrorAsync(msg.Message);
-        //});
-
-        //WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , OnTemplateSelected);
     }
 
     public async void InitTreeView ()
     {
         try
         {
-            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(rootPath);
-            TreeViewNode node = new()
-            {
-                Content = folder ,
-                IsExpanded = true ,
-                HasUnrealizedChildren = true
-            };
+            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(_viewModel.RootPath);
+            TreeViewNode node = CreateTreeViewNode(folder);
             treeview.RootNodes.Add(node);
             FillTreeNode(node);
-
         }
         catch ( Exception ex )
         {
-            _ = _dialogService.ShowErrorAsync($"Lỗi khởi tạo TreeView: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Lỗi khởi tạo TreeView: {ex.Message}");
         }
     }
 
-    private async void RefreshTreeViewWithFolder (StorageFolder folder)
+    private void RefreshTreeViewWithFolder (StorageFolder folder)
     {
         try
         {
             treeview.RootNodes.Clear();
-            TreeViewNode node = new()
-            {
-                Content = folder ,
-                IsExpanded = true ,
-                HasUnrealizedChildren = true
-            };
+            TreeViewNode node = CreateTreeViewNode(folder);
             treeview.RootNodes.Add(node);
             FillTreeNode(node);
-            rootPath = folder.Path;
+            _viewModel.RootPath = folder.Path;
         }
         catch ( Exception ex )
         {
-            _ = _dialogService.ShowErrorAsync($"Lỗi làm mới TreeView: {ex.Message}");
+            _ = _viewModel.ShowErrorAsync($"Lỗi làm mới TreeView: {ex.Message}");
         }
     }
 
-    /// <summary>
-    /// Xử lý Save - nếu file đã có path thì save, nếu chưa thì SaveAs
-    /// </summary>
-    private async Task HandleSaveFile (bool isNewFile)
+    private async Task HandleSaveFile ()
     {
-        var selectedTab = Tabs.SelectedItem as TabViewItem;
-        if ( selectedTab is null )
+        var selectedTab = GetSelectedTabContent();
+        if ( selectedTab.tab is null || selectedTab.content is null )
         {
-            _ = _dialogService.ShowErrorAsync("Không có tab nào được chọn");
+            await _viewModel.ShowErrorAsync("Không có tab nào được chọn");
             return;
         }
 
-        var content = selectedTab.Content as TabViewContent;
-        if ( content is null )
-        {
-            _ = _dialogService.ShowErrorAsync("Không thể lấy nội dung tab");
-            return;
-        }
-
-        var viewModel = content.ViewModel;
-        if ( !string.IsNullOrEmpty(viewModel.FilePath) )
-        {
-            await SaveFileToPath(viewModel.FilePath);
-        }
-        else
-        {
-            var filePath = await _fileService.SaveFileAsync();
-            if ( filePath is not null )
-            {
-                await SaveFileToPath(filePath);
-            }
-        }
+        await _viewModel.HandleSaveFile(selectedTab.content);
+        selectedTab.tab.Header = selectedTab.content.ViewModel.FileName;
     }
 
-    /// <summary>
-    /// Lưu file vào đường dẫn cụ thể
-    /// </summary>
-    private async Task SaveFileToPath (string filePath)
+    private async void SaveCurrentTabContent (string filePath)
     {
         try
         {
-            var selectedTab = Tabs.SelectedItem as TabViewItem;
-            if ( selectedTab is null )
+            var selectedTab = GetSelectedTabContent();
+            if ( selectedTab.content is not null )
             {
-                _ = _dialogService.ShowErrorAsync("Không có tab nào được chọn");
-                return;
+                await _viewModel.SaveFileToPath(filePath , selectedTab.content);
+                selectedTab.tab.Header = selectedTab.content.ViewModel.FileName;
             }
-
-            var content = selectedTab.Content as TabViewContent;
-            if ( content is null )
-            {
-                _ = _dialogService.ShowErrorAsync("Không thể lấy nội dung tab");
-                return;
-            }
-
-            string editorText = content.GetContent();
-            await File.WriteAllTextAsync(filePath , editorText , Encoding.UTF8);
-            var viewModel = content.ViewModel;
-            viewModel.SetFilePath(filePath , Path.GetFileName(filePath));
-
-            selectedTab.Header = Path.GetFileName(filePath);
-
-            ShowSuccessNotification($"Đã lưu: {Path.GetFileName(filePath)}");
-            WeakReferenceMessenger.Default.Send(new FileSavedMessage(filePath , Path.GetFileName(filePath)));
         }
         catch ( Exception ex )
         {
@@ -192,7 +120,7 @@ public sealed partial class EditorPage : Page
     {
         try
         {
-            var text = await ReadFileTextAsync(file);
+            var text = await _viewModel.ReadFileTextAsync(file);
             var newTab = CreateNewTab(Tabs.TabItems.Count);
             var content = (TabViewContent) newTab.Content!;
             content.ViewModel.SetFilePath(file.Path , file.Name);
@@ -204,58 +132,18 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            _ = _dialogService.ShowErrorAsync($"Lỗi mở file: {ex.Message}");
-        }
-    }
-
-    private async void SaveCurrentTabContent (string filePath)
-    {
-        try
-        {
-            await SaveFileToPath(filePath);
-        }
-        catch ( Exception ex )
-        {
-            ShowErrorDialog($"Lỗi lưu file: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Lỗi mở file: {ex.Message}");
         }
     }
 
     private async void ShowErrorDialog (string message)
     {
-        var dialog = new ContentDialog
-        {
-            Title = "Lỗi" ,
-            Content = message ,
-            CloseButtonText = "OK" ,
-            XamlRoot = this.XamlRoot
-        };
-        await dialog.ShowAsync();
-    }
-
-    private async void ShowSuccessNotification (string message)
-    {
-        var dialog = new ContentDialog
-        {
-            Title = "Thành công" ,
-            Content = message ,
-            CloseButtonText = "OK" ,
-            XamlRoot = this.XamlRoot
-        };
-        await dialog.ShowAsync();
+        await _viewModel.ShowErrorAsync(message);
     }
 
     private async void FillTreeNode (TreeViewNode node)
     {
-        StorageFolder? folder;
-        if ( node.Content is StorageFolder && node.HasUnrealizedChildren == true )
-        {
-            folder = node.Content as StorageFolder;
-        }
-        else
-        {
-            return;
-        }
-
+        StorageFolder? folder = GetStorageFolder(node);
         if ( folder is null )
         {
             return;
@@ -267,16 +155,13 @@ public sealed partial class EditorPage : Page
 
             if ( itemsList.Count == 0 )
             {
+                node.HasUnrealizedChildren = false;
                 return;
             }
 
             foreach ( var item in itemsList )
             {
-                var newNode = new TreeViewNode
-                {
-                    Content = item
-                };
-
+                var newNode = new TreeViewNode { Content = item };
                 if ( item is StorageFolder )
                 {
                     newNode.HasUnrealizedChildren = true;
@@ -287,7 +172,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            _ = _dialogService.ShowErrorAsync($"Lỗi tải items: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Lỗi tải items: {ex.Message}");
         }
     }
 
@@ -308,41 +193,43 @@ public sealed partial class EditorPage : Page
     private async void TreeView_ItemInvoked (TreeView sender , TreeViewItemInvokedEventArgs args)
     {
         var node = args.InvokedItem as TreeViewNode;
-
-        if ( node is null )
-            return;
-
-        if ( node.Content is IStorageItem item )
+        if ( node?.Content is not IStorageItem item )
         {
-            if ( node.Content is StorageFolder )
-            {
-                node.IsExpanded = !node.IsExpanded;
-                return;
-            }
+            return;
+        }
 
-            if ( item is StorageFile file )
-            {
-                try
-                {
-                    string extension = file.FileType.ToLower();
-                    bool isMarkdownFile = extension == ".md";
-                    mainMenu.SetVisibility(isMarkdownFile);
+        if ( item is StorageFolder )
+        {
+            node.IsExpanded = !node.IsExpanded;
+            return;
+        }
 
-                    var text = await ReadFileTextAsync(file);
-                    var newTab = CreateNewTab(Tabs.TabItems.Count);
-                    var content = (TabViewContent) newTab.Content!;
-                    content.ViewModel.SetFilePath(file.Path , file.Name);
-                    content.SetContent(text , file.Name);
-                    newTab.Header = file.Name;
+        if ( item is StorageFile file )
+        {
+            await OpenFileFromTreeView(file , node);
+        }
+    }
 
-                    Tabs.TabItems.Add(newTab);
-                    Tabs.SelectedItem = newTab;
-                }
-                catch ( Exception ex )
-                {
-                    _ = _dialogService.ShowErrorAsync($"Lỗi mở file: {ex.Message}");
-                }
-            }
+    private async Task OpenFileFromTreeView (StorageFile file , TreeViewNode node)
+    {
+        try
+        {
+            bool isMarkdownFile = file.FileType.Equals(".md" , StringComparison.OrdinalIgnoreCase);
+            mainMenu.SetVisibility(isMarkdownFile);
+
+            var text = await _viewModel.ReadFileTextAsync(file);
+            var newTab = CreateNewTab(Tabs.TabItems.Count);
+            var content = (TabViewContent) newTab.Content!;
+            content.ViewModel.SetFilePath(file.Path , file.Name);
+            content.SetContent(text , file.Name);
+            newTab.Header = file.Name;
+
+            Tabs.TabItems.Add(newTab);
+            Tabs.SelectedItem = newTab;
+        }
+        catch ( Exception ex )
+        {
+            await _viewModel.ShowErrorAsync($"Lỗi mở file: {ex.Message}");
         }
     }
 
@@ -377,58 +264,36 @@ public sealed partial class EditorPage : Page
         return newItem;
     }
 
-    private async Task<string> ReadFileTextAsync (StorageFile file)
+    // Helper Methods
+    private TreeViewNode CreateTreeViewNode (StorageFolder folder)
     {
-        try
+        return new()
         {
-            var buffer = await FileIO.ReadBufferAsync(file);
-            byte [] bytes;
-            using ( var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(buffer) )
-            {
-                bytes = new byte [buffer.Length];
-                dataReader.ReadBytes(bytes);
-            }
+            Content = folder ,
+            IsExpanded = true ,
+            HasUnrealizedChildren = true
+        };
+    }
 
-            // BOM detection
-            if ( bytes.Length >= 3 && bytes [0] == 0xEF && bytes [1] == 0xBB && bytes [2] == 0xBF )
-            {
-                // UTF-8 with BOM
-                return Encoding.UTF8.GetString(bytes , 3 , bytes.Length - 3);
-            }
-
-            if ( bytes.Length >= 2 && bytes [0] == 0xFF && bytes [1] == 0xFE )
-            {
-                // UTF-16 LE
-                return Encoding.Unicode.GetString(bytes , 2 , bytes.Length - 2);
-            }
-
-            if ( bytes.Length >= 2 && bytes [0] == 0xFE && bytes [1] == 0xFF )
-            {
-                // UTF-16 BE
-                return Encoding.BigEndianUnicode.GetString(bytes , 2 , bytes.Length - 2);
-            }
-
-            // No BOM — try UTF-8 first, then UTF-16, then fall back to system/default encoding
-            try
-            {
-                var s = Encoding.UTF8.GetString(bytes);
-                return s;
-            }
-            catch { }
-
-            try
-            {
-                var s = Encoding.Unicode.GetString(bytes);
-                return s;
-            }
-            catch { }
-
-            return Encoding.Default.GetString(bytes);
-        }
-        catch
+    private (TabViewItem? tab, TabViewContent? content) GetSelectedTabContent ()
+    {
+        var tab = Tabs.SelectedItem as TabViewItem;
+        if ( tab is null )
         {
-            return string.Empty;
+            return (null, null);
         }
+
+        var content = tab.Content as TabViewContent;
+        return (tab, content);
+    }
+
+    private static StorageFolder? GetStorageFolder (TreeViewNode node)
+    {
+        if ( node.Content is StorageFolder && node.HasUnrealizedChildren )
+        {
+            return node.Content as StorageFolder;
+        }
+        return null;
     }
 }
 

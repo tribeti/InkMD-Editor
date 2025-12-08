@@ -13,6 +13,7 @@ public sealed partial class MainMenu : UserControl
 {
     private readonly FileService _fileService = new();
     private readonly TemplateService _templateService = new();
+    private readonly DialogService _dialogService = new();
 
     public MainMenu ()
     {
@@ -81,8 +82,7 @@ public sealed partial class MainMenu : UserControl
         }
         catch ( Exception ex )
         {
-            System.Diagnostics.Debug.WriteLine($"Error loading templates: {ex.Message}");
-            //await ShowErrorDialogAsync("Không thể load templates");
+            await _dialogService.ShowErrorAsync("Không thể load templates" + ex.Message);
         }
     }
 
@@ -99,7 +99,7 @@ public sealed partial class MainMenu : UserControl
             }
             catch ( Exception ex )
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading template content: {ex.Message}");
+                await _dialogService.ShowErrorAsync("Không thể load templates" + ex.Message);
             }
         }
     }

@@ -9,7 +9,6 @@ namespace InkMD_Editor.Services;
 
 public class TemplateService
 {
-    // Load nội dung 1 template
     public async Task<string> LoadTemplateAsync (string fileName)
     {
         try
@@ -24,7 +23,6 @@ public class TemplateService
         }
     }
 
-    // Load SVG icon
     public async Task<string> LoadIconAsync (string iconName)
     {
         try
@@ -39,7 +37,6 @@ public class TemplateService
         }
     }
 
-    // Lấy danh sách tất cả templates
     public async Task<List<TemplateInfo>> GetAllTemplatesAsync ()
     {
         var templates = new List<TemplateInfo>();
