@@ -13,6 +13,7 @@ public sealed partial class MainMenu : UserControl
 {
     private readonly FileService _fileService = new();
     private readonly TemplateService _templateService = new();
+    private readonly DialogService _dialogService = new();
 
     public MainMenu ()
     {
@@ -40,7 +41,7 @@ public sealed partial class MainMenu : UserControl
     }
 
     [RelayCommand]
-    private void Save ()
+    private static void Save ()
     {
         WeakReferenceMessenger.Default.Send(new SaveFileMessage(isNewFile: false));
     }
@@ -76,13 +77,12 @@ public sealed partial class MainMenu : UserControl
     {
         try
         {
-            var templates = await _templateService.GetAllTemplatesAsync();
+            var templates = await TemplateService.GetAllTemplatesAsync();
             TemplateGridView.ItemsSource = templates;
         }
         catch ( Exception ex )
         {
-            System.Diagnostics.Debug.WriteLine($"Error loading templates: {ex.Message}");
-            //await ShowErrorDialogAsync("Không thể load templates");
+            await _dialogService.ShowErrorAsync($"Không thể load templates: {ex.Message}");
         }
     }
 
@@ -92,14 +92,14 @@ public sealed partial class MainMenu : UserControl
         {
             try
             {
-                var content = await _templateService.LoadTemplateAsync(selectedTemplate.FileName);
+                var content = await TemplateService.LoadTemplateAsync(selectedTemplate.FileName);
                 WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content));
                 TemplateFlyout.Hide();
                 TemplateGridView.SelectedItem = null;
             }
             catch ( Exception ex )
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading template content: {ex.Message}");
+                await _dialogService.ShowErrorAsync($"Không thể load templates: {ex.Message}");
             }
         }
     }

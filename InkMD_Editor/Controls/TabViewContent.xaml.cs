@@ -109,12 +109,12 @@ public sealed partial class TabViewContent : UserControl
         return WrapWithGitHubStyle(htmlBody);
     }
 
-    private string GetEmptyPreviewHtml ()
+    private static string GetEmptyPreviewHtml ()
     {
         return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview sẽ hiển thị ở đây...</p>");
     }
 
-    private string WrapWithGitHubStyle (string htmlBody)
+    private static string WrapWithGitHubStyle (string htmlBody)
     {
         return $@"
 <!DOCTYPE html>

@@ -142,7 +142,7 @@
                     <AppBarButton Icon="{ui:FontIcon Glyph=&#xED58;}" Label="Icons">
                         <AppBarButton.Flyout>
                             <Flyout>
-                                <GridView />
+                                <GridView x:Name="IconGridView" />
                             </Flyout>
                         </AppBarButton.Flyout>
                     </AppBarButton>
@@ -150,39 +150,36 @@
                     <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" Label="Templates">
                         <AppBarButton.Flyout>
                             <Flyout x:Name="TemplateFlyout" Opening="TemplateFlyout_Opening">
-                                <Grid Width="400" Height="300">
-                                    <GridView
-                                        x:Name="TemplateGridView"
-                                        Padding="8"
-                                        SelectionChanged="TemplateGridView_SelectionChanged"
-                                        SelectionMode="Single">
-                                        <GridView.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border
-                                                    Width="150"
-                                                    Height="100"
-                                                    Padding="12"
-                                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                    BorderThickness="1"
-                                                    CornerRadius="4">
-                                                    <StackPanel>
-                                                        <TextBlock
-                                                            FontWeight="SemiBold"
-                                                            MaxLines="2"
-                                                            Text="{Binding DisplayName}"
-                                                            TextWrapping="Wrap" />
-                                                        <TextBlock
-                                                            Margin="0,4,0,0"
-                                                            FontSize="11"
-                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                            Text="{Binding FileName}" />
-                                                    </StackPanel>
-                                                </Border>
-                                            </DataTemplate>
-                                        </GridView.ItemTemplate>
-                                    </GridView>
-                                </Grid>
+                                <GridView
+                                    x:Name="TemplateGridView"
+                                    IsItemClickEnabled="False"
+                                    SelectionChanged="TemplateGridView_SelectionChanged"
+                                    SelectionMode="Single">
+                                    <GridView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border
+                                                Width="100"
+                                                Height="50"
+                                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="4">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="SemiBold"
+                                                    HorizontalTextAlignment="Center"
+                                                    MaxLines="2"
+                                                    Text="{Binding DisplayName}"
+                                                    TextWrapping="Wrap" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </GridView.ItemTemplate>
+                                    <GridView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <ItemsWrapGrid MaximumRowsOrColumns="3" Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </GridView.ItemsPanel>
+                                </GridView>
                             </Flyout>
                         </AppBarButton.Flyout>
                     </AppBarButton>

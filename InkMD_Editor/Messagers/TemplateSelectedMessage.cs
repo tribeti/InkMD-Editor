@@ -1,11 +1,6 @@
 ﻿namespace InkMD_Editor.Messagers;
 
-public class TemplateSelectedMessage
+public class TemplateSelectedMessage (string templateContent)
 {
-    public string TemplateContent { get; }
-
-    public TemplateSelectedMessage (string templateContent)
-    {
-        TemplateContent = templateContent;
-    }
+    public string TemplateContent { get; } = templateContent;
 }

@@ -1,5 +1,6 @@
 ﻿namespace InkMD_Editor.ViewModels;
 
-internal class SettingViewModel
+public partial class SettingPageViewModel
 {
+
 }
