@@ -48,10 +48,67 @@ public sealed partial class EditorPage : Page
             await HandleSaveFile();
         });
 
-        WeakReferenceMessenger.Default.Register<ErrorMessage>(this , (r , msg) =>
+        WeakReferenceMessenger.Default.Register<ErrorMessage>(this , async (r , msg) =>
         {
-            ShowErrorDialog(msg.Message);
+            await _viewModel.ShowErrorAsync(msg.Message);
         });
+
+        WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , async (r , msg) =>
+        {
+            await HandleTemplateSelected(msg.Content , msg.CreateNewFile);
+        });
+    }
+
+    private async Task HandleTemplateSelected (string content , bool createNewFile)
+    {
+        if ( createNewFile )
+        {
+            CreateNewTabWithContent(content);
+        }
+        else
+        {
+            await InsertIntoCurrentDocument(content);
+        }
+    }
+
+    private void CreateNewTabWithContent (string content)
+    {
+        var newTab = CreateNewTab(Tabs.TabItems.Count);
+        var tabContent = (TabViewContent) newTab.Content!;
+        tabContent.SetContent(content , $"Document {Tabs.TabItems.Count}");
+
+        Tabs.TabItems.Add(newTab);
+        Tabs.SelectedItem = newTab;
+    }
+
+    private async Task InsertIntoCurrentDocument (string content)
+    {
+        if ( Tabs.TabItems.Count == 0 || Tabs.SelectedItem is null )
+        {
+            await _viewModel.ShowErrorAsync("Không có document nào đang mở. Vui lòng tạo hoặc mở file trước.");
+            return;
+        }
+
+        var (tab, tabContent) = GetSelectedTabContent();
+
+        if ( tabContent is null )
+        {
+            await _viewModel.ShowErrorAsync("Không thể truy cập document hiện tại.");
+            return;
+        }
+
+        try
+        {
+            string? currentContent = tabContent.GetContent();
+            string newContent = string.IsNullOrWhiteSpace(currentContent)
+                ? content
+                : currentContent + "\n\n" + content;
+            tabContent.SetContent(newContent , tabContent.ViewModel.FileName);
+        }
+        catch ( Exception ex )
+        {
+            await _viewModel.ShowErrorAsync($"Cannot insert template: {ex.Message}");
+        }
     }
 
     public async void InitTreeView ()
@@ -111,7 +168,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            ShowErrorDialog($"Can not save file: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Can not save file: {ex.Message}");
         }
     }
 
@@ -133,11 +190,6 @@ public sealed partial class EditorPage : Page
         {
             await _viewModel.ShowErrorAsync($"Can not open file: {ex.Message}");
         }
-    }
-
-    private async void ShowErrorDialog (string message)
-    {
-        await _viewModel.ShowErrorAsync(message);
     }
 
     private async void FillTreeNode (TreeViewNode node)
@@ -183,7 +235,7 @@ public sealed partial class EditorPage : Page
         }
     }
 
-    private static void TreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args)
+    private void TreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args)
     {
         args.Node.Children.Clear();
         args.Node.HasUnrealizedChildren = true;
@@ -237,14 +289,18 @@ public sealed partial class EditorPage : Page
         Frame.Navigate(typeof(SettingsPage));
     }
 
-    private static void TabView_AddButtonClick (TabView sender , object args)
+    private void TabView_AddButtonClick (TabView sender , object args)
     {
         var newTab = CreateNewTab(sender.TabItems.Count);
         sender.TabItems.Add(newTab);
     }
 
-    private static void TabView_TabCloseRequested (TabView sender , TabViewTabCloseRequestedEventArgs args)
+    private void TabView_TabCloseRequested (TabView sender , TabViewTabCloseRequestedEventArgs args)
     {
+        if ( args.Tab.Content is TabViewContent tabContent )
+        {
+            tabContent.DisposeWebView();
+        }
         sender.TabItems.Remove(args.Tab);
     }
 
