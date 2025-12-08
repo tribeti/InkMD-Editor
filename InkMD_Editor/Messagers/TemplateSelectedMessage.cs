@@ -1,6 +1,7 @@
 ﻿namespace InkMD_Editor.Messagers;
 
-public class TemplateSelectedMessage (string templateContent)
+public class TemplateSelectedMessage (string content , bool createNewFile = false)
 {
-    public string TemplateContent { get; } = templateContent;
+    public string Content { get; } = content;
+    public bool CreateNewFile { get; } = createNewFile;
 }

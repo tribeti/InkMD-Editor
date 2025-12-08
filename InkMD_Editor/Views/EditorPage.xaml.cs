@@ -48,10 +48,69 @@ public sealed partial class EditorPage : Page
             await HandleSaveFile();
         });
 
-        WeakReferenceMessenger.Default.Register<ErrorMessage>(this , (r , msg) =>
+        WeakReferenceMessenger.Default.Register<ErrorMessage>(this , async (r , msg) =>
         {
-            ShowErrorDialog(msg.Message);
+            await _viewModel.ShowErrorAsync(msg.Message);
         });
+
+        WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , (r , msg) =>
+        {
+            HandleTemplateSelected(msg.Content , msg.CreateNewFile);
+        });
+    }
+
+    private void HandleTemplateSelected (string content , bool createNewFile)
+    {
+        if ( createNewFile )
+        {
+            // Create new tab with template content
+            CreateNewTabWithContent(content);
+        }
+        else
+        {
+            // Insert into current document
+            InsertIntoCurrentDocument(content);
+        }
+    }
+
+    private void CreateNewTabWithContent (string content)
+    {
+        var newTab = CreateNewTab(Tabs.TabItems.Count);
+        var tabContent = (TabViewContent) newTab.Content!;
+        tabContent.SetContent(content , $"Document {Tabs.TabItems.Count}");
+
+        Tabs.TabItems.Add(newTab);
+        Tabs.SelectedItem = newTab;
+    }
+
+    private async void InsertIntoCurrentDocument (string content)
+    {
+        var (tab, tabContent) = GetSelectedTabContent();
+
+        if ( tabContent is null )
+        {
+            // No document open, create a new one
+            CreateNewTabWithContent(content);
+            return;
+        }
+
+        try
+        {
+            // Get current content
+            string currentContent = tabContent.GetContent();
+
+            // Append template content
+            string newContent = string.IsNullOrWhiteSpace(currentContent)
+                ? content
+                : currentContent + "\n\n" + content;
+
+            // Set the combined content
+            tabContent.SetContent(newContent , tabContent.ViewModel.FileName);
+        }
+        catch ( Exception ex )
+        {
+            await _viewModel.ShowErrorAsync($"Cannot insert template: {ex.Message}");
+        }
     }
 
     public async void InitTreeView ()
@@ -111,7 +170,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            ShowErrorDialog($"Can not save file: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Can not save file: {ex.Message}");
         }
     }
 
@@ -133,11 +192,6 @@ public sealed partial class EditorPage : Page
         {
             await _viewModel.ShowErrorAsync($"Can not open file: {ex.Message}");
         }
-    }
-
-    private async void ShowErrorDialog (string message)
-    {
-        await _viewModel.ShowErrorAsync(message);
     }
 
     private async void FillTreeNode (TreeViewNode node)
@@ -183,7 +237,7 @@ public sealed partial class EditorPage : Page
         }
     }
 
-    private static void TreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args)
+    private void TreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args)
     {
         args.Node.Children.Clear();
         args.Node.HasUnrealizedChildren = true;
@@ -237,13 +291,13 @@ public sealed partial class EditorPage : Page
         Frame.Navigate(typeof(SettingsPage));
     }
 
-    private static void TabView_AddButtonClick (TabView sender , object args)
+    private void TabView_AddButtonClick (TabView sender , object args)
     {
         var newTab = CreateNewTab(sender.TabItems.Count);
         sender.TabItems.Add(newTab);
     }
 
-    private static void TabView_TabCloseRequested (TabView sender , TabViewTabCloseRequestedEventArgs args)
+    private void TabView_TabCloseRequested (TabView sender , TabViewTabCloseRequestedEventArgs args)
     {
         sender.TabItems.Remove(args.Tab);
     }
