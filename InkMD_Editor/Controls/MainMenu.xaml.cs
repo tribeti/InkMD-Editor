@@ -41,7 +41,7 @@ public sealed partial class MainMenu : UserControl
     }
 
     [RelayCommand]
-    private void Save ()
+    private static void Save ()
     {
         WeakReferenceMessenger.Default.Send(new SaveFileMessage(isNewFile: false));
     }
@@ -77,7 +77,7 @@ public sealed partial class MainMenu : UserControl
     {
         try
         {
-            var templates = await _templateService.GetAllTemplatesAsync();
+            var templates = await TemplateService.GetAllTemplatesAsync();
             TemplateGridView.ItemsSource = templates;
         }
         catch ( Exception ex )
@@ -92,7 +92,7 @@ public sealed partial class MainMenu : UserControl
         {
             try
             {
-                var content = await _templateService.LoadTemplateAsync(selectedTemplate.FileName);
+                var content = await TemplateService.LoadTemplateAsync(selectedTemplate.FileName);
                 WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content));
                 TemplateFlyout.Hide();
                 TemplateGridView.SelectedItem = null;

@@ -90,7 +90,7 @@ public partial class EditorPageViewModel : ObservableObject
     /// <summary>
     /// Reads file content with proper encoding detection
     /// </summary>
-    public async Task<string> ReadFileTextAsync (StorageFile file)
+    public static async Task<string> ReadFileTextAsync (StorageFile file)
     {
         try
         {

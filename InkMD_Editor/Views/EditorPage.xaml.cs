@@ -14,7 +14,6 @@ namespace InkMD_Editor.Views;
 
 public sealed partial class EditorPage : Page
 {
-    private readonly FileService _fileService = new();
     private readonly DialogService _dialogService = new();
     private readonly EditorPageViewModel _viewModel = new();
 
@@ -34,9 +33,9 @@ public sealed partial class EditorPage : Page
             OpenFileInNewTab(msg.File);
         });
 
-        WeakReferenceMessenger.Default.Register<FolderOpenedMessage>(this , (r , msg) =>
+        WeakReferenceMessenger.Default.Register<FolderOpenedMessage>(this , async (r , msg) =>
         {
-            RefreshTreeViewWithFolder(msg.Folder);
+            await RefreshTreeViewWithFolder(msg.Folder);
         });
 
         WeakReferenceMessenger.Default.Register<SaveFileRequestMessage>(this , (r , msg) =>
@@ -66,11 +65,11 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            await _viewModel.ShowErrorAsync($"Lỗi khởi tạo TreeView: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"TreeView Init Error: {ex.Message}");
         }
     }
 
-    private void RefreshTreeViewWithFolder (StorageFolder folder)
+    private async Task RefreshTreeViewWithFolder (StorageFolder folder)
     {
         try
         {
@@ -82,37 +81,37 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            _ = _viewModel.ShowErrorAsync($"Lỗi làm mới TreeView: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"TreeView can not refresh: {ex.Message}");
         }
     }
 
     private async Task HandleSaveFile ()
     {
-        var selectedTab = GetSelectedTabContent();
-        if ( selectedTab.tab is null || selectedTab.content is null )
+        var (tab, content) = GetSelectedTabContent();
+        if ( tab is null || content is null )
         {
-            await _viewModel.ShowErrorAsync("Không có tab nào được chọn");
+            await _viewModel.ShowErrorAsync("There is no open document");
             return;
         }
 
-        await _viewModel.HandleSaveFile(selectedTab.content);
-        selectedTab.tab.Header = selectedTab.content.ViewModel.FileName;
+        await _viewModel.HandleSaveFile(content);
+        tab.Header = content.ViewModel.FileName;
     }
 
     private async void SaveCurrentTabContent (string filePath)
     {
         try
         {
-            var selectedTab = GetSelectedTabContent();
-            if ( selectedTab.content is not null )
+            var (tab, content) = GetSelectedTabContent();
+            if ( content is not null )
             {
-                await _viewModel.SaveFileToPath(filePath , selectedTab.content);
-                selectedTab.tab.Header = selectedTab.content.ViewModel.FileName;
+                await _viewModel.SaveFileToPath(filePath , content);
+                tab.Header = content.ViewModel.FileName;
             }
         }
         catch ( Exception ex )
         {
-            ShowErrorDialog($"Lỗi lưu file: {ex.Message}");
+            ShowErrorDialog($"Can not save file: {ex.Message}");
         }
     }
 
@@ -120,7 +119,7 @@ public sealed partial class EditorPage : Page
     {
         try
         {
-            var text = await _viewModel.ReadFileTextAsync(file);
+            var text = await EditorPageViewModel.ReadFileTextAsync(file);
             var newTab = CreateNewTab(Tabs.TabItems.Count);
             var content = (TabViewContent) newTab.Content!;
             content.ViewModel.SetFilePath(file.Path , file.Name);
@@ -132,7 +131,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            await _viewModel.ShowErrorAsync($"Lỗi mở file: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Can not open file: {ex.Message}");
         }
     }
 
@@ -172,7 +171,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            await _viewModel.ShowErrorAsync($"Lỗi tải items: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Can not load items: {ex.Message}");
         }
     }
 
@@ -184,7 +183,7 @@ public sealed partial class EditorPage : Page
         }
     }
 
-    private void TreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args)
+    private static void TreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args)
     {
         args.Node.Children.Clear();
         args.Node.HasUnrealizedChildren = true;
@@ -217,7 +216,7 @@ public sealed partial class EditorPage : Page
             bool isMarkdownFile = file.FileType.Equals(".md" , StringComparison.OrdinalIgnoreCase);
             mainMenu.SetVisibility(isMarkdownFile);
 
-            var text = await _viewModel.ReadFileTextAsync(file);
+            var text = await EditorPageViewModel.ReadFileTextAsync(file);
             var newTab = CreateNewTab(Tabs.TabItems.Count);
             var content = (TabViewContent) newTab.Content!;
             content.ViewModel.SetFilePath(file.Path , file.Name);
@@ -229,7 +228,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            await _viewModel.ShowErrorAsync($"Lỗi mở file: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Can not open file: {ex.Message}");
         }
     }
 
@@ -238,18 +237,18 @@ public sealed partial class EditorPage : Page
         Frame.Navigate(typeof(SettingsPage));
     }
 
-    private void TabView_AddButtonClick (TabView sender , object args)
+    private static void TabView_AddButtonClick (TabView sender , object args)
     {
         var newTab = CreateNewTab(sender.TabItems.Count);
         sender.TabItems.Add(newTab);
     }
 
-    private void TabView_TabCloseRequested (TabView sender , TabViewTabCloseRequestedEventArgs args)
+    private static void TabView_TabCloseRequested (TabView sender , TabViewTabCloseRequestedEventArgs args)
     {
         sender.TabItems.Remove(args.Tab);
     }
 
-    private TabViewItem CreateNewTab (int index)
+    private static TabViewItem CreateNewTab (int index)
     {
         TabViewItem newItem = new()
         {
@@ -265,7 +264,7 @@ public sealed partial class EditorPage : Page
     }
 
     // Helper Methods
-    private TreeViewNode CreateTreeViewNode (StorageFolder folder)
+    private static TreeViewNode CreateTreeViewNode (StorageFolder folder)
     {
         return new()
         {
@@ -277,8 +276,7 @@ public sealed partial class EditorPage : Page
 
     private (TabViewItem? tab, TabViewContent? content) GetSelectedTabContent ()
     {
-        var tab = Tabs.SelectedItem as TabViewItem;
-        if ( tab is null )
+        if ( Tabs.SelectedItem is not TabViewItem tab )
         {
             return (null, null);
         }
