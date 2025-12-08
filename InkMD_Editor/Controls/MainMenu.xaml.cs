@@ -82,7 +82,7 @@ public sealed partial class MainMenu : UserControl
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync("Không thể load templates" + ex.Message);
+            await _dialogService.ShowErrorAsync($"Không thể load templates: {ex.Message}");
         }
     }
 
@@ -99,7 +99,7 @@ public sealed partial class MainMenu : UserControl
             }
             catch ( Exception ex )
             {
-                await _dialogService.ShowErrorAsync("Không thể load templates" + ex.Message);
+                await _dialogService.ShowErrorAsync($"Không thể load templates: {ex.Message}");
             }
         }
     }
