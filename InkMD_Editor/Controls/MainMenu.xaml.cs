@@ -146,6 +146,11 @@ public sealed partial class MainMenu : UserControl
         {
             WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile: false));
         }
+
+        TemplateDialog.Closed += (s , e) => {
+            if ( previewWebView.CoreWebView2 is not null )
+                previewWebView.NavigateToString("");
+        };
     }
 
     private string ConvertMarkdownToHtml (string markdown)
