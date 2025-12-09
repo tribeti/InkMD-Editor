@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:InkMD_Editor.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:InkMD_Editor.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
@@ -139,13 +140,10 @@
                         </AppBarButton.Flyout>
                     </AppBarButton>
                     <AppBarButton Icon="{ui:FontIcon Glyph=&#xF156;}" Label="Shapes" />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xED58;}" Label="Icons">
-                        <AppBarButton.Flyout>
-                            <Flyout>
-                                <GridView x:Name="IconGridView" />
-                            </Flyout>
-                        </AppBarButton.Flyout>
-                    </AppBarButton>
+                    <AppBarButton
+                        Click="AppBarButton_Click"
+                        Icon="{ui:FontIcon Glyph=&#xED58;}"
+                        Label="Icons" />
                     <AppBarSeparator />
                     <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" Label="Templates">
                         <AppBarButton.Flyout>
@@ -206,6 +204,109 @@
 
             <Grid Width="1200" Height="800">
                 <WebView2 x:Name="previewWebView" />
+            </Grid>
+        </ContentDialog>
+
+        <ContentDialog
+            x:Name="IconsDialog"
+            FullSizeDesired="True"
+            IsPrimaryButtonEnabled="True"
+            PrimaryButtonText="OK">
+
+            <ContentDialog.Resources>
+                <x:Double x:Key="ContentDialogMaxWidth">9999999</x:Double>
+                <x:Double x:Key="ContentDialogMaxHeight">9999999</x:Double>
+                <x:Double x:Key="ContentDialogPadding">8</x:Double>
+            </ContentDialog.Resources>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!--  icon list  -->
+                <GridView
+                    Grid.Row="0"
+                    Width="1200"
+                    Height="800"
+                    ItemsSource="{x:Bind Skills}"
+                    SelectionMode="Multiple">
+                    <GridView.ItemTemplate>
+                        <DataTemplate x:DataType="models:SkillItem">
+                            <StackPanel
+                                Width="100"
+                                Margin="5"
+                                Background="#1A1A1A"
+                                CornerRadius="8">
+                                <TextBlock
+                                    Margin="0,8,0,0"
+                                    VerticalAlignment="Center"
+                                    FontWeight="SemiBold"
+                                    HorizontalTextAlignment="Center"
+                                    MaxLines="2"
+                                    Text="{x:Bind Name}"
+                                    TextWrapping="Wrap" />
+                                <controls:MarkdownTextBlock
+                                    Margin="12"
+                                    HorizontalAlignment="Center"
+                                    Background="Transparent"
+                                    Text="{x:Bind MarkdownContent}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+
+                <TextBlock Grid.Row="1" Text="Code" />
+
+                <!--  code section  -->
+                <Grid
+                    Grid.Row="2"
+                    Background="#1E1E1E"
+                    BorderBrush="#333333"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                    <ScrollViewer
+                        Padding="16"
+                        HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Auto">
+                        <TextBlock
+                            x:Name="CodeDisplay"
+                            FontFamily="Consolas, Courier New"
+                            Foreground="#D4D4D4"
+                            IsTextSelectionEnabled="True"
+                            Text="kgl;dkgl;dfg"
+                            TextWrapping="NoWrap" />
+                    </ScrollViewer>
+                    <Button
+                        x:Name="CopyBtn"
+                        Margin="8"
+                        Padding="6"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="CopyBtn_Click"
+                        ToolTipService.ToolTip="Copy code">
+
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <FontIcon
+                                x:Name="CopyIcon"
+                                FontSize="14"
+                                Glyph="&#xE8C8;" />
+                            <FontIcon
+                                x:Name="CheckIcon"
+                                FontSize="14"
+                                Foreground="#4CC71E"
+                                Glyph="&#xE73E;"
+                                Visibility="Collapsed" />
+                        </StackPanel>
+                        <Button.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#33FFFFFF" />
+                        </Button.Resources>
+                    </Button>
+                </Grid>
             </Grid>
         </ContentDialog>
     </RelativePanel>

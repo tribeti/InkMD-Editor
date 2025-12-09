@@ -1,12 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Messagers;
+using InkMD_Editor.Models;
 using InkMD_Editor.Services;
 using Markdig;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace InkMD_Editor.Controls;
 
@@ -15,6 +18,7 @@ public sealed partial class MainMenu : UserControl
     private readonly FileService _fileService = new();
     private readonly DialogService _dialogService = new();
     private readonly MarkdownPipeline _markdownPipeline;
+    public ObservableCollection<SkillItem> Skills { get; set; } = new();
 
     public MainMenu ()
     {
@@ -110,6 +114,45 @@ public sealed partial class MainMenu : UserControl
         }
     }
 
+    private async void AppBarButton_Click (object sender , RoutedEventArgs e)
+    {
+        IconsDialog.XamlRoot = this.XamlRoot;
+        IconsDialog.DefaultButton = ContentDialogButton.Primary;
+        LoadData();
+        await IconsDialog.ShowAsync();
+    }
+
+    private void LoadData ()
+    {
+        string rawData = "ableton,activitypub,actix,adonis,ae,aiscript,alpinejs,anaconda,androidstudio,angular,ansible,apollo,apple,appwrite,arch,arduino,astro,atom,au,autocad,aws,azul,azure,babel,bash,bevy,bitbucket,blender,bootstrap,bsd,bun,c,cs,cpp,crystal,cassandra,clion,clojure,cloudflare,cmake,codepen,coffeescript,css,cypress";
+        var items = rawData.Split(',');
+        foreach ( var item in items )
+        {
+            Skills.Add(new SkillItem(item.Trim()));
+        }
+    }
+
+    private async void CopyBtn_Click (object sender , RoutedEventArgs e)
+    {
+        string contentToCopy = CodeDisplay.Text;
+
+        if ( string.IsNullOrEmpty(contentToCopy) )
+            return;
+        DataPackage dataPackage = new DataPackage();
+        dataPackage.SetText(contentToCopy);
+        Clipboard.SetContent(dataPackage);
+
+        CopyIcon.Visibility = Visibility.Collapsed;
+        CheckIcon.Visibility = Visibility.Visible;
+        ToolTipService.SetToolTip(CopyBtn , "Copied!");
+
+        await Task.Delay(2000);
+
+        CopyIcon.Visibility = Visibility.Visible;
+        CheckIcon.Visibility = Visibility.Collapsed;
+        ToolTipService.SetToolTip(CopyBtn , "Copy code");
+    }
+
     private async Task ShowTemplatePreviewDialog (string templateName , string content)
     {
         if ( TemplateDialog is null || previewWebView is null )
@@ -124,7 +167,7 @@ public sealed partial class MainMenu : UserControl
 
         try
         {
-            if ( previewWebView.CoreWebView2 == null )
+            if ( previewWebView.CoreWebView2 is null )
             {
                 await previewWebView.EnsureCoreWebView2Async();
             }
