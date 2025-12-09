@@ -112,36 +112,22 @@ public sealed partial class MainMenu : UserControl
 
     private async Task ShowTemplatePreviewDialog (string templateName , string content)
     {
-        var dialog = new ContentDialog
+        if ( TemplateDialog is null || previewWebView is null )
         {
-            Title = $"Template Preview: {templateName}" ,
-            CloseButtonText = "Cancel" ,
-            DefaultButton = ContentDialogButton.Primary ,
-            PrimaryButtonText = "Add (New File)" ,
-            SecondaryButtonText = "Insert (Current Doc)" ,
-            XamlRoot = this.XamlRoot
-        };
+            await _dialogService.ShowErrorAsync("Lỗi giao diện: Không tìm thấy Dialog hoặc WebView.");
+            return;
+        }
 
-        var stackPanel = new StackPanel
-        {
-            Spacing = 16
-        };
-
-        var previewBorder = new Border
-        {
-            Background = (Microsoft.UI.Xaml.Media.Brush) Application.Current.Resources ["CardBackgroundFillColorDefaultBrush"] ,
-            BorderBrush = (Microsoft.UI.Xaml.Media.Brush) Application.Current.Resources ["CardStrokeColorDefaultBrush"] ,
-            BorderThickness = new Thickness(1) ,
-            CornerRadius = new CornerRadius(4) ,
-            Height = 400 ,
-            Width = 600
-        };
-
-        var previewWebView = new WebView2();
+        TemplateDialog.Title = $"Template Preview: {templateName}";
+        TemplateDialog.XamlRoot = this.XamlRoot;
+        TemplateDialog.DefaultButton = ContentDialogButton.Primary;
 
         try
         {
-            await previewWebView.EnsureCoreWebView2Async();
+            if ( previewWebView.CoreWebView2 == null )
+            {
+                await previewWebView.EnsureCoreWebView2Async();
+            }
             string html = ConvertMarkdownToHtml(content);
             previewWebView.NavigateToString(html);
         }
@@ -151,23 +137,7 @@ public sealed partial class MainMenu : UserControl
             return;
         }
 
-        previewBorder.Child = previewWebView;
-        stackPanel.Children.Add(previewBorder);
-        dialog.Content = stackPanel;
-
-        dialog.Closed += (s , e) =>
-        {
-            if ( previewBorder.Child == previewWebView )
-            {
-                previewBorder.Child = null;
-            }
-
-            previewWebView?.Close();
-            previewWebView = null;
-        };
-
-        var result = await dialog.ShowAsync();
-
+        var result = await TemplateDialog.ShowAsync();
         if ( result is ContentDialogResult.Primary )
         {
             WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile: true));
@@ -201,6 +171,13 @@ public sealed partial class MainMenu : UserControl
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel=""stylesheet"" href=""https://cdn.jsdelivr.net/gh/tribeti/Java@master/style.css"">
+    <style>
+        body {{
+            padding: 20px;
+            margin: 0;
+            overflow-y: auto;
+        }}
+    </style>
 </head>
 <body>
     {htmlBody}

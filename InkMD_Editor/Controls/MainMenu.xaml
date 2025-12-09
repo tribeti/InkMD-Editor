@@ -190,5 +190,23 @@
                 </controls:TabbedCommandBarItem>
             </controls:TabbedCommandBar.MenuItems>
         </controls:TabbedCommandBar>
+
+        <ContentDialog
+            x:Name="TemplateDialog"
+            CloseButtonText="Cancel"
+            FullSizeDesired="True"
+            IsPrimaryButtonEnabled="True"
+            PrimaryButtonText="Add (New File)"
+            SecondaryButtonText="Insert (Current Doc)">
+
+            <ContentDialog.Resources>
+                <x:Double x:Key="ContentDialogMaxWidth">9999999</x:Double>
+                <x:Double x:Key="ContentDialogMaxHeight">9999999</x:Double>
+            </ContentDialog.Resources>
+
+            <Grid Width="1200" Height="800">
+                <WebView2 x:Name="previewWebView" />
+            </Grid>
+        </ContentDialog>
     </RelativePanel>
 </UserControl>
