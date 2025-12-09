@@ -238,7 +238,7 @@
                             <StackPanel
                                 Width="100"
                                 Margin="5"
-                                Background="#1A1A1A"
+                                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                 CornerRadius="8">
                                 <TextBlock
                                     Margin="0,8,0,0"
@@ -263,8 +263,8 @@
                 <!--  code section  -->
                 <Grid
                     Grid.Row="2"
-                    Background="#1E1E1E"
-                    BorderBrush="#333333"
+                    Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                    BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="8">
                     <ScrollViewer
@@ -302,9 +302,6 @@
                                 Glyph="&#xE73E;"
                                 Visibility="Collapsed" />
                         </StackPanel>
-                        <Button.Resources>
-                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#33FFFFFF" />
-                        </Button.Resources>
                     </Button>
                 </Grid>
             </Grid>
