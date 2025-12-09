@@ -21,6 +21,7 @@
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 FontFamily="Cascadia Mono"
                 IsSpellCheckEnabled="False"
+                Paste="MdEditor_Paste"
                 TextChanged="MdEditor_TextChanged" />
         </Grid>
 
