@@ -46,7 +46,7 @@
                     <AppBarButton Icon="{ui:FontIcon Glyph=&#xE7C3;}" Label="New File" />
                     <AppBarSeparator />
                     <AppBarButton
-                        Command="{x:Bind OpenFileCommand}"
+                        Command="{x:Bind ViewModel.OpenFileCommand}"
                         Icon="{ui:FontIcon Glyph=&#xE8E5;}"
                         Label="Open file">
                         <AppBarButton.KeyboardAccelerators>
@@ -54,7 +54,7 @@
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
                     <AppBarButton
-                        Command="{x:Bind OpenFolderCommand}"
+                        Command="{x:Bind ViewModel.OpenFolderCommand}"
                         Icon="{ui:FontIcon Glyph=&#xE8DA;}"
                         Label="Open folder">
                         <AppBarButton.KeyboardAccelerators>
@@ -63,7 +63,7 @@
                     </AppBarButton>
                     <AppBarSeparator />
                     <AppBarButton
-                        Command="{x:Bind SaveCommand}"
+                        Command="{x:Bind ViewModel.SaveCommand}"
                         Icon="{ui:FontIcon Glyph=&#xE74E;}"
                         Label="Save">
                         <AppBarButton.KeyboardAccelerators>
@@ -71,7 +71,7 @@
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
                     <AppBarButton
-                        Command="{x:Bind SaveAsFileCommand}"
+                        Command="{x:Bind ViewModel.SaveAsFileCommand}"
                         Icon="{ui:FontIcon Glyph=&#xE792;}"
                         Label="Save As">
                         <AppBarButton.KeyboardAccelerators>
@@ -80,7 +80,7 @@
                     </AppBarButton>
                     <AppBarSeparator />
                     <AppBarButton
-                        Command="{x:Bind ExitApplicationCommand}"
+                        Command="{x:Bind ViewModel.ExitApplicationCommand}"
                         Icon="{ui:FontIcon Glyph=&#xF3B1;}"
                         Label="Exit" />
                 </controls:TabbedCommandBarItem>
@@ -220,7 +220,7 @@
 
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -229,39 +229,51 @@
                 <GridView
                     Grid.Row="0"
                     Width="1200"
-                    Height="800"
-                    ItemsSource="{x:Bind Skills}"
+                    Height="500"
+                    IsItemClickEnabled="False"
+                    ItemsSource="{x:Bind IconItems}"
+                    SelectionChanged="IconGridView_SelectionChanged"
                     SelectionMode="Multiple">
                     <GridView.ItemTemplate>
-                        <DataTemplate x:DataType="models:SkillItem">
+                        <DataTemplate x:DataType="models:IconItem">
                             <StackPanel
-                                Width="100"
-                                Margin="5"
+                                Width="120"
+                                Height="140"
+                                Margin="8"
+                                Padding="8"
                                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                 CornerRadius="8">
+                                <Image
+                                    Width="80"
+                                    Height="80"
+                                    Margin="0,0,0,8"
+                                    HorizontalAlignment="Center"
+                                    Source="{x:Bind ImagePath}"
+                                    Stretch="Uniform" />
                                 <TextBlock
-                                    Margin="0,8,0,0"
                                     VerticalAlignment="Center"
+                                    FontSize="12"
                                     FontWeight="SemiBold"
                                     HorizontalTextAlignment="Center"
                                     MaxLines="2"
                                     Text="{x:Bind Name}"
                                     TextWrapping="Wrap" />
-                                <controls:MarkdownTextBlock
-                                    Margin="12"
-                                    HorizontalAlignment="Center"
-                                    Background="Transparent"
-                                    Text="{x:Bind MarkdownContent}" />
                             </StackPanel>
                         </DataTemplate>
                     </GridView.ItemTemplate>
                 </GridView>
 
-                <TextBlock Grid.Row="1" Text="Code" />
+                <TextBlock
+                    Grid.Row="1"
+                    Margin="16,12,16,0"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Text="Code" />
 
                 <!--  code section  -->
                 <Grid
                     Grid.Row="2"
+                    Margin="16,8,16,16"
                     Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                     BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                     BorderThickness="1"
@@ -273,10 +285,11 @@
                         <TextBlock
                             x:Name="CodeDisplay"
                             FontFamily="Consolas, Courier New"
-                            Foreground="#D4D4D4"
+                            FontSize="13"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             IsTextSelectionEnabled="True"
-                            Text="kgl;dkgl;dfg"
-                            TextWrapping="NoWrap" />
+                            Text="Chọn một icon để xem code..."
+                            TextWrapping="Wrap" />
                     </ScrollViewer>
                     <Button
                         x:Name="CopyBtn"
@@ -297,7 +310,7 @@
                             <FontIcon
                                 x:Name="CheckIcon"
                                 FontSize="14"
-                                Foreground="#4CC71E"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                 Glyph="&#xE73E;"
                                 Visibility="Collapsed" />
                         </StackPanel>
