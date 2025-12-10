@@ -15,13 +15,6 @@
 		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-		<Content Remove="Assets\Templates\profile1.md" />
-		<Content Remove="Assets\Templates\profile2.md" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Remove="Controls\MainMenu.xaml" />
-	</ItemGroup>
-	<ItemGroup>
 		<Content Include="Assets\SplashScreen.scale-200.png" />
 		<Content Include="Assets\LockScreenLogo.scale-200.png" />
 		<Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -32,7 +25,7 @@
 		<Content Include="Assets\Templates\**\*.md">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Assets\Templates\**\*.svg">
+		<Content Include="Assets\Icons\**\*.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>

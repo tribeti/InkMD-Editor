@@ -1,75 +1,38 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
+﻿using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Messagers;
 using InkMD_Editor.Models;
 using InkMD_Editor.Services;
+using InkMD_Editor.ViewModels;
 using Markdig;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace InkMD_Editor.Controls;
 
-public sealed partial class MainMenu : UserControl
+public sealed partial class MainMenu : UserControl, IDisposable
 {
-    private readonly FileService _fileService = new();
     private readonly DialogService _dialogService = new();
     private readonly MarkdownPipeline _markdownPipeline;
-    public ObservableCollection<SkillItem> Skills { get; set; } = new();
+    private MainMenuViewModel ViewModel { get; set; } = new();
+    public ObservableCollection<IconItem> IconItems { get; set; } = new();
+    private bool _iconsLoaded = false;
+    private ObservableCollection<MdTemplate>? _templateCache;
+    private List<string> _selectedIconsList = new();
 
     public MainMenu ()
     {
         InitializeComponent();
-
+        this.DataContext = ViewModel;
         _markdownPipeline = new MarkdownPipelineBuilder()
             .UseAdvancedExtensions()
             .UseEmojiAndSmiley()
             .Build();
-    }
-
-    [RelayCommand]
-    private async Task OpenFile ()
-    {
-        var storageFile = await _fileService.OpenFileAsync();
-        if ( storageFile is not null )
-        {
-            WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
-        }
-    }
-
-    [RelayCommand]
-    private async Task OpenFolder ()
-    {
-        var storageFolder = await _fileService.OpenFolderAsync();
-        if ( storageFolder is not null )
-        {
-            WeakReferenceMessenger.Default.Send(new FolderOpenedMessage(storageFolder));
-        }
-    }
-
-    [RelayCommand]
-    private static void Save ()
-    {
-        WeakReferenceMessenger.Default.Send(new SaveFileMessage(isNewFile: false));
-    }
-
-    [RelayCommand]
-    private async Task SaveAsFile ()
-    {
-        var filePath = await _fileService.SaveFileAsync();
-        if ( filePath is not null )
-        {
-            WeakReferenceMessenger.Default.Send(new SaveFileRequestMessage(filePath));
-        }
-    }
-
-    [RelayCommand]
-    private static void ExitApplication ()
-    {
-        App.Current.Exit();
+        this.Unloaded += (s , e) => Dispose();
     }
 
     public void SetVisibility (bool isVisible)
@@ -87,8 +50,15 @@ public sealed partial class MainMenu : UserControl
     {
         try
         {
+            if ( _templateCache is not null )
+            {
+                TemplateGridView.ItemsSource = _templateCache;
+                return;
+            }
+
             var templates = await TemplateService.GetAllTemplatesAsync();
-            TemplateGridView.ItemsSource = templates;
+            _templateCache = new ObservableCollection<MdTemplate>(templates);
+            TemplateGridView.ItemsSource = _templateCache;
         }
         catch ( Exception ex )
         {
@@ -98,7 +68,7 @@ public sealed partial class MainMenu : UserControl
 
     private async void TemplateGridView_SelectionChanged (object sender , SelectionChangedEventArgs e)
     {
-        if ( e.AddedItems.Count > 0 && e.AddedItems [0] is TemplateInfo selectedTemplate )
+        if ( e.AddedItems.Count > 0 && e.AddedItems [0] is MdTemplate selectedTemplate )
         {
             try
             {
@@ -116,20 +86,73 @@ public sealed partial class MainMenu : UserControl
 
     private async void AppBarButton_Click (object sender , RoutedEventArgs e)
     {
+        _selectedIconsList.Clear();
+        await LoadIconsAsync();
         IconsDialog.XamlRoot = this.XamlRoot;
         IconsDialog.DefaultButton = ContentDialogButton.Primary;
-        LoadData();
         await IconsDialog.ShowAsync();
     }
 
-    private void LoadData ()
+    private string GenerateIconsCode ()
     {
-        string rawData = "ableton,activitypub,actix,adonis,ae,aiscript,alpinejs,anaconda,androidstudio,angular,ansible,apollo,apple,appwrite,arch,arduino,astro,atom,au,autocad,aws,azul,azure,babel,bash,bevy,bitbucket,blender,bootstrap,bsd,bun,c,cs,cpp,crystal,cassandra,clion,clojure,cloudflare,cmake,codepen,coffeescript,css,cypress";
-        var items = rawData.Split(',');
-        foreach ( var item in items )
+        if ( _selectedIconsList.Count == 0 )
         {
-            Skills.Add(new SkillItem(item.Trim()));
+            return "![](https://skillicons.dev/icons?i=)";
         }
+
+        // Ghép tất cả icons lại, cách nhau bằng dấu phẩy
+        string iconsList = string.Join("," , _selectedIconsList);
+        string skillIconUrl = $"![](https://skillicons.dev/icons?i={iconsList})";
+
+        return skillIconUrl;
+    }
+
+    private async Task LoadIconsAsync ()
+    {
+        if ( _iconsLoaded && IconItems.Count > 0 )
+            return;
+
+        try
+        {
+            var icons = await TemplateService.GetAllIconsAsync();
+            IconItems.Clear();
+            foreach ( var icon in icons )
+            {
+                IconItems.Add(icon);
+            }
+            _iconsLoaded = true;
+        }
+        catch ( Exception ex )
+        {
+            await _dialogService.ShowErrorAsync($"Không thể load icons: {ex.Message}");
+        }
+    }
+
+    private void IconGridView_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    {
+        foreach ( var item in e.AddedItems )
+        {
+            if ( item is IconItem icon )
+            {
+                if ( !_selectedIconsList.Contains(icon.Name) )
+                {
+                    _selectedIconsList.Add(icon.Name);
+                }
+            }
+        }
+
+        // Xóa các icon bị bỏ chọn khỏi danh sách
+        foreach ( var item in e.RemovedItems )
+        {
+            if ( item is IconItem icon )
+            {
+                _selectedIconsList.Remove(icon.Name);
+            }
+        }
+
+        // Cập nhật code hiển thị
+        string generatedCode = GenerateIconsCode();
+        CodeDisplay.Text = generatedCode;
     }
 
     private async void CopyBtn_Click (object sender , RoutedEventArgs e)
@@ -138,6 +161,7 @@ public sealed partial class MainMenu : UserControl
 
         if ( string.IsNullOrEmpty(contentToCopy) )
             return;
+
         DataPackage dataPackage = new DataPackage();
         dataPackage.SetText(contentToCopy);
         Clipboard.SetContent(dataPackage);
@@ -171,6 +195,7 @@ public sealed partial class MainMenu : UserControl
             {
                 await previewWebView.EnsureCoreWebView2Async();
             }
+
             string html = ConvertMarkdownToHtml(content);
             previewWebView.NavigateToString(html);
         }
@@ -181,6 +206,8 @@ public sealed partial class MainMenu : UserControl
         }
 
         var result = await TemplateDialog.ShowAsync();
+        CleanupWebView();
+
         if ( result is ContentDialogResult.Primary )
         {
             WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile: true));
@@ -188,6 +215,21 @@ public sealed partial class MainMenu : UserControl
         else if ( result is ContentDialogResult.Secondary )
         {
             WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile: false));
+        }
+    }
+
+    private void CleanupWebView ()
+    {
+        try
+        {
+            if ( previewWebView?.CoreWebView2 is not null )
+            {
+                previewWebView.NavigateToString("<html><body></body></html>");
+            }
+        }
+        catch ( Exception ex )
+        {
+            System.Diagnostics.Debug.WriteLine($"WebView cleanup error: {ex.Message}");
         }
     }
 
@@ -226,5 +268,20 @@ public sealed partial class MainMenu : UserControl
     {htmlBody}
 </body>
 </html>";
+    }
+
+    public void Dispose ()
+    {
+        try
+        {
+            CleanupWebView();
+            _templateCache?.Clear();
+            _templateCache = null;
+            IconItems.Clear();
+        }
+        catch ( Exception ex )
+        {
+            System.Diagnostics.Debug.WriteLine($"Dispose error: {ex.Message}");
+        }
     }
 }

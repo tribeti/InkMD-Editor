@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InkMD_Editor.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -37,9 +38,9 @@ public class TemplateService
         }
     }
 
-    public static async Task<List<TemplateInfo>> GetAllTemplatesAsync ()
+    public static async Task<List<MdTemplate>> GetAllTemplatesAsync ()
     {
-        var templates = new List<TemplateInfo>();
+        var templates = new List<MdTemplate>();
         try
         {
             var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
@@ -48,7 +49,7 @@ public class TemplateService
 
             foreach ( var file in files.Where(f => f.FileType == ".md") )
             {
-                templates.Add(new TemplateInfo
+                templates.Add(new MdTemplate
                 {
                     FileName = file.Name ,
                     DisplayName = Path.GetFileNameWithoutExtension(file.Name) ,
@@ -63,12 +64,33 @@ public class TemplateService
 
         return templates;
     }
-}
 
-// Model cho template info
-public class TemplateInfo
-{
-    public string FileName { get; set; }
-    public string DisplayName { get; set; }
-    public string Path { get; set; }
+    public static async Task<List<IconItem>> GetAllIconsAsync ()
+    {
+        var icons = new List<IconItem>();
+        try
+        {
+            var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+            var iconsFolder = await folder.GetFolderAsync("Assets\\Icons");
+            var files = await iconsFolder.GetFilesAsync();
+            var imageExtensions = new [] {".svg"};
+
+            foreach ( var file in files.Where(f => imageExtensions.Contains(f.FileType.ToLower())).OrderBy(f => f.Name) )
+            {
+                string nameWithoutExtension = Path.GetFileNameWithoutExtension(file.Name).ToLower();
+                icons.Add(new IconItem
+                {
+                    Name = nameWithoutExtension ,
+                    ImagePath = file.Path ,
+                    FileName = file.Name
+                });
+            }
+        }
+        catch ( Exception ex )
+        {
+            System.Diagnostics.Debug.WriteLine($"Lỗi load icons: {ex.Message}");
+        }
+
+        return icons;
+    }
 }
