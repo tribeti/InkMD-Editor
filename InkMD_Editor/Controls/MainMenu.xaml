@@ -209,9 +209,8 @@
 
         <ContentDialog
             x:Name="IconsDialog"
-            FullSizeDesired="True"
-            IsPrimaryButtonEnabled="True"
-            PrimaryButtonText="OK">
+            CloseButtonText="OK"
+            FullSizeDesired="True">
 
             <ContentDialog.Resources>
                 <x:Double x:Key="ContentDialogMaxWidth">9999999</x:Double>

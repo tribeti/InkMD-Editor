@@ -15,8 +15,8 @@
 		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-		<Content Remove="Assets\Templates\profile1.md" />
-		<Content Remove="Assets\Templates\profile2.md" />
+		<Content Remove="Assets\Icons\*.svg" />
+		<Content Remove="Assets\Templates\*.md" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove="Controls\MainMenu.xaml" />

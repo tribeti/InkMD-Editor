@@ -13,12 +13,15 @@ using Windows.ApplicationModel.DataTransfer;
 
 namespace InkMD_Editor.Controls;
 
-public sealed partial class MainMenu : UserControl
+public sealed partial class MainMenu : UserControl, IDisposable
 {
     private readonly FileService _fileService = new();
     private readonly DialogService _dialogService = new();
     private readonly MarkdownPipeline _markdownPipeline;
     public ObservableCollection<SkillItem> Skills { get; set; } = new();
+
+    private bool _skillsLoaded = false;
+    private ObservableCollection<TemplateInfo>? _templateCache;
 
     public MainMenu ()
     {
@@ -28,6 +31,9 @@ public sealed partial class MainMenu : UserControl
             .UseAdvancedExtensions()
             .UseEmojiAndSmiley()
             .Build();
+
+        LoadSkillsData();
+        this.Unloaded += (s , e) => Dispose();
     }
 
     [RelayCommand]
@@ -87,8 +93,15 @@ public sealed partial class MainMenu : UserControl
     {
         try
         {
+            if ( _templateCache is not null )
+            {
+                TemplateGridView.ItemsSource = _templateCache;
+                return;
+            }
+
             var templates = await TemplateService.GetAllTemplatesAsync();
-            TemplateGridView.ItemsSource = templates;
+            _templateCache = new ObservableCollection<TemplateInfo>(templates);
+            TemplateGridView.ItemsSource = _templateCache;
         }
         catch ( Exception ex )
         {
@@ -118,18 +131,24 @@ public sealed partial class MainMenu : UserControl
     {
         IconsDialog.XamlRoot = this.XamlRoot;
         IconsDialog.DefaultButton = ContentDialogButton.Primary;
-        LoadData();
         await IconsDialog.ShowAsync();
     }
 
-    private void LoadData ()
+    private void LoadSkillsData ()
     {
+        if ( _skillsLoaded )
+            return;
+
         string rawData = "ableton,activitypub,actix,adonis,ae,aiscript,alpinejs,anaconda,androidstudio,angular,ansible,apollo,apple,appwrite,arch,arduino,astro,atom,au,autocad,aws,azul,azure,babel,bash,bevy,bitbucket,blender,bootstrap,bsd,bun,c,cs,cpp,crystal,cassandra,clion,clojure,cloudflare,cmake,codepen,coffeescript,css,cypress";
         var items = rawData.Split(',');
+
+        Skills.Clear();
         foreach ( var item in items )
         {
             Skills.Add(new SkillItem(item.Trim()));
         }
+
+        _skillsLoaded = true;
     }
 
     private async void CopyBtn_Click (object sender , RoutedEventArgs e)
@@ -138,6 +157,7 @@ public sealed partial class MainMenu : UserControl
 
         if ( string.IsNullOrEmpty(contentToCopy) )
             return;
+
         DataPackage dataPackage = new DataPackage();
         dataPackage.SetText(contentToCopy);
         Clipboard.SetContent(dataPackage);
@@ -171,6 +191,7 @@ public sealed partial class MainMenu : UserControl
             {
                 await previewWebView.EnsureCoreWebView2Async();
             }
+
             string html = ConvertMarkdownToHtml(content);
             previewWebView.NavigateToString(html);
         }
@@ -181,6 +202,8 @@ public sealed partial class MainMenu : UserControl
         }
 
         var result = await TemplateDialog.ShowAsync();
+        CleanupWebView();
+
         if ( result is ContentDialogResult.Primary )
         {
             WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile: true));
@@ -188,6 +211,21 @@ public sealed partial class MainMenu : UserControl
         else if ( result is ContentDialogResult.Secondary )
         {
             WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile: false));
+        }
+    }
+
+    private void CleanupWebView ()
+    {
+        try
+        {
+            if ( previewWebView?.CoreWebView2 is not null )
+            {
+                previewWebView.NavigateToString("<html><body></body></html>");
+            }
+        }
+        catch ( Exception ex )
+        {
+            System.Diagnostics.Debug.WriteLine($"WebView cleanup error: {ex.Message}");
         }
     }
 
@@ -226,5 +264,20 @@ public sealed partial class MainMenu : UserControl
     {htmlBody}
 </body>
 </html>";
+    }
+
+    public void Dispose ()
+    {
+        try
+        {
+            CleanupWebView();
+            _templateCache?.Clear();
+            _templateCache = null;
+            Skills.Clear();
+        }
+        catch ( Exception ex )
+        {
+            System.Diagnostics.Debug.WriteLine($"Dispose error: {ex.Message}");
+        }
     }
 }
