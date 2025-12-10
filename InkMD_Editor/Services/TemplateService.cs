@@ -73,7 +73,7 @@ public class TemplateService
             var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
             var iconsFolder = await folder.GetFolderAsync("Assets\\Icons");
             var files = await iconsFolder.GetFilesAsync();
-            var imageExtensions = new [] { ".png" , ".svg" , ".jpg" , ".jpeg" };
+            var imageExtensions = new [] {".svg"};
 
             foreach ( var file in files.Where(f => imageExtensions.Contains(f.FileType.ToLower())).OrderBy(f => f.Name) )
             {
