@@ -1,0 +1,52 @@
+name: 🎨 New Icon / Template Request
+description: Request a new icon or a new Markdown template
+title: "[ASSET] "
+labels: ["new-asset"]
+
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: "What do you want to request?"
+      options:
+        - New icon
+        - New template
+    validations:
+      required: true
+
+  - type: input
+    id: name
+    attributes:
+      label: "Name"
+      placeholder: "Example: Rust Icon / Academic Template"
+    validations:
+      required: true
+
+  - type: input
+    id: preview
+    attributes:
+      label: "Preview image URL"
+      description: "Optional – link to the icon or preview image"
+      placeholder: "https://example.com/icon.png"
+
+  - type: input
+    id: source
+    attributes:
+      label: "Source link"
+      description: "Where did you find it? GitHub repo, website, asset pack, etc."
+      placeholder: "https://github.com/... or https://icon-site.com/... "
+
+  - type: textarea
+    id: content
+    attributes:
+      label: "Template / Icon content (if applicable)"
+      description: "Paste the template content or icon metadata here"
+      placeholder: |
+        For templates: paste full .md template text
+        For icons: color codes, SVG, PNG link, brand style, etc.
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: "Additional notes"
+      placeholder: "Any other details we should know?"
