@@ -18,7 +18,7 @@
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
 	<ItemGroup>
-		<Content Include="Assets\**\*.*">
+		<Content Include="Assets\**\*.*" Exclude="Assets\.git\**\*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
