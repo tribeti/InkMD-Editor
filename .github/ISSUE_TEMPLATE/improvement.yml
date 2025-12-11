@@ -1,0 +1,20 @@
+name: 🛠 Improvement
+description: Suggest a minor improvement or enhancement
+title: "[IMPROVEMENT] "
+labels: ["enhancement"]
+assignees: []
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "What should be improved?"
+      placeholder: "Improve preview rendering speed..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefit
+    attributes:
+      label: "What is the benefit?"
+      placeholder: "Faster preview for large Markdown files"
