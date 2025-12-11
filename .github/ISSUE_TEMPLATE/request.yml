@@ -2,7 +2,6 @@ name: "🐞 Issue Report"
 description: "Submit a bug report, feature request, or improvement to help us enhance the project."
 title: "[Issue] <Short summary here>"
 labels: []
-assignees: []
 
 body:
   - type: dropdown
