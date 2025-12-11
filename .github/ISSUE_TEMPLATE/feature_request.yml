@@ -1,0 +1,27 @@
+name: ✨ Feature Request
+description: Suggest a new feature for the app
+title: "[FEATURE]"
+labels: ["feature"]
+
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: "What feature would you like?"
+      placeholder: "I would like a feature to export to DOCX..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: "Why is this feature needed?"
+      placeholder: "It would help me create documents more easily..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternative solutions"
+      placeholder: "I'm currently using another app but it's not very convenient..."
