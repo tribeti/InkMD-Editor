@@ -1,0 +1,14 @@
+name: ❓ Other Issue
+description: For anything that doesn't fit other categories
+title: "[OTHER] "
+labels: ["other"]
+assignees: []
+
+body:
+  - type: textarea
+    id: details
+    attributes:
+      label: "Describe your issue"
+      placeholder: "I have a question about configuration..."
+    validations:
+      required: true
