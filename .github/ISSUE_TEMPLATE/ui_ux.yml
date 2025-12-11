@@ -1,0 +1,20 @@
+name: 🎭 UI/UX Issue
+description: Report an issue related to design or user experience
+title: "[UI/UX] "
+labels: ["ui-ux"]
+assignees: []
+
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: "What is the issue?"
+      placeholder: "The spacing between the icon and text feels too small..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: "Your suggested improvement"
+      placeholder: "Increase padding from 4px to 8px..."

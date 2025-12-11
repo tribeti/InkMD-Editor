@@ -1,0 +1,55 @@
+name: 🐞 Bug Report
+description: Report a bug so we can fix it quickly
+title: "[BUG]"
+labels: ["bug"]
+
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Severity Level"
+      description: "How severe is this issue?"
+      options:
+        - 🟢 Low – Minor impact
+        - 🟡 Medium – Noticeable impact
+        - 🔴 High – Significant impact
+        - 🚨 Critical – Application fails to run
+      default: 1
+    validations:
+      required: true
+      
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: "What happened?"
+      description: "Describe the bug in detail"
+      placeholder: "When I click the Save button, the app crashes..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to reproduce"
+      description: "How can we reproduce the issue?"
+      placeholder: |
+        1. Open a file
+        2. Click Save
+        3. App crashes
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: "App version"
+      placeholder: "Example: 1.3.2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs / Screenshots (if any)"
+      description: "Paste logs or attach screenshots to help us debug"
+      render: bash
