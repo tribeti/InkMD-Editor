@@ -1,0 +1,66 @@
+name: "🐞 Issue Report"
+description: "Submit a bug report, feature request, or improvement to help us enhance the project."
+title: "[Issue] <Short summary here>"
+labels: []
+assignees: []
+
+body:
+  - type: dropdown
+    id: what
+    attributes:
+      label: "Type of Request"
+      description: "What would you like to submit?"
+      options:
+        - New feature
+        - Bug fix
+        - New icons
+        - New templates
+      default: 0
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Severity Level"
+      description: "How severe is this issue?"
+      options:
+        - 🟢 Low – Minor impact
+        - 🟡 Medium – Noticeable impact
+        - 🔴 High – Significant impact
+        - 🚨 Critical – Application fails to run
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: "Provide a clear explanation of the issue or request. Include steps to reproduce if it's a bug."
+      placeholder: "Example: The app crashes when clicking the Save button..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs / Stacktrace"
+      description: "Attach logs or error messages if available."
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: "Version"
+      placeholder: "v1.0.3"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: "Checklist"
+      options:
+        - label: "I have searched for existing issues"
+        - label: "I have provided clear and complete information"
