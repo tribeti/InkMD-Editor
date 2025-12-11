@@ -4,6 +4,20 @@ title: "[BUG]"
 labels: ["bug"]
 
 body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Severity Level"
+      description: "How severe is this issue?"
+      options:
+        - 🟢 Low – Minor impact
+        - 🟡 Medium – Noticeable impact
+        - 🔴 High – Significant impact
+        - 🚨 Critical – Application fails to run
+      default: 1
+    validations:
+      required: true
+      
   - type: textarea
     id: what-happened
     attributes:
