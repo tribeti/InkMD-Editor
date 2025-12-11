@@ -97,12 +97,12 @@ public sealed partial class MainMenu : UserControl, IDisposable
     {
         if ( _selectedIconsList.Count == 0 )
         {
-            return "![](https://skillicons.dev/icons?i=)";
+            return "![](https://ink-md-server.vercel.app/api?i=)";
         }
 
         // Ghép tất cả icons lại, cách nhau bằng dấu phẩy
         string iconsList = string.Join("," , _selectedIconsList);
-        string skillIconUrl = $"![](https://skillicons.dev/icons?i={iconsList})";
+        string skillIconUrl = $"![](https://ink-md-server.vercel.app/api?i={iconsList})";
 
         return skillIconUrl;
     }
