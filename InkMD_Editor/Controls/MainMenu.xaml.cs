@@ -19,10 +19,10 @@ public sealed partial class MainMenu : UserControl, IDisposable
     private readonly DialogService _dialogService = new();
     private readonly MarkdownPipeline _markdownPipeline;
     private MainMenuViewModel ViewModel { get; set; } = new();
-    public ObservableCollection<IconItem> IconItems { get; set; } = new();
+    public ObservableCollection<IconItem> IconItems { get; set; } = [];
     private bool _iconsLoaded = false;
     private ObservableCollection<MdTemplate>? _templateCache;
-    private List<string> _selectedIconsList = new();
+    private List<string> _selectedIconsList = [];
 
     public MainMenu ()
     {
@@ -100,7 +100,6 @@ public sealed partial class MainMenu : UserControl, IDisposable
             return "![](https://ink-md-server.vercel.app/api?i=)";
         }
 
-        // Ghép tất cả icons lại, cách nhau bằng dấu phẩy
         string iconsList = string.Join("," , _selectedIconsList);
         string skillIconUrl = $"![](https://ink-md-server.vercel.app/api?i={iconsList})";
 
@@ -141,7 +140,6 @@ public sealed partial class MainMenu : UserControl, IDisposable
             }
         }
 
-        // Xóa các icon bị bỏ chọn khỏi danh sách
         foreach ( var item in e.RemovedItems )
         {
             if ( item is IconItem icon )
@@ -268,6 +266,37 @@ public sealed partial class MainMenu : UserControl, IDisposable
     {htmlBody}
 </body>
 </html>";
+    }
+
+    private async void NewMDFile_Click (object sender , RoutedEventArgs e)
+    {
+        MdFileNameBox.Text = string.Empty;
+        MdFileNameBox.Focus(FocusState.Programmatic);
+
+        var result = await NewMdDialog.ShowAsync();
+
+        if ( result == ContentDialogResult.Primary )
+        {
+            //CreateMdFile();
+        }
+    }
+
+    private async void NewFile_Click (object sender , RoutedEventArgs e)
+    {
+        MdFileNameBox.Text = string.Empty;
+        MdFileNameBox.Focus(FocusState.Programmatic);
+
+        var result = await NewFileDialog.ShowAsync();
+
+        if ( result == ContentDialogResult.Primary )
+        {
+            //CreateFile();
+        }
+    }
+
+    private async void About_Click(object sender, RoutedEventArgs e)
+    {
+        await AboutDialog.ShowAsync();
     }
 
     public void Dispose ()

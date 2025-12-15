@@ -38,12 +38,18 @@
             <controls:TabbedCommandBar.MenuItems>
                 <!--  file menu items  -->
                 <controls:TabbedCommandBarItem Header="File">
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE729;}" Label="New .md File">
+                    <AppBarButton
+                        Click="NewMDFile_Click"
+                        Icon="{ui:FontIcon Glyph=&#xE729;}"
+                        Label="New .md File">
                         <AppBarButton.KeyboardAccelerators>
                             <KeyboardAccelerator Key="N" Modifiers="Control" />
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE7C3;}" Label="New File" />
+                    <AppBarButton
+                        Click="NewFile_Click"
+                        Icon="{ui:FontIcon Glyph=&#xE7C3;}"
+                        Label="New File" />
                     <AppBarSeparator />
                     <AppBarButton
                         Command="{x:Bind ViewModel.OpenFileCommand}"
@@ -184,7 +190,10 @@
                 </controls:TabbedCommandBarItem>
                 <!--  help  -->
                 <controls:TabbedCommandBarItem x:Name="Help" Header="Help">
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE946;}" Label="About" />
+                    <AppBarButton
+                        Click="About_Click"
+                        Icon="{ui:FontIcon Glyph=&#xE946;}"
+                        Label="About" />
                 </controls:TabbedCommandBarItem>
             </controls:TabbedCommandBar.MenuItems>
         </controls:TabbedCommandBar>
@@ -318,5 +327,55 @@
                 </Grid>
             </Grid>
         </ContentDialog>
+
+        <ContentDialog
+            x:Name="NewMdDialog"
+            Title="New .md file"
+            DefaultButton="Primary"
+            PrimaryButtonText="Create"
+            RequestedTheme="Default"
+            SecondaryButtonText="Cancel">
+
+            <StackPanel Spacing="20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox
+                        x:Name="MdFileNameBox"
+                        Grid.Column="0"
+                        VerticalContentAlignment="Center"
+                        PlaceholderText="README" />
+
+                    <TextBlock
+                        Grid.Column="1"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        FontSize="16"
+                        Text=".md" />
+                </Grid>
+            </StackPanel>
+        </ContentDialog>
+
+        <ContentDialog
+            x:Name="NewFileDialog"
+            Title="New file"
+            DefaultButton="Primary"
+            PrimaryButtonText="Create"
+            RequestedTheme="Default"
+            SecondaryButtonText="Cancel">
+
+            <StackPanel Spacing="20">
+                <TextBox
+                    x:Name="FileNameBox"
+                    Grid.Column="0"
+                    VerticalContentAlignment="Center"
+                    PlaceholderText="abc.txt" />
+            </StackPanel>
+        </ContentDialog>
+
+        <ContentDialog x:Name="AboutDialog" CloseButtonText="OK" />
     </RelativePanel>
 </UserControl>
