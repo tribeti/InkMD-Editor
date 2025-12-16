@@ -75,13 +75,13 @@ public class FileService : IFileService
             try
             {
                 var storageFolder = await StorageFolder.GetFolderFromPathAsync(result.Path);
-                StorageApplicationPermissions.FutureAccessList.AddOrReplace("CurrentOpenFolder" , storageFolder);
+                StorageApplicationPermissions.FutureAccessList.AddOrReplace(FolderToken , storageFolder);
                 AppSettings.SetLastFolderPath(result.Path);
                 return storageFolder;
             }
             catch ( Exception ex )
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Lỗi mở folder: {ex.Message}"));
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Can not open file: {ex.Message}"));
                 return null;
             }
         }
@@ -111,7 +111,7 @@ public class FileService : IFileService
             }
             catch ( Exception ex )
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Lỗi lưu file: {ex.Message}"));
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Can not save file: {ex.Message}"));
                 return null;
             }
         }
@@ -147,7 +147,7 @@ public class FileService : IFileService
         }
         catch ( Exception ex )
         {
-            WeakReferenceMessenger.Default.Send(new ErrorMessage($"Không thể tạo file: {ex.Message}"));
+            WeakReferenceMessenger.Default.Send(new ErrorMessage($"Can not create file: {ex.Message}"));
             return null;
         }
     }
@@ -160,7 +160,7 @@ public class FileService : IFileService
             SuggestedFileName = suggestedName
         };
 
-        if ( extension.ToLower() == ".md" )
+        if ( string.Equals(extension , ".md" , StringComparison.OrdinalIgnoreCase) )
         {
             picker.FileTypeChoices.Add("Markdown File" , new List<string>() { ".md" });
             picker.DefaultFileExtension = ".md";
@@ -182,7 +182,7 @@ public class FileService : IFileService
             }
             catch ( Exception ex )
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Lỗi tạo file: {ex.Message}"));
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"File creation error: {ex.Message}"));
                 return null;
             }
         }

@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using InkMD_Editor.Interfaces;
 using InkMD_Editor.Messagers;
 using InkMD_Editor.Models;
 using InkMD_Editor.Services;
@@ -24,7 +23,7 @@ public sealed partial class MainMenu : UserControl
     private bool _iconsLoaded = false;
     private ObservableCollection<MdTemplate>? _templateCache;
     private List<string> _selectedIconsList = [];
-    private FileService _fileService = new ();
+    private FileService _fileService = new();
 
     public MainMenu ()
     {
@@ -314,7 +313,7 @@ public sealed partial class MainMenu : UserControl
         }
     }
 
-    private async void About_Click(object sender, RoutedEventArgs e)
+    private async void About_Click (object sender , RoutedEventArgs e)
     {
         await AboutDialog.ShowAsync();
     }
