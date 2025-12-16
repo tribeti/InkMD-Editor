@@ -327,7 +327,9 @@ public sealed partial class MainMenu : UserControl
         if ( storageFile is not null )
         {
             WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
+            return;
         }
+        await _dialogService.ShowErrorAsync("File was not created. Please check the file name and destination folder.");
     }
 
     private async void About_Click (object sender , RoutedEventArgs e)

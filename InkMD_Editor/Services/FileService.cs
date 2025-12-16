@@ -52,7 +52,7 @@ public class FileService : IFileService
             }
             catch ( Exception ex )
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Error: {ex.Message}"));
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Can not open file: {ex.Message}"));
                 return null;
             }
         }
@@ -82,7 +82,7 @@ public class FileService : IFileService
             }
             catch ( Exception ex )
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Can not open file: {ex.Message}"));
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Can not open folder: {ex.Message}"));
                 return null;
             }
         }
@@ -122,6 +122,26 @@ public class FileService : IFileService
 
     public async Task<StorageFile?> CreateFileDirectlyAsync (string fileName , string extension)
     {
+        string finalFileName = fileName.Trim();
+        string safeExtension = extension?.Trim() ?? string.Empty;
+        if ( !string.IsNullOrEmpty(safeExtension) )
+        {
+            if ( !safeExtension.StartsWith(".") )
+                safeExtension = "." + safeExtension;
+
+            if ( !finalFileName.EndsWith(safeExtension , StringComparison.OrdinalIgnoreCase) )
+            {
+                finalFileName += safeExtension;
+            }
+        }
+
+        char [] invalidChars = Path.GetInvalidFileNameChars();
+
+        if ( finalFileName.IndexOfAny(invalidChars) >= 0 )
+        {
+            WeakReferenceMessenger.Default.Send(new ErrorMessage($"File name contains invalid characters. Avoid using: {string.Join(" " , invalidChars)}"));
+            return null;
+        }
         StorageFolder? currentFolder = null;
         if ( StorageApplicationPermissions.FutureAccessList.ContainsItem(FolderToken) )
         {
@@ -141,18 +161,7 @@ public class FileService : IFileService
 
         try
         {
-            string fullfileName = fileName;
-            if ( !string.IsNullOrEmpty(extension) )
-            {
-                if ( !extension.StartsWith(".") )
-                    extension = "." + extension;
-
-                if ( !fileName.EndsWith(extension , StringComparison.OrdinalIgnoreCase) )
-                {
-                    fullfileName = fileName + extension;
-                }
-            }
-            return await currentFolder.CreateFileAsync(fullfileName , CreationCollisionOption.GenerateUniqueName);
+            return await currentFolder.CreateFileAsync(finalFileName , CreationCollisionOption.GenerateUniqueName);
         }
         catch ( Exception ex )
         {
@@ -161,7 +170,7 @@ public class FileService : IFileService
         }
     }
 
-    public async Task<StorageFile?> CreateNewFileAsync (string suggestedName , string extension)
+    public async Task<StorageFile?> CreateNewFileAsync (string suggestedName , string? extension)
     {
         var picker = new FileSavePicker(GetWindowsId())
         {
