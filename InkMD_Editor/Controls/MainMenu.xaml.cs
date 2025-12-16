@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using InkMD_Editor.Interfaces;
 using InkMD_Editor.Messagers;
 using InkMD_Editor.Models;
 using InkMD_Editor.Services;
@@ -14,7 +15,7 @@ using Windows.ApplicationModel.DataTransfer;
 
 namespace InkMD_Editor.Controls;
 
-public sealed partial class MainMenu : UserControl, IDisposable
+public sealed partial class MainMenu : UserControl
 {
     private readonly DialogService _dialogService = new();
     private readonly MarkdownPipeline _markdownPipeline;
@@ -23,6 +24,7 @@ public sealed partial class MainMenu : UserControl, IDisposable
     private bool _iconsLoaded = false;
     private ObservableCollection<MdTemplate>? _templateCache;
     private List<string> _selectedIconsList = [];
+    private FileService _fileService = new ();
 
     public MainMenu ()
     {
@@ -277,7 +279,10 @@ public sealed partial class MainMenu : UserControl, IDisposable
 
         if ( result == ContentDialogResult.Primary )
         {
-            //CreateMdFile();
+            string fileName = MdFileNameBox.Text.Trim();
+            if ( string.IsNullOrWhiteSpace(fileName) )
+                fileName = "README";
+            await CreateFileProcess(fileName , ".md");
         }
     }
 
@@ -290,7 +295,22 @@ public sealed partial class MainMenu : UserControl, IDisposable
 
         if ( result == ContentDialogResult.Primary )
         {
-            //CreateFile();
+            string fileName = FileNameBox.Text.Trim();
+            if ( string.IsNullOrWhiteSpace(fileName) )
+                fileName = "Untitled";
+
+            // Gọi hàm xử lý chung
+            await CreateFileProcess(fileName , ".txt");
+        }
+    }
+
+    private async Task CreateFileProcess (string fileName , string extension)
+    {
+        var storageFile = await _fileService.CreateFileDirectlyAsync(fileName , extension);
+
+        if ( storageFile is not null )
+        {
+            WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
         }
     }
 
