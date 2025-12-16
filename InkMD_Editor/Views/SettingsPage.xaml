@@ -11,16 +11,25 @@
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
-    <Grid>
-        <TextBlock>This is setting page</TextBlock>
-        <FontIcon Glyph="&#xE708;" />
-        <AppBarButton Icon="{ui:FontIcon Glyph=&#xE102;}" />
-        <Button Click="Button_Click" />
-
-        <controls:Segmented HorizontalAlignment="Right" SelectionMode="Single">
-            <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE7C3;}" ToolTipService.ToolTip="Markdown" />
-            <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE89A;}" ToolTipService.ToolTip="Split view" />
-            <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8FF;}" ToolTipService.ToolTip="Preview" />
-        </controls:Segmented>
-    </Grid>
+    <StackPanel Margin="16" Spacing="4">
+        <Button
+            Margin="0,0,0,10"
+            HorizontalAlignment="Left"
+            Background="Transparent"
+            BorderThickness="0"
+            Click="Button_Click">
+            <SymbolIcon Symbol="Back" />
+        </Button>
+        <controls:SettingsCard
+            x:Name="settingsCard"
+            Description="Select your preferred app theme."
+            Header="App Theme"
+            HeaderIcon="{ui:FontIcon Glyph=&#xE790;}">
+            <ComboBox x:Name="ThemeComboBox" SelectionChanged="ThemeComboBox_SelectionChanged">
+                <ComboBoxItem>Light</ComboBoxItem>
+                <ComboBoxItem>Dark</ComboBoxItem>
+                <ComboBoxItem>Use system setting</ComboBoxItem>
+            </ComboBox>
+        </controls:SettingsCard>
+    </StackPanel>
 </Page>
