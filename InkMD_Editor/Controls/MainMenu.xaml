@@ -370,7 +370,6 @@
             <StackPanel Spacing="20">
                 <TextBox
                     x:Name="FileNameBox"
-                    Grid.Column="0"
                     VerticalContentAlignment="Center"
                     PlaceholderText="abc.txt" />
             </StackPanel>

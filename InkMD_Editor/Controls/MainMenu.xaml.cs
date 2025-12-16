@@ -283,8 +283,8 @@ public sealed partial class MainMenu : UserControl, IDisposable
 
     private async void NewFile_Click (object sender , RoutedEventArgs e)
     {
-        MdFileNameBox.Text = string.Empty;
-        MdFileNameBox.Focus(FocusState.Programmatic);
+        FileNameBox.Text = string.Empty;
+        FileNameBox.Focus(FocusState.Programmatic);
 
         var result = await NewFileDialog.ShowAsync();
 
