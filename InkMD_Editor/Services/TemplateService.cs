@@ -20,7 +20,7 @@ public class TemplateService
         }
         catch ( FileNotFoundException )
         {
-            throw new Exception($"Template '{fileName}' không tìm thấy!");
+            throw new Exception($"Template '{fileName}' not found!");
         }
     }
 
@@ -34,7 +34,7 @@ public class TemplateService
         }
         catch ( FileNotFoundException )
         {
-            throw new Exception($"Icon '{iconName}' không tìm thấy!");
+            throw new Exception($"Icon '{iconName}' not found!");
         }
     }
 
@@ -59,7 +59,7 @@ public class TemplateService
         }
         catch ( Exception ex )
         {
-            System.Diagnostics.Debug.WriteLine($"Lỗi load templates: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Error load templates: {ex.Message}");
         }
 
         return templates;
@@ -73,7 +73,7 @@ public class TemplateService
             var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
             var iconsFolder = await folder.GetFolderAsync("Assets\\Icons");
             var files = await iconsFolder.GetFilesAsync();
-            var imageExtensions = new [] {".svg"};
+            var imageExtensions = new [] { ".svg" };
 
             foreach ( var file in files.Where(f => imageExtensions.Contains(f.FileType.ToLower())).OrderBy(f => f.Name) )
             {
@@ -88,7 +88,7 @@ public class TemplateService
         }
         catch ( Exception ex )
         {
-            System.Diagnostics.Debug.WriteLine($"Lỗi load icons: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Error load icons: {ex.Message}");
         }
 
         return icons;

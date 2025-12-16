@@ -51,4 +51,19 @@ public partial class MainMenuViewModel
     {
         App.Current.Exit();
     }
+
+    public async Task CreateNewFile (string fileName , string extension)
+    {
+        if ( string.IsNullOrWhiteSpace(fileName) )
+        {
+            fileName = "Untitled";
+        }
+
+        var storageFile = await _fileService.CreateNewFileAsync(fileName , extension);
+
+        if ( storageFile is not null )
+        {
+            WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
+        }
+    }
 }

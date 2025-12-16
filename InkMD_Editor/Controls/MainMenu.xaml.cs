@@ -9,12 +9,13 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace InkMD_Editor.Controls;
 
-public sealed partial class MainMenu : UserControl, IDisposable
+public sealed partial class MainMenu : UserControl
 {
     private readonly DialogService _dialogService = new();
     private readonly MarkdownPipeline _markdownPipeline;
@@ -23,6 +24,7 @@ public sealed partial class MainMenu : UserControl, IDisposable
     private bool _iconsLoaded = false;
     private ObservableCollection<MdTemplate>? _templateCache;
     private List<string> _selectedIconsList = [];
+    private FileService _fileService = new();
 
     public MainMenu ()
     {
@@ -62,7 +64,7 @@ public sealed partial class MainMenu : UserControl, IDisposable
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync($"Không thể load templates: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"Can not load template: {ex.Message}");
         }
     }
 
@@ -79,7 +81,7 @@ public sealed partial class MainMenu : UserControl, IDisposable
             }
             catch ( Exception ex )
             {
-                await _dialogService.ShowErrorAsync($"Không thể load template: {ex.Message}");
+                await _dialogService.ShowErrorAsync($"Can not load template: {ex.Message}");
             }
         }
     }
@@ -123,7 +125,7 @@ public sealed partial class MainMenu : UserControl, IDisposable
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync($"Không thể load icons: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"Can not load icon: {ex.Message}");
         }
     }
 
@@ -148,7 +150,6 @@ public sealed partial class MainMenu : UserControl, IDisposable
             }
         }
 
-        // Cập nhật code hiển thị
         string generatedCode = GenerateIconsCode();
         CodeDisplay.Text = generatedCode;
     }
@@ -179,7 +180,7 @@ public sealed partial class MainMenu : UserControl, IDisposable
     {
         if ( TemplateDialog is null || previewWebView is null )
         {
-            await _dialogService.ShowErrorAsync("Lỗi giao diện: Không tìm thấy Dialog hoặc WebView.");
+            await _dialogService.ShowErrorAsync("Error : Can not find dialog or viewer");
             return;
         }
 
@@ -199,7 +200,7 @@ public sealed partial class MainMenu : UserControl, IDisposable
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync($"Không thể hiển thị preview: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"Can not show preview: {ex.Message}");
             return;
         }
 
@@ -242,7 +243,7 @@ public sealed partial class MainMenu : UserControl, IDisposable
 
     private static string GetEmptyPreviewHtml ()
     {
-        return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview sẽ hiển thị ở đây...</p>");
+        return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview will show here...</p>");
     }
 
     private static string WrapWithGitHubStyle (string htmlBody)
@@ -277,7 +278,19 @@ public sealed partial class MainMenu : UserControl, IDisposable
 
         if ( result == ContentDialogResult.Primary )
         {
-            //CreateMdFile();
+            string fileName = MdFileNameBox.Text.Trim();
+            if ( string.IsNullOrWhiteSpace(fileName) )
+                fileName = "README";
+            string extension = Path.GetExtension(fileName);
+            string nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+
+            if ( string.IsNullOrEmpty(extension) )
+            {
+                nameWithoutExt = fileName;
+                extension = ".md";
+            }
+
+            await CreateFileProcess(nameWithoutExt , extension);
         }
     }
 
@@ -290,11 +303,36 @@ public sealed partial class MainMenu : UserControl, IDisposable
 
         if ( result == ContentDialogResult.Primary )
         {
-            //CreateFile();
+            string fileName = FileNameBox.Text.Trim();
+            if ( string.IsNullOrWhiteSpace(fileName) )
+                fileName = "Untitled";
+
+            string extension = Path.GetExtension(fileName);
+            string nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+
+            if ( string.IsNullOrEmpty(extension) )
+            {
+                nameWithoutExt = fileName;
+                extension = "";
+            }
+
+            await CreateFileProcess(nameWithoutExt , extension);
         }
     }
 
-    private async void About_Click(object sender, RoutedEventArgs e)
+    private async Task CreateFileProcess (string fileName , string extension)
+    {
+        var storageFile = await _fileService.CreateFileDirectlyAsync(fileName , extension);
+
+        if ( storageFile is not null )
+        {
+            WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
+            return;
+        }
+        await _dialogService.ShowErrorAsync("File was not created. Please check the file name and destination folder.");
+    }
+
+    private async void About_Click (object sender , RoutedEventArgs e)
     {
         await AboutDialog.ShowAsync();
     }

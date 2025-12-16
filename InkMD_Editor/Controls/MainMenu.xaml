@@ -297,7 +297,7 @@
                             FontSize="13"
                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             IsTextSelectionEnabled="True"
-                            Text="Chọn một icon để xem code..."
+                            Text="Select at least 1 icon"
                             TextWrapping="Wrap" />
                     </ScrollViewer>
                     <Button
@@ -468,7 +468,6 @@
                         </StackPanel>
                     </HyperlinkButton>
                 </StackPanel>
-
             </Grid>
         </ContentDialog>
     </RelativePanel>
