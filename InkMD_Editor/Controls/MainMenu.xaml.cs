@@ -64,7 +64,7 @@ public sealed partial class MainMenu : UserControl
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync($"Can not load template: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"Cannot load template: {ex.Message}");
         }
     }
 
@@ -81,7 +81,7 @@ public sealed partial class MainMenu : UserControl
             }
             catch ( Exception ex )
             {
-                await _dialogService.ShowErrorAsync($"Can not load template: {ex.Message}");
+                await _dialogService.ShowErrorAsync($"Cannot load template: {ex.Message}");
             }
         }
     }
@@ -125,7 +125,7 @@ public sealed partial class MainMenu : UserControl
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync($"Can not load icon: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"Cannot load icon: {ex.Message}");
         }
     }
 
@@ -180,7 +180,7 @@ public sealed partial class MainMenu : UserControl
     {
         if ( TemplateDialog is null || previewWebView is null )
         {
-            await _dialogService.ShowErrorAsync("Error : Can not find dialog or viewer");
+            await _dialogService.ShowErrorAsync("Error : Cannot load dialog");
             return;
         }
 
@@ -200,7 +200,7 @@ public sealed partial class MainMenu : UserControl
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync($"Can not show preview: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"Cannot show preview: {ex.Message}");
             return;
         }
 

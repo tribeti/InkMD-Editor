@@ -18,7 +18,7 @@ public partial class EditorPageViewModel : ObservableObject
     private DialogService _dialogService = new();
 
     [ObservableProperty]
-    public partial string RootPath { get; set; }
+    public partial string? RootPath { get; set; }
 
     public EditorPageViewModel ()
     {
@@ -46,7 +46,7 @@ public partial class EditorPageViewModel : ObservableObject
     {
         if ( content is null )
         {
-            await ShowErrorAsync("Can not get tab content");
+            await ShowErrorAsync("Cannot get tab content");
             return;
         }
 

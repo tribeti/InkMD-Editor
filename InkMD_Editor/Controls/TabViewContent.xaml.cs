@@ -4,7 +4,6 @@ using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Diagnostics;
 
 namespace InkMD_Editor.Controls;
 
@@ -59,9 +58,8 @@ public sealed partial class TabViewContent : UserControl
             doc.GetText(TextGetOptions.None , out string text);
             return text ?? string.Empty;
         }
-        catch ( Exception ex )
+        catch ( Exception )
         {
-            Debug.WriteLine($"GetContent error: {ex.Message}");
             return string.Empty;
         }
     }
