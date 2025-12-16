@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Xaml;
+using System;
 using Windows.Storage;
 
 namespace InkMD_Editor.Services;
@@ -23,7 +24,10 @@ public static class ThemeService
     {
         if ( ApplicationData.Current.LocalSettings.Values.TryGetValue(ThemeSettingKey , out object? value) && value is int themeValue )
         {
-            return (AppTheme) themeValue;
+            if ( Enum.IsDefined(typeof(AppTheme) , themeValue) )
+            {
+                return (AppTheme) themeValue;
+            }
         }
         return AppTheme.Default;
     }

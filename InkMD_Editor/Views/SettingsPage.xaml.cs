@@ -38,6 +38,13 @@ public sealed partial class SettingsPage : Page
 
     private void Button_Click (object sender , Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        Frame.Navigate(typeof(EditorPage));
+        if ( Frame.CanGoBack )
+        {
+            Frame.GoBack();
+        }
+        else
+        {
+            Frame.Navigate(typeof(EditorPage));
+        }
     }
 }
