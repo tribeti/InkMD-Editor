@@ -13,5 +13,7 @@
         <DesktopAcrylicBackdrop />
     </Window.SystemBackdrop>
 
-    <Frame x:Name="ContentFrame" />
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Frame x:Name="ContentFrame" />
+    </Grid>
 </Window>
