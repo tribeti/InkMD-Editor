@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Diagnostics;
-using Windows.ApplicationModel.DataTransfer;
 
 namespace InkMD_Editor.Controls;
 
@@ -131,36 +130,5 @@ public sealed partial class TabViewContent : UserControl
     {htmlBody}
 </body>
 </html>";
-    }
-
-    private async void MdEditor_Paste (object sender , TextControlPasteEventArgs e)
-    {
-        var dataPackageView = Clipboard.GetContent();
-        if ( dataPackageView.Contains(StandardDataFormats.Text) )
-        {
-            e.Handled = true;
-            string text = await dataPackageView.GetTextAsync();
-            if ( IsUrl(text) )
-            {
-                string markdownText = $"![]({text})";
-                MdEditor.Document.Selection.SetText(TextSetOptions.None , markdownText);
-            }
-            else
-            {
-                MdEditor.Document.Selection.SetText(TextSetOptions.None , text);
-            }
-        }
-
-    }
-
-    private bool IsUrl (string text)
-    {
-        if ( string.IsNullOrWhiteSpace(text) )
-            return false;
-        text = text.Trim();
-        bool result = Uri.TryCreate(text , UriKind.Absolute , out Uri uriResult)
-            && ( uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps );
-
-        return result;
     }
 }
