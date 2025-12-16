@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 
@@ -63,7 +64,7 @@ public sealed partial class MainMenu : UserControl
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync($"Không thể load templates: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"Can not load template: {ex.Message}");
         }
     }
 
@@ -80,7 +81,7 @@ public sealed partial class MainMenu : UserControl
             }
             catch ( Exception ex )
             {
-                await _dialogService.ShowErrorAsync($"Không thể load template: {ex.Message}");
+                await _dialogService.ShowErrorAsync($"Can not load template: {ex.Message}");
             }
         }
     }
@@ -124,7 +125,7 @@ public sealed partial class MainMenu : UserControl
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync($"Không thể load icons: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"Can not load icon: {ex.Message}");
         }
     }
 
@@ -149,7 +150,6 @@ public sealed partial class MainMenu : UserControl
             }
         }
 
-        // Cập nhật code hiển thị
         string generatedCode = GenerateIconsCode();
         CodeDisplay.Text = generatedCode;
     }
@@ -180,7 +180,7 @@ public sealed partial class MainMenu : UserControl
     {
         if ( TemplateDialog is null || previewWebView is null )
         {
-            await _dialogService.ShowErrorAsync("Lỗi giao diện: Không tìm thấy Dialog hoặc WebView.");
+            await _dialogService.ShowErrorAsync("Error : Can not find dialog or viewer");
             return;
         }
 
@@ -200,7 +200,7 @@ public sealed partial class MainMenu : UserControl
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync($"Không thể hiển thị preview: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"Can not show preview: {ex.Message}");
             return;
         }
 
@@ -243,7 +243,7 @@ public sealed partial class MainMenu : UserControl
 
     private static string GetEmptyPreviewHtml ()
     {
-        return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview sẽ hiển thị ở đây...</p>");
+        return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview will show here...</p>");
     }
 
     private static string WrapWithGitHubStyle (string htmlBody)
@@ -281,7 +281,16 @@ public sealed partial class MainMenu : UserControl
             string fileName = MdFileNameBox.Text.Trim();
             if ( string.IsNullOrWhiteSpace(fileName) )
                 fileName = "README";
-            await CreateFileProcess(fileName , ".md");
+            string extension = Path.GetExtension(fileName);
+            string nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+
+            if ( string.IsNullOrEmpty(extension) )
+            {
+                nameWithoutExt = fileName;
+                extension = ".md";
+            }
+
+            await CreateFileProcess(nameWithoutExt , extension);
         }
     }
 
@@ -298,8 +307,16 @@ public sealed partial class MainMenu : UserControl
             if ( string.IsNullOrWhiteSpace(fileName) )
                 fileName = "Untitled";
 
-            // Gọi hàm xử lý chung
-            await CreateFileProcess(fileName , ".txt");
+            string extension = Path.GetExtension(fileName);
+            string nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+
+            if ( string.IsNullOrEmpty(extension) )
+            {
+                nameWithoutExt = fileName;
+                extension = "";
+            }
+
+            await CreateFileProcess(nameWithoutExt , extension);
         }
     }
 

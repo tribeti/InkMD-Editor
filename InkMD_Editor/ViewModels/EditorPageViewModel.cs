@@ -46,7 +46,7 @@ public partial class EditorPageViewModel : ObservableObject
     {
         if ( content is null )
         {
-            await ShowErrorAsync("Không thể lấy nội dung tab");
+            await ShowErrorAsync("Can not get tab content");
             return;
         }
 
@@ -78,12 +78,12 @@ public partial class EditorPageViewModel : ObservableObject
             var viewModel = content.ViewModel;
             viewModel.SetFilePath(filePath , Path.GetFileName(filePath));
 
-            await ShowSuccessAsync($"Đã lưu: {Path.GetFileName(filePath)}");
+            await ShowSuccessAsync($"Saved: {Path.GetFileName(filePath)}");
             WeakReferenceMessenger.Default.Send(new FileSavedMessage(filePath , Path.GetFileName(filePath)));
         }
         catch ( Exception ex )
         {
-            await ShowErrorAsync($"Lỗi lưu file: {ex.Message}");
+            await ShowErrorAsync($"Save file error: {ex.Message}");
         }
     }
 

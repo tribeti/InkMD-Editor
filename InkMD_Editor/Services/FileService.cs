@@ -40,6 +40,7 @@ public class FileService : IFileService
             SuggestedStartLocation = startLocation ,
         };
 
+
         var result = await picker.PickSingleFileAsync();
         if ( result is not null )
         {
@@ -100,6 +101,7 @@ public class FileService : IFileService
         };
         picker.FileTypeChoices.Add("Markdown" , [".md"]);
         picker.FileTypeChoices.Add("Text" , [".txt"]);
+        picker.FileTypeChoices.Add("All Files" , ["."]);
 
         var result = await picker.PickSaveFileAsync();
         if ( result is not null )
@@ -139,11 +141,18 @@ public class FileService : IFileService
 
         try
         {
-            if ( !fileName.EndsWith(extension , StringComparison.OrdinalIgnoreCase) )
+            string fullfileName = fileName;
+            if ( !string.IsNullOrEmpty(extension) )
             {
-                fileName += extension;
+                if ( !extension.StartsWith(".") )
+                    extension = "." + extension;
+
+                if ( !fileName.EndsWith(extension , StringComparison.OrdinalIgnoreCase) )
+                {
+                    fullfileName = fileName + extension;
+                }
             }
-            return await currentFolder.CreateFileAsync(fileName , CreationCollisionOption.FailIfExists);
+            return await currentFolder.CreateFileAsync(fullfileName , CreationCollisionOption.GenerateUniqueName);
         }
         catch ( Exception ex )
         {
@@ -160,16 +169,23 @@ public class FileService : IFileService
             SuggestedFileName = suggestedName
         };
 
-        if ( string.Equals(extension , ".md" , StringComparison.OrdinalIgnoreCase) )
+        if ( !string.IsNullOrEmpty(extension) )
         {
-            picker.FileTypeChoices.Add("Markdown File" , new List<string>() { ".md" });
-            picker.DefaultFileExtension = ".md";
+            if ( !extension.StartsWith(".") )
+                extension = "." + extension;
+
+            picker.SuggestedFileName = suggestedName + extension;
+            picker.DefaultFileExtension = extension;
+            string fileTypeName = extension.TrimStart('.').ToUpper() + " File";
+            picker.FileTypeChoices.Add(fileTypeName , new List<string> { extension });
         }
         else
         {
-            picker.FileTypeChoices.Add("Text File" , new List<string>() { ".txt" });
-            picker.DefaultFileExtension = ".txt";
+            picker.SuggestedFileName = suggestedName;
+            picker.DefaultFileExtension = string.Empty;
         }
+
+        picker.FileTypeChoices.Add("All Files" , new List<string> { "." });
 
         var result = await picker.PickSaveFileAsync();
         if ( result is not null )

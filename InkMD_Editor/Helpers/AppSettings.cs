@@ -11,7 +11,7 @@ public static class AppSettings
     private const string LAST_OPEN_FOLDER_KEY = "LastOpenFolderPath";
 
     /// <summary>
-    /// Lấy folder được sử dụng lần cuối
+    /// Get last used folder path
     /// </summary>
     public static string GetLastFolderPath ()
     {
@@ -23,7 +23,7 @@ public static class AppSettings
     }
 
     /// <summary>
-    /// Lưu folder được sử dụng
+    /// Save last used folder path
     /// </summary>
     public static void SetLastFolderPath (string folderPath)
     {
@@ -31,7 +31,7 @@ public static class AppSettings
     }
 
     /// <summary>
-    /// Lấy folder Open được sử dụng lần cuối
+    /// Get last used folder path
     /// </summary>
     public static string GetLastOpenFolderPath ()
     {
@@ -43,7 +43,7 @@ public static class AppSettings
     }
 
     /// <summary>
-    /// Lưu folder Open được sử dụng
+    /// Save last used folder path
     /// </summary>
     public static void SetLastOpenFolderPath (string folderPath)
     {

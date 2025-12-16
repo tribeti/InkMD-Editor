@@ -33,7 +33,7 @@ public sealed partial class TabViewContent : UserControl
         UpdateMarkdownPreview(text);
     }
 
-    public void SetContent (string text , string fileName)
+    public void SetContent (string text , string? fileName)
     {
         var doc = MdEditor.Document;
         doc.SetText(TextSetOptions.None , text);
@@ -47,19 +47,16 @@ public sealed partial class TabViewContent : UserControl
         {
             if ( MdEditor is null )
             {
-                Debug.WriteLine("MdEditor is null");
                 return string.Empty;
             }
 
             var doc = MdEditor.Document;
             if ( doc is null )
             {
-                Debug.WriteLine("Document is null");
                 return string.Empty;
             }
 
             doc.GetText(TextGetOptions.None , out string text);
-            Debug.WriteLine($"GetContent: Retrieved {text?.Length ?? 0} characters");
             return text ?? string.Empty;
         }
         catch ( Exception ex )
@@ -108,7 +105,7 @@ public sealed partial class TabViewContent : UserControl
 
     private static string GetEmptyPreviewHtml ()
     {
-        return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview sẽ hiển thị ở đây...</p>");
+        return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview will show here...</p>");
     }
 
     public void DisposeWebView ()

@@ -11,7 +11,7 @@ public partial class TabViewContentViewModel : ObservableObject
     public partial string? FilePath { get; set; }
 
     /// <summary>
-    /// Kiểm tra xem file đã được lưu chưa
+    /// Check if the file has been saved
     /// </summary>
     public bool IsSaved => !string.IsNullOrEmpty(FilePath);
 
@@ -21,7 +21,7 @@ public partial class TabViewContentViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Gọi khi file được lưu thành công
+    /// Set file path and name when saving or opening a file
     /// </summary>
     public void SetFilePath (string path , string name)
     {
@@ -30,7 +30,7 @@ public partial class TabViewContentViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Reset khi tạo tab mới
+    /// reset file path and name for a new unsaved file
     /// </summary>
     public void ResetForNewFile ()
     {

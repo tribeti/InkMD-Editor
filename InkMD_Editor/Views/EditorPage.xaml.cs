@@ -85,7 +85,7 @@ public sealed partial class EditorPage : Page
     {
         if ( Tabs.TabItems.Count == 0 || Tabs.SelectedItem is null )
         {
-            await _viewModel.ShowErrorAsync("Không có document nào đang mở. Vui lòng tạo hoặc mở file trước.");
+            await _viewModel.ShowErrorAsync("There is no open file. Please open or create one first.");
             return;
         }
 
@@ -93,7 +93,7 @@ public sealed partial class EditorPage : Page
 
         if ( tabContent is null )
         {
-            await _viewModel.ShowErrorAsync("Không thể truy cập document hiện tại.");
+            await _viewModel.ShowErrorAsync("Can not access current documents.");
             return;
         }
 
