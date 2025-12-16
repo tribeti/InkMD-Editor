@@ -297,7 +297,7 @@
                             FontSize="13"
                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             IsTextSelectionEnabled="True"
-                            Text="Select at least 1 icon"
+                            Text="Choose an icon to see code"
                             TextWrapping="Wrap" />
                     </ScrollViewer>
                     <Button

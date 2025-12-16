@@ -82,7 +82,7 @@ public class FileService : IFileService
             }
             catch ( Exception ex )
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Can not open folder: {ex.Message}"));
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Cannot open folder: {ex.Message}"));
                 return null;
             }
         }
@@ -101,7 +101,7 @@ public class FileService : IFileService
         };
         picker.FileTypeChoices.Add("Markdown" , [".md"]);
         picker.FileTypeChoices.Add("Text" , [".txt"]);
-        picker.FileTypeChoices.Add("All Files" , ["."]);
+        picker.FileTypeChoices.Add("All Files" , ["*"]);
 
         var result = await picker.PickSaveFileAsync();
         if ( result is not null )
@@ -113,7 +113,7 @@ public class FileService : IFileService
             }
             catch ( Exception ex )
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Can not save file: {ex.Message}"));
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Cannot save file: {ex.Message}"));
                 return null;
             }
         }
@@ -165,7 +165,7 @@ public class FileService : IFileService
         }
         catch ( Exception ex )
         {
-            WeakReferenceMessenger.Default.Send(new ErrorMessage($"Can not create file: {ex.Message}"));
+            WeakReferenceMessenger.Default.Send(new ErrorMessage($"Cannot create file: {ex.Message}"));
             return null;
         }
     }
@@ -194,7 +194,7 @@ public class FileService : IFileService
             picker.DefaultFileExtension = string.Empty;
         }
 
-        picker.FileTypeChoices.Add("All Files" , new List<string> { "." });
+        picker.FileTypeChoices.Add("All Files" , new List<string> { "*" });
 
         var result = await picker.PickSaveFileAsync();
         if ( result is not null )

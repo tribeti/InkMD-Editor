@@ -93,7 +93,7 @@ public sealed partial class EditorPage : Page
 
         if ( tabContent is null )
         {
-            await _viewModel.ShowErrorAsync("Can not access current documents.");
+            await _viewModel.ShowErrorAsync("Cannot access current documents.");
             return;
         }
 
@@ -168,7 +168,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            await _viewModel.ShowErrorAsync($"Can not save file: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Cannot save file: {ex.Message}");
         }
     }
 
@@ -188,7 +188,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            await _viewModel.ShowErrorAsync($"Can not open file: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Cannot open file: {ex.Message}");
         }
     }
 
@@ -223,7 +223,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            await _viewModel.ShowErrorAsync($"Can not load items: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Cannot load items: {ex.Message}");
         }
     }
 
@@ -280,7 +280,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            await _viewModel.ShowErrorAsync($"Can not open file: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Cannot open file: {ex.Message}");
         }
     }
 
