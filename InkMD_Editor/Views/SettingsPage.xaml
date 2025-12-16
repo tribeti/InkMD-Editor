@@ -26,9 +26,9 @@
             Header="App Theme"
             HeaderIcon="{ui:FontIcon Glyph=&#xE790;}">
             <ComboBox x:Name="ThemeComboBox" SelectionChanged="ThemeComboBox_SelectionChanged">
-                <ComboBoxItem>Light</ComboBoxItem>
-                <ComboBoxItem>Dark</ComboBoxItem>
-                <ComboBoxItem>Use system setting</ComboBoxItem>
+                <ComboBoxItem Tag="Light">Light</ComboBoxItem>
+                <ComboBoxItem Tag="Dark">Dark</ComboBoxItem>
+                <ComboBoxItem Tag="Default">Use system setting</ComboBoxItem>
             </ComboBox>
         </controls:SettingsCard>
     </StackPanel>

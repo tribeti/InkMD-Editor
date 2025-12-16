@@ -1,5 +1,7 @@
 using InkMD_Editor.Services;
 using Microsoft.UI.Xaml.Controls;
+using System;
+using System.Linq;
 
 namespace InkMD_Editor.Views;
 
@@ -14,15 +16,17 @@ public sealed partial class SettingsPage : Page
     private void LoadSavedTheme ()
     {
         var savedTheme = ThemeService.GetSavedTheme();
-        ThemeComboBox.SelectedIndex = (int) savedTheme;
+        ThemeComboBox.SelectedItem = ThemeComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(item => item.Tag as string == savedTheme.ToString());
     }
 
     private void ThemeComboBox_SelectionChanged (object sender , SelectionChangedEventArgs e)
     {
-        if ( ThemeComboBox.SelectedIndex == -1 )
+        if ( ThemeComboBox.SelectedItem is not ComboBoxItem { Tag: string themeTag } )
+        {
             return;
+        }
 
-        var selectedTheme = (ThemeService.AppTheme) ThemeComboBox.SelectedIndex;
+        var selectedTheme = Enum.Parse<ThemeService.AppTheme>(themeTag);
         var window = App.MainWindow;
         if ( window is not null )
         {
