@@ -21,9 +21,9 @@ public static class ThemeService
 
     public static AppTheme GetSavedTheme ()
     {
-        if ( ApplicationData.Current.LocalSettings.Values.ContainsKey(ThemeSettingKey) )
+        if ( ApplicationData.Current.LocalSettings.Values.TryGetValue(ThemeSettingKey , out object? value) && value is int themeValue )
         {
-            return (AppTheme) (int) ApplicationData.Current.LocalSettings.Values [ThemeSettingKey];
+            return (AppTheme) themeValue;
         }
         return AppTheme.Default;
     }

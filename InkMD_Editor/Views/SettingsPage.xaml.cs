@@ -26,11 +26,13 @@ public sealed partial class SettingsPage : Page
             return;
         }
 
-        var selectedTheme = Enum.Parse<ThemeService.AppTheme>(themeTag);
-        var window = App.MainWindow;
-        if ( window is not null )
+        if ( Enum.TryParse<ThemeService.AppTheme>(themeTag , out var selectedTheme) )
         {
-            ThemeService.SetTheme(window , selectedTheme);
+            var window = App.MainWindow;
+            if ( window is not null )
+            {
+                ThemeService.SetTheme(window , selectedTheme);
+            }
         }
     }
 

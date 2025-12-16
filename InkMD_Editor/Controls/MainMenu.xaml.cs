@@ -299,11 +299,6 @@ public sealed partial class MainMenu : UserControl, IDisposable
         await AboutDialog.ShowAsync();
     }
 
-    private void OnCloseButtonClick (object sender , RoutedEventArgs e)
-    {
-        AboutDialog.Hide();
-    }
-
     public void Dispose ()
     {
         try
