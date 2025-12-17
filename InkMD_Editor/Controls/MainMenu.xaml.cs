@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using InkMD_Editor.Helpers;
 using InkMD_Editor.Messagers;
 using InkMD_Editor.Models;
 using InkMD_Editor.Services;
@@ -228,45 +229,17 @@ public sealed partial class MainMenu : UserControl
         }
         catch ( Exception ex )
         {
-            throw new Exception($"Error load icons: {ex.Message}" , ex);
+            throw new Exception($"Error load : {ex.Message}" , ex);
         }
     }
 
     private string ConvertMarkdownToHtml (string markdown)
     {
         if ( string.IsNullOrWhiteSpace(markdown) )
-            return GetEmptyPreviewHtml();
+            return GitHubPreview.GetEmptyPreviewHtml();
 
         string htmlBody = Markdown.ToHtml(markdown , _markdownPipeline);
-        return WrapWithGitHubStyle(htmlBody);
-    }
-
-    private static string GetEmptyPreviewHtml ()
-    {
-        return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview will show here...</p>");
-    }
-
-    private static string WrapWithGitHubStyle (string htmlBody)
-    {
-        return $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel=""stylesheet"" href=""https://cdn.jsdelivr.net/gh/tribeti/Java@master/style.css"">
-    <style>
-        body {{
-            padding: 20px;
-            margin: 0;
-            overflow-y: auto;
-        }}
-    </style>
-</head>
-<body>
-    {htmlBody}
-</body>
-</html>";
+        return GitHubPreview.WrapWithGitHubStyle(htmlBody);
     }
 
     private async void NewMDFile_Click (object sender , RoutedEventArgs e)
@@ -339,7 +312,14 @@ public sealed partial class MainMenu : UserControl
 
     public void Dispose ()
     {
-        CleanupWebView();
+        try
+        {
+            CleanupWebView();
+        }
+        catch ( Exception ex )
+        {
+            throw new Exception($"Error during WebView cleanup in Dispose: {ex.Message}" , ex);
+        }
         _templateCache?.Clear();
         _templateCache = null;
         IconItems.Clear();

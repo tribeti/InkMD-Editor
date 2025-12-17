@@ -1,4 +1,5 @@
-﻿using InkMD_Editor.ViewModels;
+﻿using InkMD_Editor.Helpers;
+using InkMD_Editor.ViewModels;
 using Markdig;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
@@ -69,7 +70,7 @@ public sealed partial class TabViewContent : UserControl
         try
         {
             await MarkdownPreview.EnsureCoreWebView2Async();
-            MarkdownPreview.NavigateToString(GetEmptyPreviewHtml());
+            MarkdownPreview.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
         }
         catch
         {
@@ -94,36 +95,15 @@ public sealed partial class TabViewContent : UserControl
     private string ConvertMarkdownToHtml (string markdown)
     {
         if ( string.IsNullOrWhiteSpace(markdown) )
-            return GetEmptyPreviewHtml();
+            return GitHubPreview.GetEmptyPreviewHtml();
 
         string htmlBody = Markdown.ToHtml(markdown , _markdownPipeline);
 
-        return WrapWithGitHubStyle(htmlBody);
-    }
-
-    private static string GetEmptyPreviewHtml ()
-    {
-        return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview will show here...</p>");
+        return GitHubPreview.WrapWithGitHubStyle(htmlBody);
     }
 
     public void DisposeWebView ()
     {
         MarkdownPreview?.Close();
-    }
-
-    private static string WrapWithGitHubStyle (string htmlBody)
-    {
-        return $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel=""stylesheet"" href=""https://cdn.jsdelivr.net/gh/tribeti/Java@master/style.css"">
-</head>
-<body>
-    {htmlBody}
-</body>
-</html>";
     }
 }
