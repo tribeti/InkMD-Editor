@@ -20,10 +20,15 @@ public sealed partial class EditorPage : Page
     public EditorPage ()
     {
         InitializeComponent();
-        _dialogService.SetXamlRoot(this.XamlRoot);
-        _viewModel.SetDialogService(_dialogService);
         InitTreeView();
         SetupMessengers();
+        Loaded += EditorPage_Loaded;
+    }
+
+    public void EditorPage_Loaded (object sender , RoutedEventArgs e)
+    {
+        _dialogService.SetXamlRoot(this.XamlRoot);
+        _viewModel.SetDialogService(_dialogService);
     }
 
     private void SetupMessengers ()
