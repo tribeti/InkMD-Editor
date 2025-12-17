@@ -226,9 +226,9 @@ public sealed partial class MainMenu : UserControl
                 previewWebView.NavigateToString("<html><body></body></html>");
             }
         }
-        catch ( Exception )
+        catch ( Exception ex )
         {
-            throw;
+            throw new Exception($"Error load icons: {ex.Message}" , ex);
         }
     }
 
