@@ -31,6 +31,9 @@
 		<ProjectCapability Include="Msix" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Remove="Controls\AboutDialog.xaml" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" Version="0.1.251101-build.2372" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.250402" />
@@ -41,6 +44,11 @@
 		<PackageReference Include="Markdig" Version="0.44.0" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Controls\AboutDialog.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 		<Page Update="Controls\MainMenu.xaml">

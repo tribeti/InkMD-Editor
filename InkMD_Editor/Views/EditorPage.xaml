@@ -82,7 +82,10 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <RelativePanel Grid.Column="0" Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
+            <RelativePanel
+                Grid.Column="0"
+                HorizontalAlignment="Stretch"
+                Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
                 <TextBlock
                     x:Name="dir"
                     Padding="16,8,0,0"

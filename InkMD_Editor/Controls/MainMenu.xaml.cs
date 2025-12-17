@@ -226,9 +226,9 @@ public sealed partial class MainMenu : UserControl
                 previewWebView.NavigateToString("<html><body></body></html>");
             }
         }
-        catch ( Exception ex )
+        catch ( Exception )
         {
-            System.Diagnostics.Debug.WriteLine($"WebView cleanup error: {ex.Message}");
+            throw;
         }
     }
 
@@ -339,16 +339,9 @@ public sealed partial class MainMenu : UserControl
 
     public void Dispose ()
     {
-        try
-        {
-            CleanupWebView();
-            _templateCache?.Clear();
-            _templateCache = null;
-            IconItems.Clear();
-        }
-        catch ( Exception ex )
-        {
-            System.Diagnostics.Debug.WriteLine($"Dispose error: {ex.Message}");
-        }
+        CleanupWebView();
+        _templateCache?.Clear();
+        _templateCache = null;
+        IconItems.Clear();
     }
 }

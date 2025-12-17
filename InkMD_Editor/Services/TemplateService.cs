@@ -59,7 +59,7 @@ public class TemplateService
         }
         catch ( Exception ex )
         {
-            System.Diagnostics.Debug.WriteLine($"Error load templates: {ex.Message}");
+            throw new Exception($"Error load templates: {ex.Message}");
         }
 
         return templates;
@@ -88,7 +88,7 @@ public class TemplateService
         }
         catch ( Exception ex )
         {
-            System.Diagnostics.Debug.WriteLine($"Error load icons: {ex.Message}");
+            throw new Exception($"Error load icons: {ex.Message}");
         }
 
         return icons;
