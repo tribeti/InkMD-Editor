@@ -32,6 +32,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <None Remove="Controls\AboutDialog.xaml" />
+	  <None Remove="Controls\EditTabViewContent.xaml" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" Version="0.1.251101-build.2372" />
@@ -44,6 +45,12 @@
 		<PackageReference Include="Markdig" Version="0.44.0" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
+		<PackageReference Include="TextControlBox.WinUI.JuliusKirsch" Version="1.5.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Controls\EditTabViewContent.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="Controls\AboutDialog.xaml">

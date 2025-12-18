@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Controls;
 using InkMD_Editor.Helpers;
+using InkMD_Editor.Interfaces;
 using InkMD_Editor.Messagers;
 using InkMD_Editor.Services;
 using Microsoft.UI.Xaml.Controls;
@@ -144,7 +145,7 @@ public partial class EditorPageViewModel : ObservableObject
         }
     }
 
-    public async Task HandleSaveFile (TabViewContent? content)
+    public async Task HandleSaveFile (IEditableContent? content)
     {
         if ( content is null )
         {
@@ -152,10 +153,11 @@ public partial class EditorPageViewModel : ObservableObject
             return;
         }
 
-        var viewModel = content.ViewModel;
-        var filePath = !string.IsNullOrEmpty(viewModel.FilePath)
-            ? viewModel.FilePath
-            : await _fileService.SaveFileAsync();
+        var filePath = content.GetFilePath();
+        if ( string.IsNullOrEmpty(filePath) )
+        {
+            filePath = await _fileService.SaveFileAsync();
+        }
 
         if ( filePath is not null )
         {
@@ -163,15 +165,14 @@ public partial class EditorPageViewModel : ObservableObject
         }
     }
 
-    public async Task SaveFileToPath (string filePath , TabViewContent content)
+    public async Task SaveFileToPath (string filePath , IEditableContent content)
     {
         try
         {
             string editorText = content.GetContent();
             await File.WriteAllTextAsync(filePath , editorText , Encoding.UTF8);
 
-            var viewModel = content.ViewModel;
-            viewModel.SetFilePath(filePath , Path.GetFileName(filePath));
+            content.SetFilePath(filePath , Path.GetFileName(filePath));
 
             await ShowSuccessAsync($"Saved: {Path.GetFileName(filePath)}");
             WeakReferenceMessenger.Default.Send(new FileSavedMessage(filePath , Path.GetFileName(filePath)));
@@ -187,7 +188,7 @@ public partial class EditorPageViewModel : ObservableObject
         return (true, templateContent, null);
     }
 
-    public async Task<(bool success, string? newContent, string? error)> InsertIntoDocumentAsync (string templateContent , TabViewContent? tabContent)
+    public async Task<(bool success, string? newContent, string? error)> InsertIntoDocumentAsync (string templateContent , IEditableContent? tabContent)
     {
         if ( tabContent is null )
         {

@@ -2,7 +2,7 @@
 
 namespace InkMD_Editor.ViewModels;
 
-public partial class TabViewContentViewModel : ObservableObject
+public partial class EditTabViewModel : ObservableObject
 {
     [ObservableProperty]
     public partial string? FileName { get; set; }
@@ -13,19 +13,13 @@ public partial class TabViewContentViewModel : ObservableObject
     [ObservableProperty]
     public partial string? CurrentContent { get; set; }
 
-    /// <summary>
-    /// Check if the file has been saved
-    /// </summary>
     public bool IsSaved => !string.IsNullOrEmpty(FilePath);
 
-    public TabViewContentViewModel ()
+    public EditTabViewModel ()
     {
         FileName = "Untitled";
     }
 
-    /// <summary>
-    /// Set file path and name when saving or opening a file
-    /// </summary>
     public void SetFilePath (string path , string name)
     {
         FilePath = path;
