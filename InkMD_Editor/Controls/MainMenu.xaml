@@ -157,6 +157,7 @@
                                 <GridView
                                     x:Name="TemplateGridView"
                                     IsItemClickEnabled="False"
+                                    ItemsSource="{x:Bind ViewModel.Templates, Mode=OneWay}"
                                     SelectionChanged="TemplateGridView_SelectionChanged"
                                     SelectionMode="Single">
                                     <GridView.ItemTemplate>
@@ -201,6 +202,7 @@
         <ContentDialog
             x:Name="TemplateDialog"
             CloseButtonText="Cancel"
+            DefaultButton="Primary"
             FullSizeDesired="True"
             IsPrimaryButtonEnabled="True"
             PrimaryButtonText="Add (New File)"
@@ -241,6 +243,7 @@
                     Width="1200"
                     Height="500"
                     IsItemClickEnabled="False"
+                    ItemsSource="{x:Bind ViewModel.IconItems, Mode=OneWay}"
                     SelectionChanged="IconGridView_SelectionChanged"
                     SelectionMode="Multiple">
                     <GridView.ItemTemplate>
@@ -297,7 +300,7 @@
                             FontSize="13"
                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             IsTextSelectionEnabled="True"
-                            Text="Choose an icon to see code"
+                            Text="{x:Bind ViewModel.GeneratedIconCode, Mode=OneWay}"
                             TextWrapping="Wrap" />
                     </ScrollViewer>
                     <Button

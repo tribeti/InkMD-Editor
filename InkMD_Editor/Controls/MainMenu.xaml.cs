@@ -30,15 +30,9 @@ public sealed partial class MainMenu : UserControl
 
     private async void TemplateFlyout_Opening (object sender , object e)
     {
-        await LoadTemplatesWithErrorHandling();
-    }
-
-    private async Task LoadTemplatesWithErrorHandling ()
-    {
         try
         {
             await ViewModel.LoadTemplatesCommand.ExecuteAsync(null);
-            TemplateGridView.ItemsSource = ViewModel.Templates;
         }
         catch ( Exception ex )
         {
@@ -85,7 +79,6 @@ public sealed partial class MainMenu : UserControl
 
         TemplateDialog.Title = $"Template Preview: {templateName}";
         TemplateDialog.XamlRoot = XamlRoot;
-        TemplateDialog.DefaultButton = ContentDialogButton.Primary;
 
         try
         {
@@ -115,19 +108,13 @@ public sealed partial class MainMenu : UserControl
     private async void AppBarButton_Click (object sender , RoutedEventArgs e)
     {
         ViewModel.ClearSelectedIcons();
-        await LoadIconsWithErrorHandling();
-
-        IconsDialog.XamlRoot = XamlRoot;
-        IconsDialog.DefaultButton = ContentDialogButton.Primary;
-        await IconsDialog.ShowAsync();
-    }
-
-    private async Task LoadIconsWithErrorHandling ()
-    {
+        IconGridView.SelectedItems.Clear();
         try
         {
             await ViewModel.LoadIconsCommand.ExecuteAsync(null);
-            IconGridView.ItemsSource = ViewModel.IconItems;
+            IconsDialog.XamlRoot = XamlRoot;
+            IconsDialog.DefaultButton = ContentDialogButton.Primary;
+            await IconsDialog.ShowAsync();
         }
         catch ( Exception ex )
         {
@@ -152,8 +139,6 @@ public sealed partial class MainMenu : UserControl
                 ViewModel.RemoveSelectedIcon(icon.Name);
             }
         }
-
-        CodeDisplay.Text = ViewModel.GeneratedIconCode;
     }
 
     private async void CopyBtn_Click (object sender , RoutedEventArgs e)
@@ -194,11 +179,9 @@ public sealed partial class MainMenu : UserControl
 
         if ( result is ContentDialogResult.Primary )
         {
-            var fileName = string.IsNullOrWhiteSpace(MdFileNameBox.Text.Trim())
-                ? "README"
-                : MdFileNameBox.Text.Trim();
-
+            var fileName = string.IsNullOrWhiteSpace(MdFileNameBox.Text.Trim()) ? "README" : MdFileNameBox.Text.Trim();
             var (nameWithoutExt, extension) = ParseFileName(fileName , ".md");
+
             await CreateFileWithErrorHandling(nameWithoutExt , extension);
         }
     }
@@ -212,11 +195,9 @@ public sealed partial class MainMenu : UserControl
 
         if ( result is ContentDialogResult.Primary )
         {
-            var fileName = string.IsNullOrWhiteSpace(FileNameBox.Text.Trim())
-                ? "Untitled"
-                : FileNameBox.Text.Trim();
-
+            var fileName = string.IsNullOrWhiteSpace(FileNameBox.Text.Trim()) ? "Untitled" : FileNameBox.Text.Trim();
             var (nameWithoutExt, extension) = ParseFileName(fileName , string.Empty);
+
             await CreateFileWithErrorHandling(nameWithoutExt , extension);
         }
     }
