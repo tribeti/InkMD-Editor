@@ -187,9 +187,7 @@ public partial class EditorPageViewModel : ObservableObject
         return (true, templateContent, null);
     }
 
-    public async Task<(bool success, string? newContent, string? error)> InsertIntoDocumentAsync (
-        string templateContent ,
-        TabViewContent? tabContent)
+    public async Task<(bool success, string? newContent, string? error)> InsertIntoDocumentAsync (string templateContent , TabViewContent? tabContent)
     {
         if ( tabContent is null )
         {

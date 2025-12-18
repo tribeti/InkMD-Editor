@@ -32,23 +32,17 @@ public sealed partial class EditorPage : Page
 
     private void SetupMessengers ()
     {
-        WeakReferenceMessenger.Default.Register<FileOpenedMessage>(this , (r , msg) =>
-            OpenFileInNewTab(msg.File));
+        WeakReferenceMessenger.Default.Register<FileOpenedMessage>(this , (r , msg) => OpenFileInNewTab(msg.File));
 
-        WeakReferenceMessenger.Default.Register<FolderOpenedMessage>(this , async (r , msg) =>
-            await RefreshTreeViewWithFolder(msg.Folder));
+        WeakReferenceMessenger.Default.Register<FolderOpenedMessage>(this , async (r , msg) => await RefreshTreeViewWithFolder(msg.Folder));
 
-        WeakReferenceMessenger.Default.Register<SaveFileRequestMessage>(this , (r , msg) =>
-            SaveCurrentTabContent(msg.FilePath));
+        WeakReferenceMessenger.Default.Register<SaveFileRequestMessage>(this , (r , msg) => SaveCurrentTabContent(msg.FilePath));
 
-        WeakReferenceMessenger.Default.Register<SaveFileMessage>(this , async (r , msg) =>
-            await HandleSaveFile());
+        WeakReferenceMessenger.Default.Register<SaveFileMessage>(this , async (r , msg) => await HandleSaveFile());
 
-        WeakReferenceMessenger.Default.Register<ErrorMessage>(this , async (r , msg) =>
-            await _viewModel.ShowErrorAsync(msg.Message));
+        WeakReferenceMessenger.Default.Register<ErrorMessage>(this , async (r , msg) => await _viewModel.ShowErrorAsync(msg.Message));
 
-        WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , async (r , msg) =>
-            await HandleTemplateSelected(msg.Content , msg.CreateNewFile));
+        WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , async (r , msg) => await HandleTemplateSelected(msg.Content , msg.CreateNewFile));
     }
 
     private async Task HandleTemplateSelected (string content , bool createNewFile)

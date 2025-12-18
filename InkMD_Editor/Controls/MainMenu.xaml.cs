@@ -240,8 +240,7 @@ public sealed partial class MainMenu : UserControl
         var success = await ViewModel.CreateFileAsync(fileName , extension);
         if ( !success )
         {
-            await _dialogService.ShowErrorAsync(
-                "File was not created. Please check the file name and destination folder.");
+            await _dialogService.ShowErrorAsync("File was not created. Please check the file name and destination folder.");
         }
     }
 
