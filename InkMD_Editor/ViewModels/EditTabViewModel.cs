@@ -25,10 +25,4 @@ public partial class EditTabViewModel : ObservableObject
         FilePath = path;
         FileName = name;
     }
-
-    public void ResetForNewFile ()
-    {
-        FilePath = null;
-        FileName = "New Document";
-    }
 }

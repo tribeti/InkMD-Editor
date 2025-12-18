@@ -31,13 +31,4 @@ public partial class TabViewContentViewModel : ObservableObject
         FilePath = path;
         FileName = name;
     }
-
-    /// <summary>
-    /// reset file path and name for a new unsaved file
-    /// </summary>
-    public void ResetForNewFile ()
-    {
-        FilePath = null;
-        FileName = "New Document";
-    }
 }
