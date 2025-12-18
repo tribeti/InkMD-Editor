@@ -157,6 +157,7 @@
                                 <GridView
                                     x:Name="TemplateGridView"
                                     IsItemClickEnabled="False"
+                                    ItemsSource="{x:Bind ViewModel.Templates, Mode=OneWay}"
                                     SelectionChanged="TemplateGridView_SelectionChanged"
                                     SelectionMode="Single">
                                     <GridView.ItemTemplate>
@@ -241,6 +242,7 @@
                     Width="1200"
                     Height="500"
                     IsItemClickEnabled="False"
+                    ItemsSource="{x:Bind ViewModel.IconItems, Mode=OneWay}"
                     SelectionChanged="IconGridView_SelectionChanged"
                     SelectionMode="Multiple">
                     <GridView.ItemTemplate>

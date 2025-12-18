@@ -30,15 +30,9 @@ public sealed partial class MainMenu : UserControl
 
     private async void TemplateFlyout_Opening (object sender , object e)
     {
-        await LoadTemplatesWithErrorHandling();
-    }
-
-    private async Task LoadTemplatesWithErrorHandling ()
-    {
         try
         {
             await ViewModel.LoadTemplatesCommand.ExecuteAsync(null);
-            TemplateGridView.ItemsSource = ViewModel.Templates;
         }
         catch ( Exception ex )
         {
@@ -115,24 +109,18 @@ public sealed partial class MainMenu : UserControl
     private async void AppBarButton_Click (object sender , RoutedEventArgs e)
     {
         ViewModel.ClearSelectedIcons();
-        await LoadIconsWithErrorHandling();
-
-        IconsDialog.XamlRoot = XamlRoot;
-        IconsDialog.DefaultButton = ContentDialogButton.Primary;
-        await IconsDialog.ShowAsync();
-    }
-
-    private async Task LoadIconsWithErrorHandling ()
-    {
         try
         {
             await ViewModel.LoadIconsCommand.ExecuteAsync(null);
-            IconGridView.ItemsSource = ViewModel.IconItems;
         }
         catch ( Exception ex )
         {
             await _dialogService.ShowErrorAsync($"Cannot load icon: {ex.Message}");
         }
+
+        IconsDialog.XamlRoot = XamlRoot;
+        IconsDialog.DefaultButton = ContentDialogButton.Primary;
+        await IconsDialog.ShowAsync();
     }
 
     private void IconGridView_SelectionChanged (object sender , SelectionChangedEventArgs e)
