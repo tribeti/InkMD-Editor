@@ -1,15 +1,9 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using InkMD_Editor.Helpers;
-using InkMD_Editor.Messagers;
-using InkMD_Editor.Models;
+﻿using InkMD_Editor.Models;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
-using Markdig;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
@@ -19,23 +13,13 @@ namespace InkMD_Editor.Controls;
 public sealed partial class MainMenu : UserControl
 {
     private readonly DialogService _dialogService = new();
-    private readonly MarkdownPipeline _markdownPipeline;
     private MainMenuViewModel ViewModel { get; set; } = new();
-    public ObservableCollection<IconItem> IconItems { get; set; } = [];
-    private bool _iconsLoaded = false;
-    private ObservableCollection<MdTemplate>? _templateCache;
-    private List<string> _selectedIconsList = [];
-    private FileService _fileService = new();
 
     public MainMenu ()
     {
         InitializeComponent();
-        this.DataContext = ViewModel;
-        _markdownPipeline = new MarkdownPipelineBuilder()
-            .UseAdvancedExtensions()
-            .UseEmojiAndSmiley()
-            .Build();
-        this.Unloaded += (s , e) => Dispose();
+        DataContext = ViewModel;
+        Unloaded += (s , e) => Dispose();
     }
 
     public void SetVisibility (bool isVisible)
@@ -46,22 +30,15 @@ public sealed partial class MainMenu : UserControl
 
     private async void TemplateFlyout_Opening (object sender , object e)
     {
-        await LoadTemplatesAsync();
+        await LoadTemplatesWithErrorHandling();
     }
 
-    private async Task LoadTemplatesAsync ()
+    private async Task LoadTemplatesWithErrorHandling ()
     {
         try
         {
-            if ( _templateCache is not null )
-            {
-                TemplateGridView.ItemsSource = _templateCache;
-                return;
-            }
-
-            var templates = await TemplateService.GetAllTemplatesAsync();
-            _templateCache = new ObservableCollection<MdTemplate>(templates);
-            TemplateGridView.ItemsSource = _templateCache;
+            await ViewModel.LoadTemplatesCommand.ExecuteAsync(null);
+            TemplateGridView.ItemsSource = ViewModel.Templates;
         }
         catch ( Exception ex )
         {
@@ -73,130 +50,47 @@ public sealed partial class MainMenu : UserControl
     {
         if ( e.AddedItems.Count > 0 && e.AddedItems [0] is MdTemplate selectedTemplate )
         {
-            try
-            {
-                var content = await TemplateService.LoadTemplateAsync(selectedTemplate.FileName);
-                TemplateFlyout.Hide();
-                TemplateGridView.SelectedItem = null;
-                await ShowTemplatePreviewDialog(selectedTemplate.DisplayName , content);
-            }
-            catch ( Exception ex )
-            {
-                await _dialogService.ShowErrorAsync($"Cannot load template: {ex.Message}");
-            }
+            await HandleTemplateSelection(selectedTemplate);
         }
     }
 
-    private async void AppBarButton_Click (object sender , RoutedEventArgs e)
+    private async Task HandleTemplateSelection (MdTemplate template)
     {
-        _selectedIconsList.Clear();
-        await LoadIconsAsync();
-        IconsDialog.XamlRoot = this.XamlRoot;
-        IconsDialog.DefaultButton = ContentDialogButton.Primary;
-        await IconsDialog.ShowAsync();
-    }
-
-    private string GenerateIconsCode ()
-    {
-        if ( _selectedIconsList.Count == 0 )
-        {
-            return "![](https://ink-md-server.vercel.app/api?i=)";
-        }
-
-        string iconsList = string.Join("," , _selectedIconsList);
-        string skillIconUrl = $"![](https://ink-md-server.vercel.app/api?i={iconsList})";
-
-        return skillIconUrl;
-    }
-
-    private async Task LoadIconsAsync ()
-    {
-        if ( _iconsLoaded && IconItems.Count > 0 )
-            return;
-
         try
         {
-            var icons = await TemplateService.GetAllIconsAsync();
-            IconItems.Clear();
-            foreach ( var icon in icons )
+            var content = await ViewModel.LoadTemplateContentAsync(template.FileName);
+            if ( content is null )
             {
-                IconItems.Add(icon);
+                await _dialogService.ShowErrorAsync("Cannot load template content");
+                return;
             }
-            _iconsLoaded = true;
+
+            TemplateFlyout.Hide();
+            TemplateGridView.SelectedItem = null;
+            await ShowTemplatePreviewDialog(template.DisplayName , content);
         }
         catch ( Exception ex )
         {
-            await _dialogService.ShowErrorAsync($"Cannot load icon: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"Cannot load template: {ex.Message}");
         }
-    }
-
-    private void IconGridView_SelectionChanged (object sender , SelectionChangedEventArgs e)
-    {
-        foreach ( var item in e.AddedItems )
-        {
-            if ( item is IconItem icon )
-            {
-                if ( !_selectedIconsList.Contains(icon.Name) )
-                {
-                    _selectedIconsList.Add(icon.Name);
-                }
-            }
-        }
-
-        foreach ( var item in e.RemovedItems )
-        {
-            if ( item is IconItem icon )
-            {
-                _selectedIconsList.Remove(icon.Name);
-            }
-        }
-
-        string generatedCode = GenerateIconsCode();
-        CodeDisplay.Text = generatedCode;
-    }
-
-    private async void CopyBtn_Click (object sender , RoutedEventArgs e)
-    {
-        string contentToCopy = CodeDisplay.Text;
-
-        if ( string.IsNullOrEmpty(contentToCopy) )
-            return;
-
-        DataPackage dataPackage = new DataPackage();
-        dataPackage.SetText(contentToCopy);
-        Clipboard.SetContent(dataPackage);
-
-        CopyIcon.Visibility = Visibility.Collapsed;
-        CheckIcon.Visibility = Visibility.Visible;
-        ToolTipService.SetToolTip(CopyBtn , "Copied!");
-
-        await Task.Delay(2000);
-
-        CopyIcon.Visibility = Visibility.Visible;
-        CheckIcon.Visibility = Visibility.Collapsed;
-        ToolTipService.SetToolTip(CopyBtn , "Copy code");
     }
 
     private async Task ShowTemplatePreviewDialog (string templateName , string content)
     {
         if ( TemplateDialog is null || previewWebView is null )
         {
-            await _dialogService.ShowErrorAsync("Error : Cannot load dialog");
+            await _dialogService.ShowErrorAsync("Error: Cannot load dialog");
             return;
         }
 
         TemplateDialog.Title = $"Template Preview: {templateName}";
-        TemplateDialog.XamlRoot = this.XamlRoot;
+        TemplateDialog.XamlRoot = XamlRoot;
         TemplateDialog.DefaultButton = ContentDialogButton.Primary;
 
         try
         {
-            if ( previewWebView.CoreWebView2 is null )
-            {
-                await previewWebView.EnsureCoreWebView2Async();
-            }
-
-            string html = ConvertMarkdownToHtml(content);
+            await InitializeWebViewAsync();
+            var html = ViewModel.ConvertMarkdownToHtml(content);
             previewWebView.NavigateToString(html);
         }
         catch ( Exception ex )
@@ -210,11 +104,151 @@ public sealed partial class MainMenu : UserControl
 
         if ( result is ContentDialogResult.Primary )
         {
-            WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile: true));
+            ViewModel.SendTemplateSelectedMessage(content , createNewFile: true);
         }
         else if ( result is ContentDialogResult.Secondary )
         {
-            WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile: false));
+            ViewModel.SendTemplateSelectedMessage(content , createNewFile: false);
+        }
+    }
+
+    private async void AppBarButton_Click (object sender , RoutedEventArgs e)
+    {
+        ViewModel.ClearSelectedIcons();
+        await LoadIconsWithErrorHandling();
+
+        IconsDialog.XamlRoot = XamlRoot;
+        IconsDialog.DefaultButton = ContentDialogButton.Primary;
+        await IconsDialog.ShowAsync();
+    }
+
+    private async Task LoadIconsWithErrorHandling ()
+    {
+        try
+        {
+            await ViewModel.LoadIconsCommand.ExecuteAsync(null);
+            IconGridView.ItemsSource = ViewModel.IconItems;
+        }
+        catch ( Exception ex )
+        {
+            await _dialogService.ShowErrorAsync($"Cannot load icon: {ex.Message}");
+        }
+    }
+
+    private void IconGridView_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    {
+        foreach ( var item in e.AddedItems )
+        {
+            if ( item is IconItem icon )
+            {
+                ViewModel.AddSelectedIcon(icon.Name);
+            }
+        }
+
+        foreach ( var item in e.RemovedItems )
+        {
+            if ( item is IconItem icon )
+            {
+                ViewModel.RemoveSelectedIcon(icon.Name);
+            }
+        }
+
+        CodeDisplay.Text = ViewModel.GeneratedIconCode;
+    }
+
+    private async void CopyBtn_Click (object sender , RoutedEventArgs e)
+    {
+        var contentToCopy = CodeDisplay.Text;
+
+        if ( string.IsNullOrEmpty(contentToCopy) )
+        {
+            return;
+        }
+
+        var dataPackage = new DataPackage();
+        dataPackage.SetText(contentToCopy);
+        Clipboard.SetContent(dataPackage);
+
+        await ShowCopyFeedback();
+    }
+
+    private async Task ShowCopyFeedback ()
+    {
+        CopyIcon.Visibility = Visibility.Collapsed;
+        CheckIcon.Visibility = Visibility.Visible;
+        ToolTipService.SetToolTip(CopyBtn , "Copied!");
+
+        await Task.Delay(2000);
+
+        CopyIcon.Visibility = Visibility.Visible;
+        CheckIcon.Visibility = Visibility.Collapsed;
+        ToolTipService.SetToolTip(CopyBtn , "Copy code");
+    }
+
+    private async void NewMDFile_Click (object sender , RoutedEventArgs e)
+    {
+        MdFileNameBox.Text = string.Empty;
+        MdFileNameBox.Focus(FocusState.Programmatic);
+
+        var result = await NewMdDialog.ShowAsync();
+
+        if ( result is ContentDialogResult.Primary )
+        {
+            var fileName = string.IsNullOrWhiteSpace(MdFileNameBox.Text.Trim())
+                ? "README"
+                : MdFileNameBox.Text.Trim();
+
+            var (nameWithoutExt, extension) = ParseFileName(fileName , ".md");
+            await CreateFileWithErrorHandling(nameWithoutExt , extension);
+        }
+    }
+
+    private async void NewFile_Click (object sender , RoutedEventArgs e)
+    {
+        FileNameBox.Text = string.Empty;
+        FileNameBox.Focus(FocusState.Programmatic);
+
+        var result = await NewFileDialog.ShowAsync();
+
+        if ( result is ContentDialogResult.Primary )
+        {
+            var fileName = string.IsNullOrWhiteSpace(FileNameBox.Text.Trim())
+                ? "Untitled"
+                : FileNameBox.Text.Trim();
+
+            var (nameWithoutExt, extension) = ParseFileName(fileName , string.Empty);
+            await CreateFileWithErrorHandling(nameWithoutExt , extension);
+        }
+    }
+
+    private static (string name, string extension) ParseFileName (string fileName , string defaultExtension)
+    {
+        var extension = Path.GetExtension(fileName);
+        var nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+
+        if ( string.IsNullOrEmpty(extension) )
+        {
+            nameWithoutExt = fileName;
+            extension = defaultExtension;
+        }
+
+        return (nameWithoutExt, extension);
+    }
+
+    private async Task CreateFileWithErrorHandling (string fileName , string extension)
+    {
+        var success = await ViewModel.CreateFileAsync(fileName , extension);
+        if ( !success )
+        {
+            await _dialogService.ShowErrorAsync("File was not created. Please check the file name and destination folder.");
+        }
+    }
+
+    private async Task InitializeWebViewAsync ()
+    {
+        if ( previewWebView?.CoreWebView2 is null )
+        {
+            await previewWebView!.EnsureCoreWebView2Async();
         }
     }
 
@@ -229,80 +263,8 @@ public sealed partial class MainMenu : UserControl
         }
         catch ( Exception ex )
         {
-            throw new Exception($"Error load : {ex.Message}" , ex);
+            throw new Exception($"Error load: {ex.Message}" , ex);
         }
-    }
-
-    private string ConvertMarkdownToHtml (string markdown)
-    {
-        if ( string.IsNullOrWhiteSpace(markdown) )
-            return GitHubPreview.GetEmptyPreviewHtml();
-
-        string htmlBody = Markdown.ToHtml(markdown , _markdownPipeline);
-        return GitHubPreview.WrapWithGitHubStyle(htmlBody);
-    }
-
-    private async void NewMDFile_Click (object sender , RoutedEventArgs e)
-    {
-        MdFileNameBox.Text = string.Empty;
-        MdFileNameBox.Focus(FocusState.Programmatic);
-
-        var result = await NewMdDialog.ShowAsync();
-
-        if ( result == ContentDialogResult.Primary )
-        {
-            string fileName = MdFileNameBox.Text.Trim();
-            if ( string.IsNullOrWhiteSpace(fileName) )
-                fileName = "README";
-            string extension = Path.GetExtension(fileName);
-            string nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
-
-            if ( string.IsNullOrEmpty(extension) )
-            {
-                nameWithoutExt = fileName;
-                extension = ".md";
-            }
-
-            await CreateFileProcess(nameWithoutExt , extension);
-        }
-    }
-
-    private async void NewFile_Click (object sender , RoutedEventArgs e)
-    {
-        FileNameBox.Text = string.Empty;
-        FileNameBox.Focus(FocusState.Programmatic);
-
-        var result = await NewFileDialog.ShowAsync();
-
-        if ( result == ContentDialogResult.Primary )
-        {
-            string fileName = FileNameBox.Text.Trim();
-            if ( string.IsNullOrWhiteSpace(fileName) )
-                fileName = "Untitled";
-
-            string extension = Path.GetExtension(fileName);
-            string nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
-
-            if ( string.IsNullOrEmpty(extension) )
-            {
-                nameWithoutExt = fileName;
-                extension = "";
-            }
-
-            await CreateFileProcess(nameWithoutExt , extension);
-        }
-    }
-
-    private async Task CreateFileProcess (string fileName , string extension)
-    {
-        var storageFile = await _fileService.CreateFileDirectlyAsync(fileName , extension);
-
-        if ( storageFile is not null )
-        {
-            WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
-            return;
-        }
-        await _dialogService.ShowErrorAsync("File was not created. Please check the file name and destination folder.");
     }
 
     private async void About_Click (object sender , RoutedEventArgs e)
@@ -315,13 +277,11 @@ public sealed partial class MainMenu : UserControl
         try
         {
             CleanupWebView();
+            ViewModel.Cleanup();
         }
         catch ( Exception ex )
         {
-            throw new Exception($"Error during WebView cleanup in Dispose: {ex.Message}" , ex);
+            throw new Exception($"Error during cleanup in Dispose: {ex.Message}" , ex);
         }
-        _templateCache?.Clear();
-        _templateCache = null;
-        IconItems.Clear();
     }
 }

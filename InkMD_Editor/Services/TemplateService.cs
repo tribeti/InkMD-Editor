@@ -20,7 +20,7 @@ public class TemplateService
         }
         catch ( FileNotFoundException )
         {
-            throw new Exception($"Template '{fileName}' not found!" ,);
+            throw new Exception($"Template '{fileName}' not found!");
         }
     }
 

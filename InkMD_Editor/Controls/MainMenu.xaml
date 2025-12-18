@@ -236,11 +236,11 @@
 
                 <!--  icon list  -->
                 <GridView
+                    x:Name="IconGridView"
                     Grid.Row="0"
                     Width="1200"
                     Height="500"
                     IsItemClickEnabled="False"
-                    ItemsSource="{x:Bind IconItems}"
                     SelectionChanged="IconGridView_SelectionChanged"
                     SelectionMode="Multiple">
                     <GridView.ItemTemplate>
