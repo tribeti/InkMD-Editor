@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="InkMD_Editor.Controls.EditTabViewContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:InkMD_Editor.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <RichEditBox
+        x:Name="EditBox"
+        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+        FontFamily="Cascadia Mono"
+        IsSpellCheckEnabled="False" />
+</UserControl>

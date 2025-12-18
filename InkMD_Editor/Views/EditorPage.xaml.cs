@@ -155,12 +155,22 @@ public sealed partial class EditorPage : Page
         var isMarkdown = _viewModel.IsMarkdownFile(file);
         mainMenu.SetVisibility(isMarkdown);
 
-        var newTab = CreateNewTab(Tabs.TabItems.Count);
-        var content = (TabViewContent) newTab.Content!;
-        content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
-        content.SetContent(result.Value.content , result.Value.fileName);
-        newTab.Header = result.Value.fileName;
+        var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
 
+        if ( isMarkdown )
+        {
+            var content = (TabViewContent) newTab.Content!;
+            content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
+            content.SetContent(result.Value.content , result.Value.fileName);
+        }
+        else
+        {
+            var content = (EditTabViewContent) newTab.Content!;
+            content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
+            content.SetContent(result.Value.content , result.Value.fileName);
+        }
+
+        newTab.Header = result.Value.fileName;
         Tabs.TabItems.Add(newTab);
         Tabs.SelectedItem = newTab;
     }
@@ -250,6 +260,26 @@ public sealed partial class EditorPage : Page
 
         newItem.Content = content;
         return newItem;
+    }
+
+    private TabViewItem CreateNewTab (int index , bool isMarkdown)
+    {
+        var newTab = new TabViewItem
+        {
+            IconSource = new SymbolIconSource { Symbol = Symbol.Document } ,
+            Header = $"Document {index + 1}"
+        };
+
+        if ( isMarkdown )
+        {
+            newTab.Content = new TabViewContent();
+        }
+        else
+        {
+            newTab.Content = new EditTabViewContent();
+        }
+
+        return newTab;
     }
 
     private (TabViewItem? tab, TabViewContent? content) GetSelectedTabContent () =>
