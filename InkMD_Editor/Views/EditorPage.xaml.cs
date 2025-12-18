@@ -90,13 +90,7 @@ public sealed partial class EditorPage : Page
             await _viewModel.ShowErrorAsync(error ?? "Unknown error");
             return;
         }
-
-        string? currentFileName = string.Empty;
-        if ( tabContent is TabViewContent tvc )
-            currentFileName = tvc.ViewModel.FileName;
-        else if ( tabContent is EditTabViewContent evc )
-            currentFileName = evc.ViewModel.FileName;
-
+        var currentFileName = tabContent.GetFileName();
         tabContent.SetContent(newContent! , currentFileName);
     }
 
@@ -164,18 +158,9 @@ public sealed partial class EditorPage : Page
 
         var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
 
-        if ( isMarkdown )
-        {
-            var content = (TabViewContent) newTab.Content!;
-            content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
-            content.SetContent(result.Value.content , result.Value.fileName);
-        }
-        else
-        {
-            var content = (EditTabViewContent) newTab.Content!;
-            content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
-            content.SetContent(result.Value.content , result.Value.fileName);
-        }
+        var content = (IEditableContent) newTab.Content!;
+        content.SetFilePath(result.Value.filePath , result.Value.fileName);
+        content.SetContent(result.Value.content , result.Value.fileName);
 
         newTab.Header = result.Value.fileName;
         Tabs.TabItems.Add(newTab);
@@ -195,18 +180,9 @@ public sealed partial class EditorPage : Page
 
         var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
 
-        if ( isMarkdown )
-        {
-            var content = (TabViewContent) newTab.Content!;
-            content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
-            content.SetContent(result.Value.content , result.Value.fileName);
-        }
-        else
-        {
-            var content = (EditTabViewContent) newTab.Content!;
-            content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
-            content.SetContent(result.Value.content , result.Value.fileName);
-        }
+        var content = (IEditableContent) newTab.Content!;
+        content.SetFilePath(result.Value.filePath , result.Value.fileName);
+        content.SetContent(result.Value.content , result.Value.fileName);
 
         newTab.Header = result.Value.fileName;
         Tabs.TabItems.Add(newTab);
@@ -223,10 +199,7 @@ public sealed partial class EditorPage : Page
         }
 
         await _viewModel.HandleSaveFile(content);
-        if ( content is TabViewContent tvc )
-            tab.Header = tvc.ViewModel.FileName;
-        else if ( content is EditTabViewContent evc )
-            tab.Header = evc.ViewModel.FileName;
+        tab.Header = content.GetFileName();
     }
 
     private async void SaveCurrentTabContent (string filePath)
@@ -237,10 +210,7 @@ public sealed partial class EditorPage : Page
             if ( content is not null )
             {
                 await _viewModel.SaveFileToPath(filePath , content);
-                if ( content is TabViewContent tvc )
-                    tab.Header = tvc.ViewModel.FileName;
-                else if ( content is EditTabViewContent evc )
-                    tab.Header = evc.ViewModel.FileName;
+                tab!.Header = content.GetFileName();
             }
         }
         catch ( Exception ex )

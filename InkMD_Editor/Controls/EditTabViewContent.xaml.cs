@@ -23,7 +23,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     public string GetContent ()
     {
         EditBox.Document.GetText(TextGetOptions.None , out string currentText);
-        if ( currentText.EndsWith("\r") )
+        if ( !string.IsNullOrEmpty(currentText) && currentText.EndsWith('\r') )
         {
             currentText = currentText [..^1];
         }
