@@ -111,17 +111,9 @@ public partial class MainMenuViewModel : ObservableObject
         {
             return;
         }
-
-        try
-        {
-            var templates = await TemplateService.GetAllTemplatesAsync();
-            Templates = new ObservableCollection<MdTemplate>(templates);
-            TemplatesLoaded = true;
-        }
-        catch
-        {
-            throw;
-        }
+        var templates = await TemplateService.GetAllTemplatesAsync();
+        Templates = new ObservableCollection<MdTemplate>(templates);
+        TemplatesLoaded = true;
     }
 
     public async Task<string?> LoadTemplateContentAsync (string fileName)
@@ -149,17 +141,9 @@ public partial class MainMenuViewModel : ObservableObject
         {
             return;
         }
-
-        try
-        {
-            var icons = await TemplateService.GetAllIconsAsync();
-            IconItems = new ObservableCollection<IconItem>(icons);
-            IconsLoaded = true;
-        }
-        catch
-        {
-            throw;
-        }
+        var icons = await TemplateService.GetAllIconsAsync();
+        IconItems = new ObservableCollection<IconItem>(icons);
+        IconsLoaded = true;
     }
 
     public void AddSelectedIcon (string iconName)

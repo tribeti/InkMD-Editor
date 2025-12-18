@@ -179,6 +179,9 @@ public sealed partial class EditorPage : Page
             return;
         }
 
+        var isMarkdown = _viewModel.IsMarkdownFile(file);
+        mainMenu.SetVisibility(isMarkdown);
+
         var newTab = CreateNewTab(Tabs.TabItems.Count);
         var content = (TabViewContent) newTab.Content!;
         content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
