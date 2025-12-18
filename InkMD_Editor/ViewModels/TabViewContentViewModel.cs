@@ -10,6 +10,9 @@ public partial class TabViewContentViewModel : ObservableObject
     [ObservableProperty]
     public partial string? FilePath { get; set; }
 
+    [ObservableProperty]
+    public partial string? CurrentContent { get; set; }
+
     /// <summary>
     /// Check if the file has been saved
     /// </summary>

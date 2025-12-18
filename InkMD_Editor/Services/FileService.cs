@@ -36,7 +36,7 @@ public class FileService : IFileService
         var startLocation = PickerLocationId.ComputerFolder;
         var picker = new FileOpenPicker(GetWindowsId())
         {
-            FileTypeFilter = { ".txt" , ".md" } ,
+            FileTypeFilter = { ".txt" , ".md" ,"*"} ,
             SuggestedStartLocation = startLocation ,
         };
 

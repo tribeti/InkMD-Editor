@@ -10,6 +10,9 @@ public partial class EditTabViewModel : ObservableObject
     [ObservableProperty]
     public partial string? FilePath { get; set; }
 
+    [ObservableProperty]
+    public partial string? CurrentContent { get; set; }
+
     public bool IsSaved => !string.IsNullOrEmpty(FilePath);
 
     public EditTabViewModel ()

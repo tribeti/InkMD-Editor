@@ -1,4 +1,5 @@
 ﻿using InkMD_Editor.Helpers;
+using InkMD_Editor.Interfaces;
 using InkMD_Editor.ViewModels;
 using Markdig;
 using Microsoft.UI.Text;
@@ -8,9 +9,9 @@ using System;
 
 namespace InkMD_Editor.Controls;
 
-public sealed partial class TabViewContent : UserControl
+public sealed partial class TabViewContent : UserControl, IEditableContent
 {
-    public TabViewContentViewModel ViewModel { get; set; } = new();
+    public TabViewContentViewModel ViewModel { get; } = new();
     private readonly MarkdownPipeline _markdownPipeline;
 
     public TabViewContent ()
@@ -31,6 +32,7 @@ public sealed partial class TabViewContent : UserControl
         var doc = MdEditor.Document;
         doc.GetText(TextGetOptions.None , out string text);
         UpdateMarkdownPreview(text);
+        ViewModel.CurrentContent = text;
     }
 
     public void SetContent (string text , string? fileName)
@@ -38,6 +40,7 @@ public sealed partial class TabViewContent : UserControl
         var doc = MdEditor.Document;
         doc.SetText(TextSetOptions.None , text);
         ViewModel.FileName = fileName;
+        ViewModel.CurrentContent = text;
         UpdateMarkdownPreview(text);
     }
 
@@ -47,13 +50,13 @@ public sealed partial class TabViewContent : UserControl
         {
             if ( MdEditor is null )
             {
-                return string.Empty;
+                return ViewModel.CurrentContent ?? string.Empty;
             }
 
             var doc = MdEditor.Document;
             if ( doc is null )
             {
-                return string.Empty;
+                return ViewModel.CurrentContent ?? string.Empty;
             }
 
             doc.GetText(TextGetOptions.None , out string text);
@@ -61,9 +64,15 @@ public sealed partial class TabViewContent : UserControl
         }
         catch ( Exception )
         {
-            return string.Empty;
+            return ViewModel.CurrentContent ?? string.Empty;
         }
     }
+
+    public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
+
+    public string GetFileName () => ViewModel.FileName ?? string.Empty;
+
+    public void SetFilePath (string filePath , string fileName) => ViewModel.SetFilePath(filePath , fileName);
 
     private async void InitializeWebView ()
     {
@@ -72,8 +81,9 @@ public sealed partial class TabViewContent : UserControl
             await MarkdownPreview.EnsureCoreWebView2Async();
             MarkdownPreview.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
         }
-        catch
+        catch ( Exception ex )
         {
+            throw new InvalidOperationException("Failed to initialize WebView2." , ex);
         }
     }
 
@@ -87,8 +97,9 @@ public sealed partial class TabViewContent : UserControl
             string html = ConvertMarkdownToHtml(markdownText);
             MarkdownPreview.NavigateToString(html);
         }
-        catch
+        catch ( Exception ex )
         {
+            throw new InvalidOperationException("Failed to update Markdown preview." , ex);
         }
     }
 

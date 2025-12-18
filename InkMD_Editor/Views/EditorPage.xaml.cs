@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Controls;
+using InkMD_Editor.Interfaces;
 using InkMD_Editor.Messagers;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
@@ -65,7 +66,7 @@ public sealed partial class EditorPage : Page
             return;
         }
 
-        var newTab = CreateNewTab(Tabs.TabItems.Count);
+        var newTab = CreateNewTab(Tabs.TabItems.Count , true);
         var tabContent = (TabViewContent) newTab.Content!;
         tabContent.SetContent(result.content , $"Document {Tabs.TabItems.Count}");
 
@@ -90,7 +91,13 @@ public sealed partial class EditorPage : Page
             return;
         }
 
-        tabContent?.SetContent(newContent! , tabContent.ViewModel.FileName);
+        string? currentFileName = string.Empty;
+        if ( tabContent is TabViewContent tvc )
+            currentFileName = tvc.ViewModel.FileName;
+        else if ( tabContent is EditTabViewContent evc )
+            currentFileName = evc.ViewModel.FileName;
+
+        tabContent.SetContent(newContent! , currentFileName);
     }
 
     private async void InitTreeView ()
@@ -186,12 +193,22 @@ public sealed partial class EditorPage : Page
         var isMarkdown = _viewModel.IsMarkdownFile(file);
         mainMenu.SetVisibility(isMarkdown);
 
-        var newTab = CreateNewTab(Tabs.TabItems.Count);
-        var content = (TabViewContent) newTab.Content!;
-        content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
-        content.SetContent(result.Value.content , result.Value.fileName);
-        newTab.Header = result.Value.fileName;
+        var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
 
+        if ( isMarkdown )
+        {
+            var content = (TabViewContent) newTab.Content!;
+            content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
+            content.SetContent(result.Value.content , result.Value.fileName);
+        }
+        else
+        {
+            var content = (EditTabViewContent) newTab.Content!;
+            content.ViewModel.SetFilePath(result.Value.filePath , result.Value.fileName);
+            content.SetContent(result.Value.content , result.Value.fileName);
+        }
+
+        newTab.Header = result.Value.fileName;
         Tabs.TabItems.Add(newTab);
         Tabs.SelectedItem = newTab;
     }
@@ -206,7 +223,10 @@ public sealed partial class EditorPage : Page
         }
 
         await _viewModel.HandleSaveFile(content);
-        tab.Header = content.ViewModel.FileName;
+        if ( content is TabViewContent tvc )
+            tab.Header = tvc.ViewModel.FileName;
+        else if ( content is EditTabViewContent evc )
+            tab.Header = evc.ViewModel.FileName;
     }
 
     private async void SaveCurrentTabContent (string filePath)
@@ -217,7 +237,10 @@ public sealed partial class EditorPage : Page
             if ( content is not null )
             {
                 await _viewModel.SaveFileToPath(filePath , content);
-                tab!.Header = content.ViewModel.FileName;
+                if ( content is TabViewContent tvc )
+                    tab.Header = tvc.ViewModel.FileName;
+                else if ( content is EditTabViewContent evc )
+                    tab.Header = evc.ViewModel.FileName;
             }
         }
         catch ( Exception ex )
@@ -226,8 +249,7 @@ public sealed partial class EditorPage : Page
         }
     }
 
-    private void Button_Click (object sender , RoutedEventArgs e) =>
-        Frame.Navigate(typeof(SettingsPage));
+    private void Button_Click (object sender , RoutedEventArgs e) => Frame.Navigate(typeof(SettingsPage));
 
     private void TabView_AddButtonClick (TabView sender , object args)
     {
@@ -282,10 +304,8 @@ public sealed partial class EditorPage : Page
         return newTab;
     }
 
-    private (TabViewItem? tab, TabViewContent? content) GetSelectedTabContent () =>
-        Tabs.SelectedItem is TabViewItem tab
-            ? (tab, tab.Content as TabViewContent)
-            : (null, null);
+    private (TabViewItem? tab, IEditableContent? content) GetSelectedTabContent () =>
+        Tabs.SelectedItem is TabViewItem tab ? (tab, tab.Content as IEditableContent) : (null, null);
 }
 
 public sealed partial class ExplorerItemTemplateSelector : DataTemplateSelector

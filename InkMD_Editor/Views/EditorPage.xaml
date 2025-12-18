@@ -73,10 +73,7 @@
             <customcontrols:MainMenu x:Name="mainMenu" />
         </Grid>
 
-        <Grid
-            x:Name="Body"
-            Grid.Row="1"
-            Background="{ThemeResource LayerFillColorDefaultBrush}">
+        <Grid x:Name="Body" Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" MinWidth="200" />
                 <ColumnDefinition Width="*" />
