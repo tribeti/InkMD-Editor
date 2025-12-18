@@ -223,7 +223,7 @@ public sealed partial class EditorPage : Page
 
     private void TabView_AddButtonClick (TabView sender , object args)
     {
-        var newTab = CreateNewTab(sender.TabItems.Count);
+        var newTab = CreateNewTab(sender.TabItems.Count,true);
         sender.TabItems.Add(newTab);
     }
 
@@ -234,24 +234,6 @@ public sealed partial class EditorPage : Page
             tabContent.DisposeWebView();
         }
         sender.TabItems.Remove(args.Tab);
-    }
-
-    private static TabViewItem CreateNewTab (int index)
-    {
-        var newItem = new TabViewItem
-        {
-            Header = $"Document {index}" ,
-            IconSource = new SymbolIconSource { Symbol = Symbol.Document }
-        };
-
-        var content = new TabViewContent();
-        if ( content.DataContext is TabViewContentViewModel viewModel )
-        {
-            viewModel.ResetForNewFile();
-        }
-
-        newItem.Content = content;
-        return newItem;
     }
 
     private TabViewItem CreateNewTab (int index , bool isMarkdown)

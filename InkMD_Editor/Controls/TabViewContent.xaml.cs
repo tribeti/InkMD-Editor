@@ -81,9 +81,9 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             await MarkdownPreview.EnsureCoreWebView2Async();
             MarkdownPreview.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
         }
-        catch ( Exception ex )
+        catch
         {
-            throw new InvalidOperationException("Failed to initialize WebView2." , ex);
+
         }
     }
 
@@ -97,9 +97,9 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             string html = ConvertMarkdownToHtml(markdownText);
             MarkdownPreview.NavigateToString(html);
         }
-        catch ( Exception ex )
+        catch
         {
-            throw new InvalidOperationException("Failed to update Markdown preview." , ex);
+
         }
     }
 
