@@ -22,15 +22,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         ViewModel.CurrentContent = text;
     }
 
-    public string GetContent ()
-    {
-        string currentText = EditBox.GetText();
-        if ( !string.IsNullOrEmpty(currentText) && currentText.EndsWith('\r') )
-        {
-            currentText = currentText [..^1];
-        }
-        return currentText;
-    }
+    public string GetContent () => EditBox.GetText() ?? string.Empty;
 
     public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
 

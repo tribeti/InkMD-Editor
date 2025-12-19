@@ -12,5 +12,6 @@
     <tcb:TextControlBox
         x:Name="EditBox"
         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-        FontFamily="Cascadia Mono" />
+        FontFamily="Cascadia Mono"
+        FontSize="14" />
 </UserControl>

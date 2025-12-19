@@ -17,7 +17,12 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
-            <local:EditTabViewContent x:Name="EditBox" />
+            <tcb:TextControlBox
+                x:Name="EditBox"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                FontFamily="Cascadia Mono"
+                FontSize="14"
+                TextChanged="EditBox_TextChanged" />
         </Grid>
 
         <controls:GridSplitter Width="8" HorizontalAlignment="Right">
