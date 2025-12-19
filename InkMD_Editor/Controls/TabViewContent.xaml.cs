@@ -2,10 +2,9 @@
 using InkMD_Editor.Interfaces;
 using InkMD_Editor.ViewModels;
 using Markdig;
-using Microsoft.UI.Text;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using TextControlBoxNS;
 
 namespace InkMD_Editor.Controls;
 
@@ -25,48 +24,27 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             .Build();
 
         InitializeWebView();
+
+        EditBox.EnableSyntaxHighlighting = true;
+        EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
     }
 
-    private void MdEditor_TextChanged (object sender , RoutedEventArgs e)
+    private void EditBox_TextChanged (TextControlBox sender)
     {
-        var doc = MdEditor.Document;
-        doc.GetText(TextGetOptions.None , out string text);
+        string text = EditBox.GetText();
         UpdateMarkdownPreview(text);
         ViewModel.CurrentContent = text;
     }
 
     public void SetContent (string text , string? fileName)
     {
-        var doc = MdEditor.Document;
-        doc.SetText(TextSetOptions.None , text);
+        EditBox.SetText(text);
         ViewModel.FileName = fileName;
         ViewModel.CurrentContent = text;
         UpdateMarkdownPreview(text);
     }
 
-    public string GetContent ()
-    {
-        try
-        {
-            if ( MdEditor is null )
-            {
-                return ViewModel.CurrentContent ?? string.Empty;
-            }
-
-            var doc = MdEditor.Document;
-            if ( doc is null )
-            {
-                return ViewModel.CurrentContent ?? string.Empty;
-            }
-
-            doc.GetText(TextGetOptions.None , out string text);
-            return text ?? string.Empty;
-        }
-        catch ( Exception )
-        {
-            return ViewModel.CurrentContent ?? string.Empty;
-        }
-    }
+    public string GetContent () => EditBox.GetText() ?? string.Empty;
 
     public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
 

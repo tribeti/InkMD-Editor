@@ -16,13 +16,13 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Grid x:Name="Raw_Md" Grid.Column="0">
-            <RichEditBox
-                x:Name="MdEditor"
+        <Grid Grid.Column="0">
+            <tcb:TextControlBox
+                x:Name="EditBox"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 FontFamily="Cascadia Mono"
-                IsSpellCheckEnabled="False"
-                TextChanged="MdEditor_TextChanged" />
+                FontSize="14"
+                TextChanged="EditBox_TextChanged" />
         </Grid>
 
         <controls:GridSplitter Width="8" HorizontalAlignment="Right">
