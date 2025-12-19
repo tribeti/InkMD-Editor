@@ -2,8 +2,6 @@
 using InkMD_Editor.Interfaces;
 using InkMD_Editor.ViewModels;
 using Markdig;
-using Microsoft.UI.Text;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 
@@ -25,20 +23,20 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             .Build();
 
         InitializeWebView();
+
+        EditBox.EditBox.TextChanged += OnEditBoxTextChanged;
     }
 
-    private void MdEditor_TextChanged (object sender , RoutedEventArgs e)
+    private void OnEditBoxTextChanged (object sender)
     {
-        var doc = MdEditor.Document;
-        doc.GetText(TextGetOptions.None , out string text);
-        UpdateMarkdownPreview(text);
-        ViewModel.CurrentContent = text;
+        string currentText = EditBox.GetContent();
+        ViewModel.CurrentContent = currentText;
+        UpdateMarkdownPreview(currentText);
     }
 
     public void SetContent (string text , string? fileName)
     {
-        var doc = MdEditor.Document;
-        doc.SetText(TextSetOptions.None , text);
+        EditBox.SetContent(text , fileName);
         ViewModel.FileName = fileName;
         ViewModel.CurrentContent = text;
         UpdateMarkdownPreview(text);
@@ -46,33 +44,18 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public string GetContent ()
     {
-        try
-        {
-            if ( MdEditor is null )
-            {
-                return ViewModel.CurrentContent ?? string.Empty;
-            }
-
-            var doc = MdEditor.Document;
-            if ( doc is null )
-            {
-                return ViewModel.CurrentContent ?? string.Empty;
-            }
-
-            doc.GetText(TextGetOptions.None , out string text);
-            return text ?? string.Empty;
-        }
-        catch ( Exception )
-        {
-            return ViewModel.CurrentContent ?? string.Empty;
-        }
+        return EditBox.GetContent();
     }
 
-    public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
+    public string GetFilePath () => EditBox.GetFilePath();
 
-    public string GetFileName () => ViewModel.FileName ?? string.Empty;
+    public string GetFileName () => EditBox.GetFileName();
 
-    public void SetFilePath (string filePath , string fileName) => ViewModel.SetFilePath(filePath , fileName);
+    public void SetFilePath (string filePath , string fileName)
+    {
+        EditBox.SetFilePath(filePath , fileName);
+        ViewModel.SetFilePath(filePath , fileName);
+    }
 
     private async void InitializeWebView ()
     {

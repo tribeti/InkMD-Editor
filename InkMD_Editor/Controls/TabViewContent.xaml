@@ -16,13 +16,8 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Grid x:Name="Raw_Md" Grid.Column="0">
-            <RichEditBox
-                x:Name="MdEditor"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                FontFamily="Cascadia Mono"
-                IsSpellCheckEnabled="False"
-                TextChanged="MdEditor_TextChanged" />
+        <Grid Grid.Column="0">
+            <local:EditTabViewContent x:Name="EditBox" />
         </Grid>
 
         <controls:GridSplitter Width="8" HorizontalAlignment="Right">

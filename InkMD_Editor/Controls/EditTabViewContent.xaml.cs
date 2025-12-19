@@ -1,7 +1,7 @@
 ﻿using InkMD_Editor.Interfaces;
 using InkMD_Editor.ViewModels;
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml.Controls;
+using TextControlBoxNS;
 
 namespace InkMD_Editor.Controls;
 
@@ -11,18 +11,20 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     public EditTabViewContent ()
     {
         InitializeComponent();
+        EditBox.EnableSyntaxHighlighting = true;
+        EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
     }
 
     public void SetContent (string text , string? fileName)
     {
-        EditBox.Document.SetText(TextSetOptions.None , text);
+        EditBox.SetText(text);
         ViewModel.FileName = fileName;
         ViewModel.CurrentContent = text;
     }
 
     public string GetContent ()
     {
-        EditBox.Document.GetText(TextGetOptions.None , out string currentText);
+        string currentText = EditBox.GetText();
         if ( !string.IsNullOrEmpty(currentText) && currentText.EndsWith('\r') )
         {
             currentText = currentText [..^1];
