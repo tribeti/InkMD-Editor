@@ -71,7 +71,7 @@ public partial class MainMenuViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task SaveAsFileAsync ()
+    private async Task SaveAsAsync ()
     {
         var filePath = await _fileService.SaveFileAsync();
         if ( filePath is not null )

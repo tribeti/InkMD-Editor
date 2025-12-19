@@ -123,7 +123,7 @@
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
                     <AppBarButton
-                        Command="{x:Bind ViewModel.SaveAsFileCommand}"
+                        Command="{x:Bind ViewModel.SaveAsCommand}"
                         Icon="{ui:FontIcon Glyph=&#xE792;}"
                         Label="Save As">
                         <AppBarButton.KeyboardAccelerators>

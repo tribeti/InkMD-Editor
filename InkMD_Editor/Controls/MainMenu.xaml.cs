@@ -256,47 +256,29 @@ public sealed partial class MainMenu : UserControl
 
     // ==================== KEYBOARD ACCELERATOR HANDLERS ====================
     // File commands
+
+    private void TryExecuteCommand (System.Windows.Input.ICommand? command , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if ( command?.CanExecute(null) == true )
+        {
+            command.Execute(null);
+        }
+        args.Handled = true;
+    }
+
     private void NewMDFileAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
     {
         NewMDFile_Click(null , null);
         args.Handled = true;
     }
 
-    private void OpenFileAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        if ( ViewModel.OpenFileCommand?.CanExecute(null) == true )
-        {
-            ViewModel.OpenFileCommand.Execute(null);
-        }
-        args.Handled = true;
-    }
+    private void OpenFileAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.OpenFileCommand , args);
 
-    private void OpenFolderAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        if ( ViewModel.OpenFolderCommand?.CanExecute(null) == true )
-        {
-            ViewModel.OpenFolderCommand.Execute(null);
-        }
-        args.Handled = true;
-    }
+    private void OpenFolderAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.OpenFolderCommand , args);
 
-    private void SaveAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        if ( ViewModel.SaveCommand?.CanExecute(null) == true )
-        {
-            ViewModel.SaveCommand.Execute(null);
-        }
-        args.Handled = true;
-    }
+    private void SaveAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.SaveCommand , args);
 
-    private void SaveAsAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        if ( ViewModel.SaveAsFileCommand?.CanExecute(null) == true )
-        {
-            ViewModel.SaveAsFileCommand.Execute(null);
-        }
-        args.Handled = true;
-    }
+    private void SaveAsAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.SaveAsCommand , args);
 
     // Edit commands
     private void UndoAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)

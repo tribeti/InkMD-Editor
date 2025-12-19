@@ -223,7 +223,7 @@ public sealed partial class EditorPage : Page
 
     private void TabView_AddButtonClick (TabView sender , object args)
     {
-        var newTab = CreateNewTab(sender.TabItems.Count,true);
+        var newTab = CreateNewTab(sender.TabItems.Count , true);
         sender.TabItems.Add(newTab);
     }
 
