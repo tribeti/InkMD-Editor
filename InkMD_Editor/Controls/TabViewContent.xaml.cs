@@ -48,7 +48,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
 
-    public string GetFileName () => ViewModel.FilePath ?? string.Empty;
+    public string GetFileName () => ViewModel.FileName ?? string.Empty;
 
     public void SetFilePath (string filePath , string fileName) => ViewModel.SetFilePath(filePath , fileName);
 
