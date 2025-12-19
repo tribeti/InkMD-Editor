@@ -3,6 +3,7 @@ using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -170,7 +171,7 @@ public sealed partial class MainMenu : UserControl
         ToolTipService.SetToolTip(CopyBtn , "Copy code");
     }
 
-    private async void NewMDFile_Click (object sender , RoutedEventArgs e)
+    private async void NewMDFile_Click (object? sender , RoutedEventArgs? e)
     {
         MdFileNameBox.Text = string.Empty;
         MdFileNameBox.Focus(FocusState.Programmatic);
@@ -251,6 +252,84 @@ public sealed partial class MainMenu : UserControl
     private async void About_Click (object sender , RoutedEventArgs e)
     {
         await AboutDialog.ShowAsync();
+    }
+
+    // ==================== KEYBOARD ACCELERATOR HANDLERS ====================
+    // File commands
+    private void NewMDFileAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        NewMDFile_Click(null , null);
+        args.Handled = true;
+    }
+
+    private void OpenFileAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if ( ViewModel.OpenFileCommand?.CanExecute(null) == true )
+        {
+            ViewModel.OpenFileCommand.Execute(null);
+        }
+        args.Handled = true;
+    }
+
+    private void OpenFolderAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if ( ViewModel.OpenFolderCommand?.CanExecute(null) == true )
+        {
+            ViewModel.OpenFolderCommand.Execute(null);
+        }
+        args.Handled = true;
+    }
+
+    private void SaveAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if ( ViewModel.SaveCommand?.CanExecute(null) == true )
+        {
+            ViewModel.SaveCommand.Execute(null);
+        }
+        args.Handled = true;
+    }
+
+    private void SaveAsAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if ( ViewModel.SaveAsFileCommand?.CanExecute(null) == true )
+        {
+            ViewModel.SaveAsFileCommand.Execute(null);
+        }
+        args.Handled = true;
+    }
+
+    // Edit commands
+    private void UndoAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        // if (ViewModel.UndoCommand?.CanExecute(null) == true)
+        // {
+        //     ViewModel.UndoCommand.Execute(null);
+        // }
+        args.Handled = true;
+    }
+
+    private void RedoAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        // TODO: Implement redo logic
+        args.Handled = true;
+    }
+
+    private void CutAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        // TODO: Implement cut logic
+        args.Handled = true;
+    }
+
+    private void CopyAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        // TODO: Implement copy logic
+        args.Handled = true;
+    }
+
+    private void PasteAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    {
+        // TODO: Implement paste logic
+        args.Handled = true;
     }
 
     public void Dispose ()
