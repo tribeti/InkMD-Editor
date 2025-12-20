@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Data;
+﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Data;
 using System;
 
 namespace InkMD_Editor.Converters;
@@ -19,7 +20,7 @@ public class DoubleToIntConverter : IValueConverter
         if ( double.TryParse(value.ToString() , out double parsedDouble) )
             return (int) Math.Round(parsedDouble);
 
-        return 14;
+        return DependencyProperty.UnsetValue;
     }
 
     public object ConvertBack (object value , Type targetType , object parameter , string language)
