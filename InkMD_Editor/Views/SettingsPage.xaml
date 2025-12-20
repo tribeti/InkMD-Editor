@@ -8,6 +8,7 @@
     xmlns:local="using:InkMD_Editor.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="using:CommunityToolkit.WinUI"
+    xmlns:win2d="using:Microsoft.Graphics.Canvas.Text"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
@@ -20,6 +21,7 @@
             Click="Button_Click">
             <SymbolIcon Symbol="Back" />
         </Button>
+
         <controls:SettingsCard
             x:Name="settingsCard"
             Description="Select your preferred app theme."
@@ -30,6 +32,32 @@
                 <ComboBoxItem Tag="Dark">Dark</ComboBoxItem>
                 <ComboBoxItem Tag="Default">Use system setting</ComboBoxItem>
             </ComboBox>
+        </controls:SettingsCard>
+
+        <controls:SettingsCard
+            x:Name="FontFamilyCard"
+            Description="Select your preferred font."
+            Header="Font Family"
+            HeaderIcon="{ui:FontIcon Glyph=&#xE8D2;}">
+            <ComboBox
+                x:Name="FontFamilyComboBox"
+                ItemsSource="{x:Bind win2d:CanvasTextFormat.GetSystemFontFamilies()}"
+                SelectionChanged="FontFamilyComboBox_SelectionChanged" />
+        </controls:SettingsCard>
+        <controls:SettingsCard
+            x:Name="FontSizeCard"
+            Description="Adjust the font size."
+            Header="Font Size"
+            HeaderIcon="{ui:FontIcon Glyph=&#xE71F;}">
+            <NumberBox
+                x:Name="FontSizeBox"
+                LargeChange="5"
+                Maximum="72"
+                Minimum="8"
+                SmallChange="1"
+                SpinButtonPlacementMode="Inline"
+                ValueChanged="FontSizeBox_ValueChanged"
+                Value="14" />
         </controls:SettingsCard>
     </StackPanel>
 </Page>

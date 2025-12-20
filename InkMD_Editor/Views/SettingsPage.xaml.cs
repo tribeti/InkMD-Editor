@@ -1,3 +1,6 @@
+using CommunityToolkit.Mvvm.Messaging;
+using InkMD_Editor.Helpers;
+using InkMD_Editor.Messagers;
 using InkMD_Editor.Services;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -11,6 +14,16 @@ public sealed partial class SettingsPage : Page
     {
         InitializeComponent();
         LoadSavedTheme();
+        LoadSavedFontAndSize();
+    }
+
+    private void LoadSavedFontAndSize ()
+    {
+        var savedFontFamily = AppSettings.GetFontFamily();
+        FontFamilyComboBox.SelectedItem = savedFontFamily;
+
+        var savedFontSize = AppSettings.GetFontSize();
+        FontSizeBox.Value = savedFontSize;
     }
 
     private void LoadSavedTheme ()
@@ -34,6 +47,33 @@ public sealed partial class SettingsPage : Page
                 ThemeService.SetTheme(window , selectedTheme);
             }
         }
+    }
+
+    private void FontFamilyComboBox_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    {
+        if ( FontFamilyComboBox.SelectedItem is string fontFamily )
+        {
+            AppSettings.SetFontFamily(fontFamily);
+            FontSettingsChanged();
+        }
+    }
+
+    private void FontSizeBox_ValueChanged (NumberBox sender , NumberBoxValueChangedEventArgs args)
+    {
+        if ( args.NewValue >= 8 && args.NewValue <= 72 )
+        {
+            AppSettings.SetFontSize(args.NewValue);
+            FontSettingsChanged();
+        }
+    }
+
+    private void FontSettingsChanged ()
+    {
+        var fontFamily = AppSettings.GetFontFamily();
+        var fontSize = AppSettings.GetFontSize();
+
+        var message = new FontChangedMessage(fontFamily , fontSize);
+        WeakReferenceMessenger.Default.Send(message);
     }
 
     private void Button_Click (object sender , Microsoft.UI.Xaml.RoutedEventArgs e)
