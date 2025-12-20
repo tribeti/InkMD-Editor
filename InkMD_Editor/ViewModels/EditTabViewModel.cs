@@ -20,7 +20,7 @@ public partial class EditTabViewModel : ObservableObject, IRecipient<FontChanged
     public partial string FontFamily { get; set; } = AppSettings.GetFontFamily();
 
     [ObservableProperty]
-    public partial int FontSize { get; set; } = AppSettings.GetFontSize();
+    public partial double FontSize { get; set; } = AppSettings.GetFontSize();
 
     public bool IsSaved => !string.IsNullOrEmpty(FilePath);
 

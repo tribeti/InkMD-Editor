@@ -62,7 +62,7 @@ public sealed partial class SettingsPage : Page
     {
         if ( args.NewValue >= 8 && args.NewValue <= 72 )
         {
-            AppSettings.SetFontSize((int) args.NewValue);
+            AppSettings.SetFontSize(args.NewValue);
             FontSettingsChanged();
         }
     }

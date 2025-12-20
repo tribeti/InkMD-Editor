@@ -20,7 +20,7 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     public partial string FontFamily { get; set; } = AppSettings.GetFontFamily();
 
     [ObservableProperty]
-    public partial int FontSize { get; set; } = AppSettings.GetFontSize();
+    public partial double FontSize { get; set; } = AppSettings.GetFontSize();
 
     /// <summary>
     /// Check if the file has been saved

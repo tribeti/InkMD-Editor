@@ -53,13 +53,15 @@ public static class AppSettings
         _localSettings.Values [FONT_FAMILY_KEY] = fontFamily;
     }
 
-    public static int GetFontSize ()
+    public static double GetFontSize ()
     {
         if ( _localSettings.Values.TryGetValue(FONT_SIZE_KEY , out var value) )
         {
-            if ( value is int doubleValue )
+            if ( value is double doubleValue )
                 return doubleValue;
-            if ( int.TryParse(value?.ToString() , out int parsedValue) )
+            if ( value is int intValue )
+                return intValue;
+            if ( double.TryParse(value?.ToString() , out double parsedValue) )
                 return parsedValue;
         }
         return 14;
