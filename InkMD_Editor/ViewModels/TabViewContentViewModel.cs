@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Helpers;
+using InkMD_Editor.Messagers;
 
 namespace InkMD_Editor.ViewModels;
 
-public partial class TabViewContentViewModel : ObservableObject
+public partial class TabViewContentViewModel : ObservableObject, IRecipient<FontChangedMessage>
 {
     [ObservableProperty]
     public partial string? FileName { get; set; }
@@ -30,6 +32,7 @@ public partial class TabViewContentViewModel : ObservableObject
         FileName = "Untitled";
         FontFamily = AppSettings.GetFontFamily();
         FontSize = AppSettings.GetFontSize();
+        WeakReferenceMessenger.Default.Register(this);
     }
 
     /// <summary>
@@ -39,5 +42,11 @@ public partial class TabViewContentViewModel : ObservableObject
     {
         FilePath = path;
         FileName = name;
+    }
+
+    public void Receive (FontChangedMessage message)
+    {
+        FontFamily = message.FontFamily;
+        FontSize = message.FontSize;
     }
 }

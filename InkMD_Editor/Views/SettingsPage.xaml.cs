@@ -1,4 +1,6 @@
+using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Helpers;
+using InkMD_Editor.Messagers;
 using InkMD_Editor.Services;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -52,7 +54,7 @@ public sealed partial class SettingsPage : Page
         if ( FontFamilyComboBox.SelectedItem is string fontFamily )
         {
             AppSettings.SetFontFamily(fontFamily);
-            ApplyFontSettingsToAllTabs();
+            FontSettingsChanged();
         }
     }
 
@@ -60,48 +62,18 @@ public sealed partial class SettingsPage : Page
     {
         if ( args.NewValue >= 8 && args.NewValue <= 72 )
         {
-            AppSettings.SetFontSize(args.NewValue);
-            ApplyFontSettingsToAllTabs();
+            AppSettings.SetFontSize((int) args.NewValue);
+            FontSettingsChanged();
         }
     }
 
-    private void ApplyFontSettingsToAllTabs ()
+    private void FontSettingsChanged ()
     {
         var fontFamily = AppSettings.GetFontFamily();
         var fontSize = AppSettings.GetFontSize();
 
-        if ( App.MainWindow?.Content is Frame mainFrame )
-        {
-            if ( mainFrame.Content is EditorPage editorPage )
-            {
-                ApplyFontToEditorPage(editorPage , fontFamily , fontSize);
-            }
-        }
-    }
-
-    private void ApplyFontToEditorPage (EditorPage editorPage , string fontFamily , int fontSize)
-    {
-        if ( editorPage.Content is Grid grid )
-        {
-            foreach ( var child in grid.Children )
-            {
-                if ( child is TabView tabView )
-                {
-                    foreach ( var tab in tabView.TabItems )
-                    {
-                        if ( tab is TabViewItem tabItem && tabItem.Content is Interfaces.IEditableContent content )
-                        {
-                            var viewModel = (dynamic) ( (dynamic) content ).ViewModel;
-                            if ( viewModel is not null )
-                            {
-                                viewModel.FontFamily = fontFamily;
-                                viewModel.FontSize = fontSize;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        var message = new FontChangedMessage(fontFamily , fontSize);
+        WeakReferenceMessenger.Default.Send(message);
     }
 
     private void Button_Click (object sender , Microsoft.UI.Xaml.RoutedEventArgs e)
