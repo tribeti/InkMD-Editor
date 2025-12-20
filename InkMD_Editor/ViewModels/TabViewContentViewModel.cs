@@ -30,8 +30,6 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     public TabViewContentViewModel ()
     {
         FileName = "Untitled";
-        FontFamily = AppSettings.GetFontFamily();
-        FontSize = AppSettings.GetFontSize();
         WeakReferenceMessenger.Default.Register(this);
     }
 

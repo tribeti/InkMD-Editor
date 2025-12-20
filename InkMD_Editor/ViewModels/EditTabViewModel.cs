@@ -17,18 +17,16 @@ public partial class EditTabViewModel : ObservableObject, IRecipient<FontChanged
     public partial string? CurrentContent { get; set; }
 
     [ObservableProperty]
-    private string fontFamily = AppSettings.GetFontFamily();
+    public partial string FontFamily { get; set; } = AppSettings.GetFontFamily();
 
     [ObservableProperty]
-    private int fontSize = AppSettings.GetFontSize();
+    public partial int FontSize { get; set; } = AppSettings.GetFontSize();
 
     public bool IsSaved => !string.IsNullOrEmpty(FilePath);
 
     public EditTabViewModel ()
     {
         FileName = "Untitled";
-        FontFamily = AppSettings.GetFontFamily();
-        FontSize = AppSettings.GetFontSize();
         WeakReferenceMessenger.Default.Register(this);
     }
 
