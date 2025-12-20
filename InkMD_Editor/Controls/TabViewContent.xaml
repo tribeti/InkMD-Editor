@@ -20,8 +20,8 @@
             <tcb:TextControlBox
                 x:Name="EditBox"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                FontFamily="Cascadia Mono"
-                FontSize="14"
+                FontFamily="{x:Bind ViewModel.FontFamily, Mode=TwoWay}"
+                FontSize="{x:Bind ViewModel.FontSize, Mode=TwoWay}"
                 TextChanged="EditBox_TextChanged" />
         </Grid>
 
