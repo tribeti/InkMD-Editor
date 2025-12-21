@@ -21,6 +21,7 @@ PrivilegesRequiredOverridesAllowed=dialog
 OutputBaseFilename=InkMD_Editor_Setup
 SolidCompression=yes
 WizardStyle=modern dynamic windows11
+ArchitecturesInstallIn64BitMode=x64
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -42,3 +43,8 @@ Filename: "powershell.exe"; \
   WorkingDir: "{app}"; \
   Description: "Install {#MyAppName}"; \
   Flags: postinstall waituntilterminated runhidden
+
+[UninstallRun]
+Filename: "powershell.exe"; \
+  Parameters: "-ExecutionPolicy Bypass -NoLogo -NonInteractive -Command ""Get-AppxPackage -Publisher '*tribeti*' | Remove-AppxPackage -ErrorAction SilentlyContinue"""; \
+  Flags: runhidden waituntilterminated
