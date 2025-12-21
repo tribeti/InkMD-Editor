@@ -39,7 +39,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Run]
 Filename: "powershell.exe"; \
-  Parameters: "-ExecutionPolicy RemoteSigned -NoLogo -NonInteractive -File ""{app}\Add-AppDevPackage.ps1"" -Force"; \
+  Parameters: "-ExecutionPolicy Bypass -NoLogo -NonInteractive -File ""{app}\\Add-AppDevPackage.ps1"" -Force"; \
   WorkingDir: "{app}"; \
   Description: "Install {#MyAppName}"; \
   Flags: postinstall waituntilterminated runhidden
