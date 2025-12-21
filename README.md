@@ -21,10 +21,8 @@
     <img src="https://img.shields.io/github/license/tribeti/InkMD-Editor?style=for-the-badge&logo=opensourceinitiative&color=2ecc71" alt="License" />
   </a>
 </p>
+<br/>
 
----
-
-## 🚀 Overview
 **InkMD Editor** is a powerful yet lightweight desktop application designed for developers and writers who demand a seamless Markdown experience. Whether you are documenting code, writing a blog, or taking daily notes, InkMD provides a distraction-free environment with high-performance rendering.
 
 ## ✨ Key Features
@@ -44,8 +42,10 @@
 
 ---
 
-## 🛠️ Installation & Setup
+## 🛠️ Installation
+You can download the pre-built binaries for Windows from the [Releases](https://github.com/tribeti/InkMD-Editor/releases) page.
 
+## 🔨 Build from source
 ### 1. Set up the environment
 
 > [!NOTE]
@@ -62,14 +62,11 @@
 The [Assets](https://github.com/tribeti/InkMD-Assets) is in a submodule, so you'll need to use `--recurse-submodules` when cloning or pulling for the first time:
 
 ```shell
-git clone --recurse-submodules https://github.com/tribeti/InkMD-Assets.git
+git clone --recurse-submodules https://github.com/tribeti/InkMD-Editor.git
 ```
 
-### 3. Run build scripts & open solution
+### 3. Run build scripts
 Then you open the .slnx file by Visual Studio and then press F5 to build project.
-
-> 💡 **Pro Tip:** You can also download the pre-built binaries for Windows from the [Releases](https://github.com/tribeti/InkMD-Editor/releases) page.
-
 ---
 
 ## 📚 How to Use
