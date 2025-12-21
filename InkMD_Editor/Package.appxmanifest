@@ -10,7 +10,7 @@
   <Identity
     Name="96f8732c-a531-4c2f-b498-1ffebbd1c5d5"
     Publisher="CN=tribeti"
-    Version="0.0.1.0" />
+    Version="0.1.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="96f8732c-a531-4c2f-b498-1ffebbd1c5d5" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
