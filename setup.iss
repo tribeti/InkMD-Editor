@@ -5,7 +5,6 @@
 #define MyAppName "InkMD Editor"
 #define MyAppVersion "0.1.0"
 #define MyAppPublisher "tribeti"
-#define CertFileName "InkMD_Editor_0.1.0.0_x64_Debug.cer"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
