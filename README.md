@@ -14,10 +14,10 @@
   <a href="https://github.com/tribeti/InkMD-Editor/stargazers">
     <img src="https://img.shields.io/github/stars/tribeti/InkMD-Editor?style=for-the-badge&logo=github&color=f1c40f" alt="Stars" />
   </a>
-  <a href="https://github.com/yourusername/yourrepo/network/members">
+  <a>
     <img src="https://img.shields.io/github/forks/tribeti/InkMD-Editor?style=for-the-badge&logo=github&color=3498db" alt="Forks" />
   </a>
-  <a href="https://github.com/yourusername/yourrepo/blob/main/LICENSE">
+  <a>
     <img src="https://img.shields.io/github/license/tribeti/InkMD-Editor?style=for-the-badge&logo=opensourceinitiative&color=2ecc71" alt="License" />
   </a>
 </p>
