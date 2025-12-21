@@ -10,14 +10,14 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{6FB634CF-7009-4E4F-A592-D325C4D3DC57}
+AppId={{6FB634CF-7009-4E4F-A592-D325C4D3DC57}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
 PrivilegesRequiredOverridesAllowed=dialog
 OutputBaseFilename=InkMD_Editor_Setup
 SolidCompression=yes
@@ -39,7 +39,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Run]
 Filename: "powershell.exe"; \
-  Parameters: "-ExecutionPolicy Bypass -NoLogo -NonInteractive -Command ""& '{app}\Add-AppDevPackage.ps1' -Force"""; \
+  Parameters: "-ExecutionPolicy RemoteSigned -NoLogo -NonInteractive -File ""{app}\Add-AppDevPackage.ps1"" -Force"; \
   WorkingDir: "{app}"; \
   Description: "Install {#MyAppName}"; \
   Flags: postinstall waituntilterminated runhidden
