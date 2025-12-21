@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/tribeti/InkMD-Editor/stargazers">
+  <a>
     <img src="https://img.shields.io/github/stars/tribeti/InkMD-Editor?style=for-the-badge&logo=github&color=f1c40f" alt="Stars" />
   </a>
   <a>
