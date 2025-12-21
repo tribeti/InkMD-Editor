@@ -66,7 +66,9 @@ git clone --recurse-submodules https://github.com/tribeti/InkMD-Editor.git
 ```
 
 ### 3. Run build scripts
-Then you open the .slnx file by Visual Studio and then press F5 to build project.
+
+Then open the .slnx file by Visual Studio and then press F5 to build project.
+
 ---
 
 ## 📚 How to Use
