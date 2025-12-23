@@ -5,12 +5,12 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap rescap">
+  xmlns:uap18="http://schemas.microsoft.com/appx/manifest/uap/windows10/18"
+  IgnorableNamespaces="uap rescap uap18">
 
   <Identity
-    Name="96f8732c-a531-4c2f-b498-1ffebbd1c5d5"
     Publisher="CN=tribeti"
-    Version="0.1.0.0" />
+    Version="0.1.1.0"  Name="96f8732c-a531-4c2f-b498-1ffebbd1c5d5"/>
 
   <mp:PhoneIdentity PhoneProductId="96f8732c-a531-4c2f-b498-1ffebbd1c5d5" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -32,20 +32,23 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="$targetentrypoint$">
+      EntryPoint="$targetentrypoint$" uap18:RuntimeBehavior="win32App">
       <uap:VisualElements
         DisplayName="InkMD_Editor"
-        Description="InkMD_Editor"
+        Description="InkMD Editor is a powerful yet lightweight desktop application designed for developers and writers who demand a seamless Markdown experience."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="landscape"/></uap:InitialRotationPreference>
       </uap:VisualElements>
     </Application>
   </Applications>
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
+    <Capability Name="internetClient"/>
   </Capabilities>
 </Package>

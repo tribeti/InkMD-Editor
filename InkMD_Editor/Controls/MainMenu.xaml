@@ -165,16 +165,6 @@
                             <KeyboardAccelerator Key="V" Modifiers="Control" />
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
-                    <AppBarElementContainer>
-                        <ComboBox MinWidth="175" SelectedIndex="0">
-                            <ComboBoxItem Content="Arial" />
-                            <ComboBoxItem Content="Calibri" />
-                            <ComboBoxItem Content="JetBrains Mono" />
-                            <ComboBoxItem Content="Roboto" />
-                            <ComboBoxItem Content="Segoe UI" />
-                            <ComboBoxItem Content="Segoe UI Semibold" />
-                        </ComboBox>
-                    </AppBarElementContainer>
                     <AppBarSeparator />
                     <AppBarToggleButton Icon="{ui:FontIcon Glyph=&#xE8DD;}" Label="Bold" />
                     <AppBarToggleButton Icon="{ui:FontIcon Glyph=&#xE8DB;}" Label="Italic" />
