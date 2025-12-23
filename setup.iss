@@ -3,48 +3,51 @@
 ; Non-commercial use only
 
 #define MyAppName "InkMD Editor"
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "0.1.1"
 #define MyAppPublisher "tribeti"
+#define MyCertFile "InkMD_Editor_0.1.0.0_x64_Debug.cer"
+#define MyAppBundle "InkMD_Editor_0.1.0.0_x64_Debug.msixbundle"
 
 [Setup]
-; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
-; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{6FB634CF-7009-4E4F-A592-D325C4D3DC57}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={autopf}\{#MyAppName}
-DefaultGroupName={#MyAppName}
+DefaultDirName={tmp}
+DisableProgramGroupPage=yes
 PrivilegesRequired=admin
-PrivilegesRequiredOverridesAllowed=dialog
 OutputBaseFilename=InkMD_Editor_Setup
+Compression=lzma2
 SolidCompression=yes
-WizardStyle=modern dynamic windows11
-ArchitecturesInstallIn64BitMode=x64
+MinVersion=10.0.17763
+Uninstallable=no 
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "D:\InkMD_Editor_0.1.0.0_Debug_Test\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\InkMD_Editor_0.1.0.0_Debug_Test\*"; DestDir: "{tmp}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
-[Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\InkMD_Editor.appinstaller"
-Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\InkMD_Editor.appinstaller"; Tasks: desktopicon
-
-[Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+[Registry]
+Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"; ValueType: dword; ValueName: "AllowAllTrustedApps"; ValueData: "1"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"; ValueType: dword; ValueName: "AllowDevelopmentWithoutDevLicense"; ValueData: "1"; Flags: createvalueifdoesntexist
 
 [Run]
-Filename: "powershell.exe"; \
-  Parameters: "-ExecutionPolicy Bypass -NoLogo -NonInteractive -File ""{app}\\Add-AppDevPackage.ps1"" -Force"; \
-  WorkingDir: "{app}"; \
-  Description: "Install {#MyAppName}"; \
-  Flags: postinstall waituntilterminated runhidden
+Filename: "certutil.exe"; \
+    Parameters: "-addstore -f ""Root"" ""{tmp}\{#MyCertFile}"""; \
+    Flags: runhidden waituntilterminated; \
+    StatusMsg: "Installing Security Certificate..."
 
-[UninstallRun]
 Filename: "powershell.exe"; \
-  Parameters: "-ExecutionPolicy Bypass -NoLogo -NonInteractive -Command ""Get-AppxPackage -Publisher '*tribeti*' | Remove-AppxPackage -ErrorAction SilentlyContinue"""; \
-  Flags: runhidden waituntilterminated
+    Parameters: "-ExecutionPolicy Bypass -Command ""Add-AppxPackage -Path '{tmp}\{#MyAppBundle}' -ForceUpdateFromAnyVersion"""; \
+    Flags: runhidden waituntilterminated; \
+    StatusMsg: "Installing Application..."
+
+[Code]
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+  begin
+    MsgBox('Successfully installed! You can find InkMD Editor in your Start Menu.', mbInformation, MB_OK);
+  end;
+end;
