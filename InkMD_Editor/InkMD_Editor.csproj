@@ -87,8 +87,8 @@
 	</PropertyGroup>
 	<!-- Publish Properties -->
 	<PropertyGroup>
-		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+		<PublishReadyToRun>False</PublishReadyToRun>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<PublishTrimmed>False</PublishTrimmed>
 		<!--<PublishAot>true</PublishAot>-->
 		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
