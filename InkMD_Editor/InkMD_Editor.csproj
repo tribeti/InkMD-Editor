@@ -97,7 +97,7 @@
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
-		<AppxBundle>Never</AppxBundle>
+		<AppxBundle>Always</AppxBundle>
 		<AppInstallerUri>D:\VS\InkMD-Editor\Output</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
