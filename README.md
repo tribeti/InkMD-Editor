@@ -93,12 +93,22 @@ Contributions are what make the open-source community such an amazing place to l
 
 ---
 
-## 🙌 License & Acknowledgements
-Distributed under the **MIT License**. See `LICENSE` for more information.
+# 💎 Special Thanks  
+This project stands on the shoulders of giants. A huge shoutout to these amazing projects and libraries that made InkMD Editor possible:
 
-Special thanks to the open-source community for providing the best practices and inspiration for this project. 💡
+* [**TextControlBox-WinUI**](https://github.com/FrozenAssassine/TextControlBox-WinUI) (by JuliusKirsch) - The core text editor control powering InkMD's editing experience.
+* [**Markdig**](https://github.com/xoofx/markdig) - A fast, powerful, and spec-compliant Markdown processor for .NET.
+* [**Windows Community Toolkit**](https://github.com/CommunityToolkit/Windows) - Essential helpers and extensions for Windows development.
+
+
+And to all the Contributors who have spent their time improving the code and fixing bugs! ❤️
 
 ---
+
+📜 License   
+
+Distributed under the MIT License. See [LICENSE](https://github.com/tribeti/InkMD-Editor/blob/master/LICENSE) for more information.
+
 <p align="center">
-  <b>Happy Writing! 🧑‍💻</b>
+  <b>Happy Writing! 🧑‍💻</b> 
 </p>
