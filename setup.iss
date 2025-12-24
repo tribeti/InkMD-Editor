@@ -65,38 +65,20 @@ begin
   DeleteFile(TempFile);
 end;
 
-
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   ResultCode: Integer;
   RuntimePath: String;
-  InstallScript: String;
 begin
   Result := '';
-
-  { ===============================
-    STEP 1: CHECK & INSTALL .NET
-    =============================== }
-
+  
   if not IsDotNetDesktopRuntimeInstalled() then
   begin
-    RuntimePath :=
-      ExpandConstant('{tmp}\windowsdesktop-runtime-10.0.1-win-x64.exe');
-
-    ExtractTemporaryFile(
-      'windowsdesktop-runtime-10.0.1-win-x64.exe'
-    );
-
-    WizardForm.StatusLabel.Caption :=
-      'Installing .NET Desktop Runtime 10.0.1...';
-
-    if not Exec(
-         RuntimePath,
-         '/install /quiet /norestart',
-         '',
-         SW_SHOW,
-         ewWaitUntilTerminated,
-         ResultCode) then
+    RuntimePath := ExpandConstant('{tmp}\windowsdesktop-runtime-10.0.1-win-x64.exe');
+    ExtractTemporaryFile('windowsdesktop-runtime-10.0.1-win-x64.exe');
+    WizardForm.StatusLabel.Caption := 'Installing .NET Desktop Runtime 10.0.1...';
+    
+    if not Exec(RuntimePath, '/install /quiet /norestart', '', SW_SHOW, ewWaitUntilTerminated, ResultCode) then
     begin
       Result := 'Cannot run .NET Desktop Runtime installer.';
       Exit;
@@ -104,46 +86,41 @@ begin
 
     if (ResultCode <> 0) and (ResultCode <> 1638) then
     begin
-      Result :=
-        '.NET Desktop Runtime installation failed.' + #13#10 +
-        'Error code: ' + IntToStr(ResultCode);
+      Result := '.NET Desktop Runtime installation failed.' + #13#10 + 'Error code: ' + IntToStr(ResultCode);
       Exit;
     end;
   end;
+end;
 
-  { ===============================
-    STEP 2: INSTALL APP (MSIX)
-    =============================== }
-
-  InstallScript :=
-    ExpandConstant('{app}\Install.ps1');
-  if not FileExists(InstallScript) then
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  InstallScript: String;
+  ResultCode: Integer;
+begin
+  if CurStep = ssPostInstall then
   begin
-    Result := 'Install script not found: ' + InstallScript;
-    Exit;
-  end;
+    InstallScript := ExpandConstant('{app}\Install.ps1');
+    if not FileExists(InstallScript) then
+    begin
+      MsgBox('Install script not found: ' + InstallScript, mbError, MB_OK);
+      Exit;
+    end;
 
-  WizardForm.StatusLabel.Caption :=
-    'Installing InkMD Editor...';
+    WizardForm.StatusLabel.Caption := 'Installing InkMD Editor package...';
 
-  if not Exec(
+    if not Exec(
        'powershell.exe',
-       '-ExecutionPolicy Bypass -NoLogo -NonInteractive -File "' +
-       InstallScript + '" -Force',
+       '-ExecutionPolicy Bypass -NoLogo -NonInteractive -File "' + InstallScript + '" -Force',
        ExpandConstant('{app}'),
        SW_SHOW,
        ewWaitUntilTerminated,
        ResultCode) then
-  begin
-    Result := 'Cannot run InkMD installation script.';
-    Exit;
-  end;
-
-  if ResultCode <> 0 then
-  begin
-    Result :=
-      'InkMD Editor installation failed.' + #13#10 +
-      'Exit code: ' + IntToStr(ResultCode);
-    Exit;
+    begin
+      MsgBox('Cannot run InkMD installation script.', mbError, MB_OK);
+    end
+    else if ResultCode <> 0 then
+    begin
+      MsgBox('InkMD Editor installation failed. Exit code: ' + IntToStr(ResultCode), mbError, MB_OK);
+    end;
   end;
 end;
