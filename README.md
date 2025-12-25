@@ -99,7 +99,7 @@ This project stands on the shoulders of giants. A huge shoutout to these amazing
 * [**TextControlBox-WinUI**](https://github.com/FrozenAssassine/TextControlBox-WinUI) (by JuliusKirsch) - The core text editor control powering InkMD's editing experience.
 * [**Markdig**](https://github.com/xoofx/markdig) - A fast, powerful, and spec-compliant Markdown processor for .NET.
 * [**Windows Community Toolkit**](https://github.com/CommunityToolkit/Windows) - Essential helpers and extensions for Windows development.
-
+* [**Advanced Installer**](https://www.advancedinstaller.com/) - Special thanks for providing a Professional license to build our installers.
 
 And to all the Contributors who have spent their time improving the code and fixing bugs! ❤️
 
