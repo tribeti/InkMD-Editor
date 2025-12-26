@@ -34,7 +34,7 @@ public sealed partial class EditorPage : Page
 
     private void SetupMessengers ()
     {
-        WeakReferenceMessenger.Default.Register<FileOpenedMessage>(this , (r , msg) => OpenFileInNewTab(msg.File));
+        WeakReferenceMessenger.Default.Register<FileOpenedMessage>(this , async (r , msg) => await OpenFile(msg.File));
 
         WeakReferenceMessenger.Default.Register<FolderOpenedMessage>(this , async (r , msg) => await RefreshTreeViewWithFolder(msg.Folder));
 
@@ -157,47 +157,11 @@ public sealed partial class EditorPage : Page
 
         if ( item is StorageFile file )
         {
-            await OpenFileFromTreeView(file);
+            await OpenFile(file);
         }
     }
 
-    private async Task OpenFileFromTreeView (StorageFile file)
-    {
-        try
-        {
-            if ( IsFileAlreadyOpen(file.Path) )
-            {
-                SelectExistingTab(file.Path);
-                return;
-            }
-
-            var result = await _viewModel.OpenFileAsync(file);
-            if ( result is null )
-            {
-                return;
-            }
-
-            var isMarkdown = _viewModel.IsMarkdownFile(file);
-
-            var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
-
-            var content = (IEditableContent) newTab.Content!;
-            content.SetFilePath(result.Value.filePath , result.Value.fileName);
-            content.SetContent(result.Value.content , result.Value.fileName);
-
-            newTab.Header = result.Value.fileName;
-            Tabs.TabItems.Add(newTab);
-            Tabs.SelectedItem = newTab;
-            UpdateMenuVisibility();
-
-        }
-        catch ( Exception ex )
-        {
-            await _viewModel.ShowErrorAsync($"Cannot open file: {ex.Message}");
-        }
-    }
-
-    private async void OpenFileInNewTab (StorageFile file)
+    private async Task OpenFile (StorageFile file)
     {
         try
         {
