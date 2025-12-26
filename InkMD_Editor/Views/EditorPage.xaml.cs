@@ -7,6 +7,7 @@ using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -231,35 +232,22 @@ public sealed partial class EditorPage : Page
         }
     }
 
-    private bool IsFileAlreadyOpen (string filePath)
-    {
-        foreach ( var tabItem in Tabs.TabItems )
-        {
-            if ( tabItem is TabViewItem tab && tab.Content is IEditableContent content )
-            {
-                if ( content.GetFilePath() == filePath )
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+    private bool IsFileAlreadyOpen (string filePath) => FindTabByFilePath(filePath) is not null;
 
     private void SelectExistingTab (string filePath)
     {
-        foreach ( var tabItem in Tabs.TabItems )
+        var tab = FindTabByFilePath(filePath);
+        if ( tab is not null )
         {
-            if ( tabItem is TabViewItem tab && tab.Content is IEditableContent content )
-            {
-                if ( content.GetFilePath() == filePath )
-                {
-                    Tabs.SelectedItem = tab;
-                    UpdateMenuVisibility();
-                    return;
-                }
-            }
+            Tabs.SelectedItem = tab;
         }
+    }
+
+    private TabViewItem? FindTabByFilePath (string filePath)
+    {
+        return Tabs.TabItems
+            .OfType<TabViewItem>()
+            .FirstOrDefault(tab => tab.Content is IEditableContent content && content.GetFilePath() == filePath);
     }
 
     private async Task HandleSaveFile ()
@@ -294,19 +282,7 @@ public sealed partial class EditorPage : Page
 
     private void Button_Click (object sender , RoutedEventArgs e) => Frame.Navigate(typeof(SettingsPage));
 
-    private void TabView_SelectionChanged (object sender , SelectionChangedEventArgs e)
-    {
-        UpdateMenuVisibility();
-        var (_, content) = GetSelectedTabContent();
-        if ( content is TabViewContent tabContent )
-        {
-            mainMenu.SetVisibility(true);
-        }
-        else
-        {
-            mainMenu.SetVisibility(false);
-        }
-    }
+    private void TabView_SelectionChanged (object sender , SelectionChangedEventArgs e) => UpdateMenuVisibility();
 
     private void TabView_AddButtonClick (TabView sender , object args)
     {

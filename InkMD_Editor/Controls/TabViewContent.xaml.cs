@@ -41,7 +41,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         string content = ViewModel.CurrentContent ?? String.Empty;
         SetContentToCurrentEditBox(content);
 
-        if (ViewModel.Tag is "split" or "preview")
+        if ( ViewModel.Tag is "split" or "preview" )
         {
             UpdateMarkdownPreview(content);
         }
@@ -78,15 +78,21 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         ViewModel.CurrentContent = text;
     }
 
-    private string GetCurrentEditBoxText ()
+    private TextControlBox? CurrentEditBox => ViewModel.Tag switch
     {
-        return ViewModel.Tag switch
-        {
-            "md" => EditBox?.GetText() ?? string.Empty,
-            "split" => EditBox_Split?.GetText() ?? string.Empty,
-            _ => string.Empty
-        };
-    }
+        "md" => EditBox,
+        "split" => EditBox_Split,
+        _ => null
+    };
+
+    private WebView2? CurrentMarkdownPreview => ViewModel.Tag switch
+    {
+        "split" => MarkdownPreview_Split,
+        "preview" => MarkdownPreview,
+        _ => null
+    };
+
+    private string GetCurrentEditBoxText () => CurrentEditBox?.GetText() ?? string.Empty;
 
     public void SetContent (string text , string? fileName)
     {
@@ -96,18 +102,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         UpdateMarkdownPreview(text);
     }
 
-    private void SetContentToCurrentEditBox (string text)
-    {
-        switch ( ViewModel.Tag )
-        {
-            case "md":
-                EditBox?.SetText(text);
-                break;
-            case "split":
-                EditBox_Split?.SetText(text);
-                break;
-        }
-    }
+    private void SetContentToCurrentEditBox (string text) => CurrentEditBox?.SetText(text);
 
     public string GetContent ()
     {
@@ -144,21 +139,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         try
         {
             string html = ConvertMarkdownToHtml(markdownText);
-            switch ( ViewModel.Tag )
-            {
-                case "split":
-                    if ( MarkdownPreview_Split?.CoreWebView2 is not null )
-                    {
-                        MarkdownPreview_Split.NavigateToString(html);
-                    }
-                    break;
-                case "preview":
-                    if ( MarkdownPreview?.CoreWebView2 is not null )
-                    {
-                        MarkdownPreview.NavigateToString(html);
-                    }
-                    break;
-            }
+            CurrentMarkdownPreview?.NavigateToString(html);
         }
         catch { }
     }
