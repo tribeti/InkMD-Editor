@@ -162,58 +162,73 @@ public sealed partial class EditorPage : Page
 
     private async Task OpenFileFromTreeView (StorageFile file)
     {
-        if ( IsFileAlreadyOpen(file.Path) )
+        try
         {
-            SelectExistingTab(file.Path);
-            return;
-        }
+            if ( IsFileAlreadyOpen(file.Path) )
+            {
+                SelectExistingTab(file.Path);
+                return;
+            }
 
-        var result = await _viewModel.OpenFileAsync(file);
-        if ( result is null )
+            var result = await _viewModel.OpenFileAsync(file);
+            if ( result is null )
+            {
+                return;
+            }
+
+            var isMarkdown = _viewModel.IsMarkdownFile(file);
+
+            var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
+
+            var content = (IEditableContent) newTab.Content!;
+            content.SetFilePath(result.Value.filePath , result.Value.fileName);
+            content.SetContent(result.Value.content , result.Value.fileName);
+
+            newTab.Header = result.Value.fileName;
+            Tabs.TabItems.Add(newTab);
+            Tabs.SelectedItem = newTab;
+            UpdateMenuVisibility();
+
+        }
+        catch ( Exception ex )
         {
-            return;
+            await _viewModel.ShowErrorAsync($"Cannot open file: {ex.Message}");
         }
-
-        var isMarkdown = _viewModel.IsMarkdownFile(file);
-
-        var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
-
-        var content = (IEditableContent) newTab.Content!;
-        content.SetFilePath(result.Value.filePath , result.Value.fileName);
-        content.SetContent(result.Value.content , result.Value.fileName);
-
-        newTab.Header = result.Value.fileName;
-        Tabs.TabItems.Add(newTab);
-        Tabs.SelectedItem = newTab;
-        UpdateMenuVisibility();
     }
 
     private async void OpenFileInNewTab (StorageFile file)
     {
-        if ( IsFileAlreadyOpen(file.Path) )
+        try
         {
-            SelectExistingTab(file.Path);
-            return;
-        }
+            if ( IsFileAlreadyOpen(file.Path) )
+            {
+                SelectExistingTab(file.Path);
+                return;
+            }
 
-        var result = await _viewModel.OpenFileAsync(file);
-        if ( result is null )
+            var result = await _viewModel.OpenFileAsync(file);
+            if ( result is null )
+            {
+                return;
+            }
+
+            var isMarkdown = _viewModel.IsMarkdownFile(file);
+
+            var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
+
+            var content = (IEditableContent) newTab.Content!;
+            content.SetFilePath(result.Value.filePath , result.Value.fileName);
+            content.SetContent(result.Value.content , result.Value.fileName);
+
+            newTab.Header = result.Value.fileName;
+            Tabs.TabItems.Add(newTab);
+            Tabs.SelectedItem = newTab;
+            UpdateMenuVisibility();
+        }
+        catch ( Exception ex )
         {
-            return;
+            await _viewModel.ShowErrorAsync($"Cannot open file: {ex.Message}");
         }
-
-        var isMarkdown = _viewModel.IsMarkdownFile(file);
-
-        var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
-
-        var content = (IEditableContent) newTab.Content!;
-        content.SetFilePath(result.Value.filePath , result.Value.fileName);
-        content.SetContent(result.Value.content , result.Value.fileName);
-
-        newTab.Header = result.Value.fileName;
-        Tabs.TabItems.Add(newTab);
-        Tabs.SelectedItem = newTab;
-        UpdateMenuVisibility();
     }
 
     private bool IsFileAlreadyOpen (string filePath)
