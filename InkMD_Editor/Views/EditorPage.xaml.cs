@@ -7,6 +7,7 @@ using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -33,7 +34,7 @@ public sealed partial class EditorPage : Page
 
     private void SetupMessengers ()
     {
-        WeakReferenceMessenger.Default.Register<FileOpenedMessage>(this , (r , msg) => OpenFileInNewTab(msg.File));
+        WeakReferenceMessenger.Default.Register<FileOpenedMessage>(this , async (r , msg) => await OpenFile(msg.File));
 
         WeakReferenceMessenger.Default.Register<FolderOpenedMessage>(this , async (r , msg) => await RefreshTreeViewWithFolder(msg.Folder));
 
@@ -44,6 +45,21 @@ public sealed partial class EditorPage : Page
         WeakReferenceMessenger.Default.Register<ErrorMessage>(this , async (r , msg) => await _viewModel.ShowErrorAsync(msg.Message));
 
         WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , async (r , msg) => await HandleTemplateSelected(msg.Content , msg.CreateNewFile));
+
+        WeakReferenceMessenger.Default.Register<ViewModeChangedMessage>(this , (r , msg) =>
+        {
+            var (_, content) = GetSelectedTabContent();
+            if ( content is TabViewContent tabContent )
+            {
+                tabContent.SetViewMode(msg.NewMode);
+            }
+        });
+    }
+
+    private void UpdateMenuVisibility ()
+    {
+        var (_, tabContent) = GetSelectedTabContent();
+        mainMenu.UpdateVisibilityForTab(tabContent);
     }
 
     private async Task HandleTemplateSelected (string content , bool createNewFile)
@@ -141,52 +157,61 @@ public sealed partial class EditorPage : Page
 
         if ( item is StorageFile file )
         {
-            await OpenFileFromTreeView(file);
+            await OpenFile(file);
         }
     }
 
-    private async Task OpenFileFromTreeView (StorageFile file)
+    private async Task OpenFile (StorageFile file)
     {
-        var result = await _viewModel.OpenFileAsync(file);
-        if ( result is null )
+        try
         {
-            return;
+            if ( IsFileAlreadyOpen(file.Path) )
+            {
+                SelectExistingTab(file.Path);
+                return;
+            }
+
+            var result = await _viewModel.OpenFileAsync(file);
+            if ( result is null )
+            {
+                return;
+            }
+
+            var isMarkdown = _viewModel.IsMarkdownFile(file);
+
+            var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
+
+            var content = (IEditableContent) newTab.Content!;
+            content.SetFilePath(result.Value.filePath , result.Value.fileName);
+            content.SetContent(result.Value.content , result.Value.fileName);
+
+            newTab.Header = result.Value.fileName;
+            Tabs.TabItems.Add(newTab);
+            Tabs.SelectedItem = newTab;
+            UpdateMenuVisibility();
         }
-
-        var isMarkdown = _viewModel.IsMarkdownFile(file);
-        mainMenu.SetVisibility(isMarkdown);
-
-        var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
-
-        var content = (IEditableContent) newTab.Content!;
-        content.SetFilePath(result.Value.filePath , result.Value.fileName);
-        content.SetContent(result.Value.content , result.Value.fileName);
-
-        newTab.Header = result.Value.fileName;
-        Tabs.TabItems.Add(newTab);
-        Tabs.SelectedItem = newTab;
+        catch ( Exception ex )
+        {
+            await _viewModel.ShowErrorAsync($"Cannot open file: {ex.Message}");
+        }
     }
 
-    private async void OpenFileInNewTab (StorageFile file)
+    private bool IsFileAlreadyOpen (string filePath) => FindTabByFilePath(filePath) is not null;
+
+    private void SelectExistingTab (string filePath)
     {
-        var result = await _viewModel.OpenFileAsync(file);
-        if ( result is null )
+        var tab = FindTabByFilePath(filePath);
+        if ( tab is not null )
         {
-            return;
+            Tabs.SelectedItem = tab;
         }
+    }
 
-        var isMarkdown = _viewModel.IsMarkdownFile(file);
-        mainMenu.SetVisibility(isMarkdown);
-
-        var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
-
-        var content = (IEditableContent) newTab.Content!;
-        content.SetFilePath(result.Value.filePath , result.Value.fileName);
-        content.SetContent(result.Value.content , result.Value.fileName);
-
-        newTab.Header = result.Value.fileName;
-        Tabs.TabItems.Add(newTab);
-        Tabs.SelectedItem = newTab;
+    private TabViewItem? FindTabByFilePath (string filePath)
+    {
+        return Tabs.TabItems
+            .OfType<TabViewItem>()
+            .FirstOrDefault(tab => tab.Content is IEditableContent content && content.GetFilePath() == filePath);
     }
 
     private async Task HandleSaveFile ()
@@ -221,10 +246,14 @@ public sealed partial class EditorPage : Page
 
     private void Button_Click (object sender , RoutedEventArgs e) => Frame.Navigate(typeof(SettingsPage));
 
+    private void TabView_SelectionChanged (object sender , SelectionChangedEventArgs e) => UpdateMenuVisibility();
+
     private void TabView_AddButtonClick (TabView sender , object args)
     {
         var newTab = CreateNewTab(sender.TabItems.Count , true);
         sender.TabItems.Add(newTab);
+        sender.SelectedItem = newTab;
+        UpdateMenuVisibility();
     }
 
     private void TabView_TabCloseRequested (TabView sender , TabViewTabCloseRequestedEventArgs args)
@@ -234,6 +263,14 @@ public sealed partial class EditorPage : Page
             tabContent.DisposeWebView();
         }
         sender.TabItems.Remove(args.Tab);
+        if ( sender.TabItems.Count == 0 )
+        {
+            mainMenu.SetVisibility(false);
+        }
+        else
+        {
+            UpdateMenuVisibility();
+        }
     }
 
     private TabViewItem CreateNewTab (int index , bool isMarkdown)

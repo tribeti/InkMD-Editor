@@ -15,29 +15,47 @@
         <converters:DoubleToIntConverter x:Key="DoubleToIntConverter" />
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+    <controls:SwitchPresenter Value="{x:Bind ViewModel.Tag, Mode=OneWay}">
+        <controls:Case Value="md">
+            <Grid>
+                <tcb:TextControlBox
+                    x:Name="EditBox"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    FontFamily="{x:Bind ViewModel.FontFamily, Mode=OneWay}"
+                    FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
+                    TextChanged="EditBox_TextChanged" />
+            </Grid>
+        </controls:Case>
 
-        <Grid Grid.Column="0">
-            <tcb:TextControlBox
-                x:Name="EditBox"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                FontFamily="{x:Bind ViewModel.FontFamily, Mode=OneWay}"
-                FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
-                TextChanged="EditBox_TextChanged" />
-        </Grid>
+        <controls:Case Value="split">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-        <controls:GridSplitter Width="8" HorizontalAlignment="Right">
-            <controls:GridSplitter.RenderTransform>
-                <TranslateTransform X="-7" />
-            </controls:GridSplitter.RenderTransform>
-        </controls:GridSplitter>
+                <tcb:TextControlBox
+                    x:Name="EditBox_Split"
+                    Grid.Column="0"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    FontFamily="{x:Bind ViewModel.FontFamily, Mode=OneWay}"
+                    FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
+                    TextChanged="EditBox_TextChanged" />
 
-        <Grid x:Name="Pre_Md" Grid.Column="1">
-            <WebView2 x:Name="MarkdownPreview" />
-        </Grid>
-    </Grid>
+                <controls:GridSplitter Width="8" HorizontalAlignment="Right">
+                    <controls:GridSplitter.RenderTransform>
+                        <TranslateTransform X="-7" />
+                    </controls:GridSplitter.RenderTransform>
+                </controls:GridSplitter>
+
+                <WebView2 x:Name="MarkdownPreview_Split" Grid.Column="1" />
+            </Grid>
+        </controls:Case>
+
+        <controls:Case Value="preview">
+            <Grid>
+                <WebView2 x:Name="MarkdownPreview" />
+            </Grid>
+        </controls:Case>
+    </controls:SwitchPresenter>
 </UserControl>

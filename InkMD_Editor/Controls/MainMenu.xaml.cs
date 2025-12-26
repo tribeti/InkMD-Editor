@@ -1,4 +1,7 @@
-﻿using InkMD_Editor.Models;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.WinUI.Controls;
+using InkMD_Editor.Messagers;
+using InkMD_Editor.Models;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
@@ -6,6 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 
@@ -15,6 +19,7 @@ public sealed partial class MainMenu : UserControl
 {
     private readonly DialogService _dialogService = new();
     private MainMenuViewModel ViewModel { get; set; } = new();
+    private bool _isInternalUpdate = false;
 
     public MainMenu ()
     {
@@ -26,8 +31,36 @@ public sealed partial class MainMenu : UserControl
     public void SetVisibility (bool isVisible)
     {
         DisplayMode.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
-        DisplayMode.SelectedIndex = 1;
     }
+
+    public void UpdateVisibilityForTab (object? tabContent)
+    {
+        if ( tabContent is not TabViewContent content )
+        {
+            DisplayMode.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        DisplayMode.Visibility = Visibility.Visible;
+        _isInternalUpdate = true;
+
+        try
+        {
+            string currentMode = content.ViewModel.Tag ?? "split";
+            var itemToSelect = DisplayMode.Items.OfType<SegmentedItem>()
+                .FirstOrDefault(item => item.Tag?.ToString() == currentMode);
+
+            if ( itemToSelect is not null )
+            {
+                DisplayMode.SelectedItem = itemToSelect;
+            }
+        }
+        finally
+        {
+            _isInternalUpdate = false;
+        }
+    }
+
 
     private async void TemplateFlyout_Opening (object sender , object e)
     {
@@ -252,6 +285,17 @@ public sealed partial class MainMenu : UserControl
     private async void About_Click (object sender , RoutedEventArgs e)
     {
         await AboutDialog.ShowAsync();
+    }
+
+    private void DisplayMode_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    {
+        if ( _isInternalUpdate )
+            return;
+
+        if ( DisplayMode.SelectedItem is SegmentedItem selectedItem && selectedItem.Tag is string newMode )
+        {
+            WeakReferenceMessenger.Default.Send(new ViewModeChangedMessage(newMode));
+        }
     }
 
     // ==================== KEYBOARD ACCELERATOR HANDLERS ====================

@@ -132,6 +132,7 @@
                     VerticalAlignment="Stretch"
                     AddTabButtonClick="TabView_AddButtonClick"
                     Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                    SelectionChanged="TabView_SelectionChanged"
                     TabCloseRequested="TabView_TabCloseRequested"
                     TabWidthMode="SizeToContent" />
             </Grid>
