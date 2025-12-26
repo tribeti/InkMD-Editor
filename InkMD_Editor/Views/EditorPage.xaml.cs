@@ -23,7 +23,6 @@ public sealed partial class EditorPage : Page
         InitTreeView();
         SetupMessengers();
         Loaded += EditorPage_Loaded;
-        mainMenu.ViewModeChanged += MainMenu_ViewModeChanged;
     }
 
     private void EditorPage_Loaded (object sender , RoutedEventArgs e)
@@ -52,16 +51,6 @@ public sealed partial class EditorPage : Page
         var (_, tabContent) = GetSelectedTabContent();
         mainMenu.UpdateVisibilityForTab(tabContent);
     }
-
-    private void MainMenu_ViewModeChanged (object? sender , int viewMode)
-    {
-        var (_, content) = GetSelectedTabContent();
-        if ( content is TabViewContent tabContent )
-        {
-            tabContent.SetViewMode(viewMode);
-        }
-    }
-
 
     private async Task HandleTemplateSelected (string content , bool createNewFile)
     {
@@ -287,7 +276,7 @@ public sealed partial class EditorPage : Page
         var (_, content) = GetSelectedTabContent();
         if ( content is TabViewContent tabContent )
         {
-            mainMenu.SetVisibility(true , tabContent.ViewModel.ViewMode);
+            mainMenu.SetVisibility(true);
         }
     }
 

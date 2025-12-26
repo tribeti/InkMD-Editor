@@ -1,4 +1,6 @@
-﻿using InkMD_Editor.Models;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using InkMD_Editor.Messagers;
+using InkMD_Editor.Models;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
@@ -15,7 +17,6 @@ public sealed partial class MainMenu : UserControl
 {
     private readonly DialogService _dialogService = new();
     private MainMenuViewModel ViewModel { get; set; } = new();
-    public event EventHandler<int>? ViewModeChanged;
 
     public MainMenu ()
     {
@@ -24,12 +25,12 @@ public sealed partial class MainMenu : UserControl
         Unloaded += (s , e) => Dispose();
     }
 
-    public void SetVisibility (bool isVisible , int selectedIndex = 1)
+    public void SetVisibility (bool isVisible)
     {
         DisplayMode.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
         if ( isVisible )
         {
-            DisplayMode.SelectedIndex = selectedIndex;
+
         }
     }
 
@@ -42,6 +43,7 @@ public sealed partial class MainMenu : UserControl
         }
 
         bool isMarkdown = tabContent is TabViewContent;
+        string mode = ( tabContent as TabViewContent )?.ViewModel.Tag ?? "split";
         SetVisibility(isMarkdown);
     }
 
@@ -275,7 +277,7 @@ public sealed partial class MainMenu : UserControl
     {
         if ( DisplayMode.SelectedIndex >= 0 )
         {
-            ViewModeChanged?.Invoke(this , DisplayMode.SelectedIndex);
+            
         }
     }
 

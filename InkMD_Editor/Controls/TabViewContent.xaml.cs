@@ -25,6 +25,18 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
         InitializeWebViews();
         InitializeEditBoxes();
+
+        SetViewMode("split");
+        this.Loaded += TabViewContent_Loaded;
+    }
+
+    private void TabViewContent_Loaded (object sender , Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if ( !string.IsNullOrEmpty(ViewModel.CurrentContent) )
+        {
+            SetContentToCurrentEditBox(ViewModel.CurrentContent);
+            UpdateMarkdownPreview(ViewModel.CurrentContent);
+        }
     }
 
     private void InitializeEditBoxes ()
@@ -51,44 +63,42 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     private string GetCurrentEditBoxText ()
     {
-        return ViewModel.ViewMode switch
+        return ViewModel.Tag switch
         {
-            0 => EditBox?.GetText() ?? string.Empty,
-            1 => EditBox_Split?.GetText() ?? string.Empty,
+            "md" => EditBox?.GetText() ?? string.Empty,
+            "split" => EditBox_Split?.GetText() ?? string.Empty,
             _ => string.Empty
         };
     }
 
-    public void SetViewMode (int mode)
+    public void SetViewMode (string tag)
     {
-        if ( mode >= 0 && mode <= 2 )
-        {
-            string currentText = GetCurrentEditBoxText();
+        string currentText = GetCurrentEditBoxText();
 
-            ViewModel.ViewMode = mode;
-            if ( !string.IsNullOrEmpty(currentText) )
-            {
-                SetContentToCurrentEditBox(currentText);
-            }
+        ViewModel.Tag = tag;
+        if ( !string.IsNullOrEmpty(currentText) )
+        {
+            SetContentToCurrentEditBox(currentText);
         }
+
     }
 
     public void SetContent (string text , string? fileName)
     {
-        SetContentToCurrentEditBox(text);
         ViewModel.FileName = fileName;
         ViewModel.CurrentContent = text;
+        SetContentToCurrentEditBox(text);
         UpdateMarkdownPreview(text);
     }
 
     private void SetContentToCurrentEditBox (string text)
     {
-        switch ( ViewModel.ViewMode )
+        switch ( ViewModel.Tag )
         {
-            case 0:
+            case "md":
                 EditBox?.SetText(text);
                 break;
-            case 1:
+            case "split":
                 EditBox_Split?.SetText(text);
                 break;
         }
@@ -129,15 +139,15 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         try
         {
             string html = ConvertMarkdownToHtml(markdownText);
-            switch ( ViewModel.ViewMode )
+            switch ( ViewModel.Tag )
             {
-                case 1: // Split view
+                case "split":
                     if ( MarkdownPreview_Split?.CoreWebView2 is not null )
                     {
                         MarkdownPreview_Split.NavigateToString(html);
                     }
                     break;
-                case 2: // Preview only
+                case "preview":
                     if ( MarkdownPreview?.CoreWebView2 is not null )
                     {
                         MarkdownPreview.NavigateToString(html);

@@ -76,9 +76,18 @@
                     SelectionChanged="DisplayMode_SelectionChanged"
                     SelectionMode="Single"
                     Visibility="Collapsed">
-                    <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE7C3;}" ToolTipService.ToolTip="Markdown" />
-                    <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE89A;}" ToolTipService.ToolTip="Split view" />
-                    <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8FF;}" ToolTipService.ToolTip="Preview" />
+                    <controls:SegmentedItem
+                        Icon="{ui:FontIcon Glyph=&#xE7C3;}"
+                        Tag="md"
+                        ToolTipService.ToolTip="Markdown" />
+                    <controls:SegmentedItem
+                        Icon="{ui:FontIcon Glyph=&#xE89A;}"
+                        Tag="split"
+                        ToolTipService.ToolTip="Split view" />
+                    <controls:SegmentedItem
+                        Icon="{ui:FontIcon Glyph=&#xE8FF;}"
+                        Tag="preview"
+                        ToolTipService.ToolTip="Preview" />
                 </controls:Segmented>
             </controls:TabbedCommandBar.PaneFooter>
 
