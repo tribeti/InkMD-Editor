@@ -272,7 +272,6 @@
             <ContentDialog.Resources>
                 <x:Double x:Key="ContentDialogMaxWidth">9999999</x:Double>
                 <x:Double x:Key="ContentDialogMaxHeight">9999999</x:Double>
-                <x:Double x:Key="ContentDialogPadding">8</x:Double>
             </ContentDialog.Resources>
 
             <Grid>
@@ -286,8 +285,7 @@
                 <GridView
                     x:Name="IconGridView"
                     Grid.Row="0"
-                    Width="1200"
-                    Height="500"
+                    Width="1450"
                     IsItemClickEnabled="False"
                     ItemsSource="{x:Bind ViewModel.IconItems, Mode=OneWay}"
                     SelectionChanged="IconGridView_SelectionChanged"
@@ -323,7 +321,7 @@
 
                 <TextBlock
                     Grid.Row="1"
-                    Margin="16,12,16,0"
+                    Margin="16,0,16,0"
                     FontSize="14"
                     FontWeight="SemiBold"
                     Text="Code" />
