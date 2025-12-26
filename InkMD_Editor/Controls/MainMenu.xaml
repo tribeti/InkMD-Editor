@@ -75,6 +75,7 @@
                     RelativePanel.AlignRightWithPanel="True"
                     SelectionMode="Single"
                     Visibility="Collapsed">
+                    <!--  SelectionChanged="DisplayMode_SelectionChanged"  -->
                     <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE7C3;}" ToolTipService.ToolTip="Markdown" />
                     <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE89A;}" ToolTipService.ToolTip="Split view" />
                     <controls:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8FF;}" ToolTipService.ToolTip="Preview" />

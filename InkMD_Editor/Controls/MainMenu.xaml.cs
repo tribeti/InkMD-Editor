@@ -23,11 +23,27 @@ public sealed partial class MainMenu : UserControl
         Unloaded += (s , e) => Dispose();
     }
 
-    public void SetVisibility (bool isVisible)
+    public void SetVisibility (bool isVisible , int selectedIndex = 1)
     {
         DisplayMode.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
-        DisplayMode.SelectedIndex = 1;
+        if ( isVisible )
+        {
+            DisplayMode.SelectedIndex = selectedIndex;
+        }
     }
+
+    public void UpdateVisibilityForTab (object? tabContent)
+    {
+        if ( tabContent is null )
+        {
+            SetVisibility(false);
+            return;
+        }
+
+        bool isMarkdown = tabContent is TabViewContent;
+        SetVisibility(isMarkdown);
+    }
+
 
     private async void TemplateFlyout_Opening (object sender , object e)
     {
