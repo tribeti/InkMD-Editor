@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.WinUI.Controls;
 using InkMD_Editor.Messagers;
 using InkMD_Editor.Models;
 using InkMD_Editor.Services;
@@ -8,6 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 
@@ -17,6 +19,7 @@ public sealed partial class MainMenu : UserControl
 {
     private readonly DialogService _dialogService = new();
     private MainMenuViewModel ViewModel { get; set; } = new();
+    private bool _isInternalUpdate = false;
 
     public MainMenu ()
     {
@@ -28,23 +31,34 @@ public sealed partial class MainMenu : UserControl
     public void SetVisibility (bool isVisible)
     {
         DisplayMode.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
-        if ( isVisible )
-        {
-
-        }
     }
 
     public void UpdateVisibilityForTab (object? tabContent)
     {
-        if ( tabContent is null )
+        if ( tabContent is not TabViewContent content )
         {
-            SetVisibility(false);
+            DisplayMode.Visibility = Visibility.Collapsed;
             return;
         }
 
-        bool isMarkdown = tabContent is TabViewContent;
-        string mode = ( tabContent as TabViewContent )?.ViewModel.Tag ?? "split";
-        SetVisibility(isMarkdown);
+        DisplayMode.Visibility = Visibility.Visible;
+        _isInternalUpdate = true;
+
+        try
+        {
+            string currentMode = content.ViewModel.Tag ?? "split";
+            var itemToSelect = DisplayMode.Items.OfType<SegmentedItem>()
+                .FirstOrDefault(item => item.Tag?.ToString() == currentMode);
+
+            if ( itemToSelect is not null )
+            {
+                DisplayMode.SelectedItem = itemToSelect;
+            }
+        }
+        finally
+        {
+            _isInternalUpdate = false;
+        }
     }
 
 
@@ -275,9 +289,12 @@ public sealed partial class MainMenu : UserControl
 
     private void DisplayMode_SelectionChanged (object sender , SelectionChangedEventArgs e)
     {
-        if ( DisplayMode.SelectedIndex >= 0 )
+        if ( _isInternalUpdate )
+            return;
+
+        if ( DisplayMode.SelectedItem is SegmentedItem selectedItem && selectedItem.Tag is string newMode )
         {
-            
+            WeakReferenceMessenger.Default.Send(new ViewModeChangedMessage(newMode));
         }
     }
 

@@ -44,6 +44,15 @@ public sealed partial class EditorPage : Page
         WeakReferenceMessenger.Default.Register<ErrorMessage>(this , async (r , msg) => await _viewModel.ShowErrorAsync(msg.Message));
 
         WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , async (r , msg) => await HandleTemplateSelected(msg.Content , msg.CreateNewFile));
+
+        WeakReferenceMessenger.Default.Register<ViewModeChangedMessage>(this , (r , msg) =>
+        {
+            var (_, content) = GetSelectedTabContent();
+            if ( content is TabViewContent tabContent )
+            {
+                tabContent.SetViewMode(msg.NewMode);
+            }
+        });
     }
 
     private void UpdateMenuVisibility ()
@@ -278,12 +287,17 @@ public sealed partial class EditorPage : Page
         {
             mainMenu.SetVisibility(true);
         }
+        else
+        {
+            mainMenu.SetVisibility(false);
+        }
     }
 
     private void TabView_AddButtonClick (TabView sender , object args)
     {
         var newTab = CreateNewTab(sender.TabItems.Count , true);
         sender.TabItems.Add(newTab);
+        sender.SelectedItem = newTab;
         UpdateMenuVisibility();
     }
 
@@ -294,7 +308,14 @@ public sealed partial class EditorPage : Page
             tabContent.DisposeWebView();
         }
         sender.TabItems.Remove(args.Tab);
-        UpdateMenuVisibility();
+        if ( sender.TabItems.Count == 0 )
+        {
+            mainMenu.SetVisibility(false);
+        }
+        else
+        {
+            UpdateMenuVisibility();
+        }
     }
 
     private TabViewItem CreateNewTab (int index , bool isMarkdown)

@@ -30,6 +30,17 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         this.Loaded += TabViewContent_Loaded;
     }
 
+    public void SetViewMode (string tag)
+    {
+        string currentText = GetCurrentEditBoxText();
+        ViewModel.Tag = tag;
+
+        if ( !string.IsNullOrEmpty(currentText) )
+        {
+            SetContentToCurrentEditBox(currentText);
+        }
+    }
+
     private void TabViewContent_Loaded (object sender , Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         if ( !string.IsNullOrEmpty(ViewModel.CurrentContent) )
@@ -69,18 +80,6 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             "split" => EditBox_Split?.GetText() ?? string.Empty,
             _ => string.Empty
         };
-    }
-
-    public void SetViewMode (string tag)
-    {
-        string currentText = GetCurrentEditBoxText();
-
-        ViewModel.Tag = tag;
-        if ( !string.IsNullOrEmpty(currentText) )
-        {
-            SetContentToCurrentEditBox(currentText);
-        }
-
     }
 
     public void SetContent (string text , string? fileName)
