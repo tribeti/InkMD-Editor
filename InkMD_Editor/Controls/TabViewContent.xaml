@@ -16,48 +16,51 @@
     </UserControl.Resources>
 
     <Grid>
-        <!--<controls:SwitchPresenter Value="">
-        -->
-        <!--  Case 0: Editor only (TextControlBox)  -->
-        <!--
-            <Grid>
-                <tcb:TextControlBox
-                    x:Name="EditBox"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    FontFamily="{x:Bind ViewModel.FontFamily, Mode=OneWay}"
-                    FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
-                    TextChanged="EditBox_TextChanged" />
-            </Grid>-->
+        <controls:SwitchPresenter Value="{x:Bind ViewModel.ViewMode, Mode=OneWay}">
+            <!--  Case 0: Editor only (TextControlBox)  -->
+            <controls:Case Value="0">
+                <Grid>
+                    <tcb:TextControlBox
+                        x:Name="EditBox"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        FontFamily="{x:Bind ViewModel.FontFamily, Mode=OneWay}"
+                        FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
+                        TextChanged="EditBox_TextChanged" />
+                </Grid>
+            </controls:Case>
 
-        <!--  Case 1: Split view (TextControlBox + WebView2)  -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+            <!--  Case 1: Split view (TextControlBox + WebView2)  -->
+            <controls:Case Value="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-            <tcb:TextControlBox
-                x:Name="EditBox_Split"
-                Grid.Column="0"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                FontFamily="{x:Bind ViewModel.FontFamily, Mode=OneWay}"
-                FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
-                TextChanged="EditBox_TextChanged" />
+                    <tcb:TextControlBox
+                        x:Name="EditBox_Split"
+                        Grid.Column="0"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        FontFamily="{x:Bind ViewModel.FontFamily, Mode=OneWay}"
+                        FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
+                        TextChanged="EditBox_TextChanged" />
 
-            <controls:GridSplitter Width="8" HorizontalAlignment="Right">
-                <controls:GridSplitter.RenderTransform>
-                    <TranslateTransform X="-7" />
-                </controls:GridSplitter.RenderTransform>
-            </controls:GridSplitter>
+                    <controls:GridSplitter Width="8" HorizontalAlignment="Right">
+                        <controls:GridSplitter.RenderTransform>
+                            <TranslateTransform X="-7" />
+                        </controls:GridSplitter.RenderTransform>
+                    </controls:GridSplitter>
 
-            <WebView2 x:Name="MarkdownPreview_Split" Grid.Column="1" />
-        </Grid>
+                    <WebView2 x:Name="MarkdownPreview_Split" Grid.Column="1" />
+                </Grid>
+            </controls:Case>
 
-        <!--  Case 2: Preview only (WebView2)  -->
-        <!--
-            <Grid>
-                <WebView2 x:Name="MarkdownPreview" />
-            </Grid>
-        </controls:SwitchPresenter>-->
+            <!--  Case 2: Preview only (WebView2)  -->
+            <controls:Case Value="2">
+                <Grid>
+                    <WebView2 x:Name="MarkdownPreview" />
+                </Grid>
+            </controls:Case>
+        </controls:SwitchPresenter>
     </Grid>
 </UserControl>

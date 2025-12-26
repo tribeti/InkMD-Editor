@@ -23,28 +23,81 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             .UseEmojiAndSmiley()
             .Build();
 
-        InitializeWebView();
+        InitializeWebViews();
+        InitializeEditBoxes();
+    }
 
-        EditBox_Split.EnableSyntaxHighlighting = true;
-        EditBox_Split.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
+    private void InitializeEditBoxes ()
+    {
+        if ( EditBox is not null )
+        {
+            EditBox.EnableSyntaxHighlighting = true;
+            EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
+        }
+
+        if ( EditBox_Split is not null )
+        {
+            EditBox_Split.EnableSyntaxHighlighting = true;
+            EditBox_Split.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
+        }
     }
 
     private void EditBox_TextChanged (TextControlBox sender)
     {
-        string text = EditBox_Split.GetText();
+        string text = GetCurrentEditBoxText();
         UpdateMarkdownPreview(text);
         ViewModel.CurrentContent = text;
     }
 
+    private string GetCurrentEditBoxText ()
+    {
+        return ViewModel.ViewMode switch
+        {
+            0 => EditBox?.GetText() ?? string.Empty,
+            1 => EditBox_Split?.GetText() ?? string.Empty,
+            _ => string.Empty
+        };
+    }
+
+    public void SetViewMode (int mode)
+    {
+        if ( mode >= 0 && mode <= 2 )
+        {
+            string currentText = GetCurrentEditBoxText();
+
+            ViewModel.ViewMode = mode;
+            if ( !string.IsNullOrEmpty(currentText) )
+            {
+                SetContentToCurrentEditBox(currentText);
+            }
+        }
+    }
+
     public void SetContent (string text , string? fileName)
     {
-        EditBox_Split.SetText(text);
+        SetContentToCurrentEditBox(text);
         ViewModel.FileName = fileName;
         ViewModel.CurrentContent = text;
         UpdateMarkdownPreview(text);
     }
 
-    public string GetContent () => EditBox_Split.GetText() ?? string.Empty;
+    private void SetContentToCurrentEditBox (string text)
+    {
+        switch ( ViewModel.ViewMode )
+        {
+            case 0:
+                EditBox?.SetText(text);
+                break;
+            case 1:
+                EditBox_Split?.SetText(text);
+                break;
+        }
+    }
+
+    public string GetContent ()
+    {
+        return GetCurrentEditBoxText();
+    }
 
     public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
 
@@ -52,33 +105,47 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void SetFilePath (string filePath , string fileName) => ViewModel.SetFilePath(filePath , fileName);
 
-    private async void InitializeWebView ()
+    private async void InitializeWebViews ()
     {
         try
         {
-            await MarkdownPreview_Split.EnsureCoreWebView2Async();
-            MarkdownPreview_Split.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
-        }
-        catch
-        {
+            if ( MarkdownPreview_Split is not null )
+            {
+                await MarkdownPreview_Split.EnsureCoreWebView2Async();
+                MarkdownPreview_Split.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
+            }
 
+            if ( MarkdownPreview is not null )
+            {
+                await MarkdownPreview.EnsureCoreWebView2Async();
+                MarkdownPreview.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
+            }
         }
+        catch { }
     }
 
     private void UpdateMarkdownPreview (string markdownText)
     {
-        if ( MarkdownPreview_Split?.CoreWebView2 is null )
-            return;
-
         try
         {
             string html = ConvertMarkdownToHtml(markdownText);
-            MarkdownPreview_Split.NavigateToString(html);
+            switch ( ViewModel.ViewMode )
+            {
+                case 1: // Split view
+                    if ( MarkdownPreview_Split?.CoreWebView2 is not null )
+                    {
+                        MarkdownPreview_Split.NavigateToString(html);
+                    }
+                    break;
+                case 2: // Preview only
+                    if ( MarkdownPreview?.CoreWebView2 is not null )
+                    {
+                        MarkdownPreview.NavigateToString(html);
+                    }
+                    break;
+            }
         }
-        catch
-        {
-
-        }
+        catch { }
     }
 
     private string ConvertMarkdownToHtml (string markdown)
@@ -94,5 +161,6 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public void DisposeWebView ()
     {
         MarkdownPreview_Split?.Close();
+        MarkdownPreview?.Close();
     }
 }

@@ -22,6 +22,9 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     [ObservableProperty]
     public partial double FontSize { get; set; } = AppSettings.GetFontSize();
 
+    [ObservableProperty]
+    public partial int ViewMode { get; set; } = 1;
+
     /// <summary>
     /// Check if the file has been saved
     /// </summary>

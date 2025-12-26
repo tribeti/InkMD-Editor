@@ -15,6 +15,7 @@ public sealed partial class MainMenu : UserControl
 {
     private readonly DialogService _dialogService = new();
     private MainMenuViewModel ViewModel { get; set; } = new();
+    public event EventHandler<int>? ViewModeChanged;
 
     public MainMenu ()
     {
@@ -268,6 +269,14 @@ public sealed partial class MainMenu : UserControl
     private async void About_Click (object sender , RoutedEventArgs e)
     {
         await AboutDialog.ShowAsync();
+    }
+
+    private void DisplayMode_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    {
+        if ( DisplayMode.SelectedIndex >= 0 )
+        {
+            ViewModeChanged?.Invoke(this , DisplayMode.SelectedIndex);
+        }
     }
 
     // ==================== KEYBOARD ACCELERATOR HANDLERS ====================
