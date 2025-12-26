@@ -24,8 +24,8 @@ ArchitecturesInstallIn64BitMode=x64
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "D:\VS\InkMD-Editor\Output\InkMD_Editor_0.1.1.0_x64_Test\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\VS\InkMD-Editor\Output\runtime\windowsdesktop-runtime-10.0.1-win-x64.exe"; Flags: dontcopy
+Source: "D:\VS\InkMD-Editor\Output\InkMD_Editor_0.1.1.0_Test\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Source: "D:\VS\InkMD-Editor\Output\runtime\windowsdesktop-runtime-10.0.1-win-x64.exe"; Flags: dontcopy
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\InkMD_Editor.appinstaller"
@@ -35,11 +35,20 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\InkMD_Editor.appinstaller";
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[Run]
+Filename: "certutil.exe"; \
+  Parameters: "-addstore Root ""{app}\InkMD_Editor_0.1.1.0_x64.cer"""; \
+  StatusMsg: "Installing security certificate..."; \
+  Flags: runhidden waituntilterminated
+
+Filename: "{app}\InkMD_Editor.msixbundle"; \
+    Flags: shellexec nowait; \
+    StatusMsg: "Installing InkMD"
+
 [UninstallRun]
 Filename: "powershell.exe"; \
   Parameters: "-ExecutionPolicy Bypass -NoLogo -NonInteractive -Command ""Get-AppxPackage -Publisher '*tribeti*' | Remove-AppxPackage -ErrorAction SilentlyContinue"""; \
   Flags: runhidden waituntilterminated
-
 [Code]
 function IsDotNetDesktopRuntimeInstalled(): Boolean;
 var
