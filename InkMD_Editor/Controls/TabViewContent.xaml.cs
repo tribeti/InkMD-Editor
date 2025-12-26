@@ -33,11 +33,17 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public void SetViewMode (string tag)
     {
         string currentText = GetCurrentEditBoxText();
-        ViewModel.Tag = tag;
-
         if ( !string.IsNullOrEmpty(currentText) )
         {
-            SetContentToCurrentEditBox(currentText);
+            ViewModel.CurrentContent = currentText;
+        }
+        ViewModel.Tag = tag;
+        string content = ViewModel.CurrentContent ?? String.Empty;
+        SetContentToCurrentEditBox(content);
+
+        if (ViewModel.Tag is "split" or "preview")
+        {
+            UpdateMarkdownPreview(content);
         }
     }
 
