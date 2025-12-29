@@ -62,12 +62,14 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         {
             EditBox.EnableSyntaxHighlighting = true;
             EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
+            EditBox.DoAutoPairing = true;
         }
 
         if ( EditBox_Split is not null )
         {
             EditBox_Split.EnableSyntaxHighlighting = true;
             EditBox_Split.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
+            EditBox_Split.DoAutoPairing = true;
         }
     }
 
