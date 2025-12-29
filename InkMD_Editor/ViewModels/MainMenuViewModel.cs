@@ -181,35 +181,22 @@ public partial class MainMenuViewModel : ObservableObject
         return GitHubPreview.WrapWithGitHubStyle(htmlBody);
     }
 
-    [RelayCommand]
-    private void Undo ()
-    {
-        WeakReferenceMessenger.Default.Send(new EditCommandMessage(EditCommandType.Undo));
-    }
+    private void SendEditCommand (EditCommandType commandType) => WeakReferenceMessenger.Default.Send(new EditCommandMessage(commandType));
 
     [RelayCommand]
-    private void Redo ()
-    {
-        WeakReferenceMessenger.Default.Send(new EditCommandMessage(EditCommandType.Redo));
-    }
+    private void Undo () => SendEditCommand(EditCommandType.Undo);
 
     [RelayCommand]
-    private void Cut ()
-    {
-        WeakReferenceMessenger.Default.Send(new EditCommandMessage(EditCommandType.Cut));
-    }
+    private void Redo () => SendEditCommand(EditCommandType.Redo);
 
     [RelayCommand]
-    private void Copy ()
-    {
-        WeakReferenceMessenger.Default.Send(new EditCommandMessage(EditCommandType.Copy));
-    }
+    private void Cut () => SendEditCommand(EditCommandType.Cut);
 
     [RelayCommand]
-    private void Paste ()
-    {
-        WeakReferenceMessenger.Default.Send(new EditCommandMessage(EditCommandType.Paste));
-    }
+    private void Copy () => SendEditCommand(EditCommandType.Copy);
+
+    [RelayCommand]
+    private void Paste () => SendEditCommand(EditCommandType.Paste);
 
     public void Cleanup ()
     {

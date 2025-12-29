@@ -62,25 +62,16 @@ public sealed partial class EditorPage : Page
             if ( content is not IEditableContent editable )
                 return;
 
-            switch ( msg.Command )
+            Action action = msg.Command switch
             {
-                case EditCommandType.Undo:
-                    editable.Undo();
-                    break;
-
-                case EditCommandType.Redo:
-                    editable.Redo();
-                    break;
-                case EditCommandType.Cut:
-                    editable.Cut();
-                    break;
-                case EditCommandType.Copy:
-                    editable.Copy();
-                    break;
-                case EditCommandType.Paste:
-                    editable.Paste();
-                    break;
-            }
+                EditCommandType.Undo => editable.Undo,
+                EditCommandType.Redo => editable.Redo,
+                EditCommandType.Cut => editable.Cut,
+                EditCommandType.Copy => editable.Copy,
+                EditCommandType.Paste => editable.Paste,
+                _ => throw new ArgumentOutOfRangeException(nameof(msg.Command) , $"Unsupported command: {msg.Command}")
+            };
+            action();
         });
     }
 
