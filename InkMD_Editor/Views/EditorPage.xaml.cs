@@ -302,9 +302,9 @@ public sealed partial class EditorPage : Page
         bool isConfirmed = await _viewModel.ShowConfirmationAsync($"Do you want to delete: {item.Name}?");
         if ( isConfirmed )
         {
-            if ( item is StorageFile file )
+            try
             {
-                try
+                if ( item is StorageFile file )
                 {
                     var tabToClose = FindTabByFilePath(file.Path);
                     if ( tabToClose is not null )
@@ -312,17 +312,8 @@ public sealed partial class EditorPage : Page
                         Tabs.TabItems.Remove(tabToClose);
                     }
                     System.IO.File.Delete(file.Path);
-                    node.Parent?.Children.Remove(node);
                 }
-                catch ( Exception ex )
-                {
-                    await _viewModel.ShowErrorAsync($"Error deleting file: {ex.Message}");
-                }
-
-            }
-            else if ( item is StorageFolder folder )
-            {
-                try
+                else if ( item is StorageFolder folder )
                 {
                     var tabsToRemove = Tabs.TabItems.OfType<TabViewItem>()
                     .Where(tab =>
@@ -337,12 +328,21 @@ public sealed partial class EditorPage : Page
                     }
 
                     System.IO.Directory.Delete(folder.Path , true);
-                    node.Parent?.Children.Remove(node);
                 }
-                catch ( Exception ex )
+
+                if ( node.Parent is not null )
                 {
-                    await _viewModel.ShowErrorAsync($"Error deleting folder: {ex.Message}");
+                    node.Parent.Children.Remove(node);
                 }
+                else
+                {
+                    treeview.RootNodes.Remove(node);
+                }
+            }
+            catch ( Exception ex )
+            {
+                var itemType = item is StorageFile ? "file" : "folder";
+                await _viewModel.ShowErrorAsync($"Error deleting {itemType}: {ex.Message}");
             }
         }
     }
