@@ -38,4 +38,22 @@ public class DialogService
         };
         await dialog.ShowAsync();
     }
+
+    public async Task<bool> ShowConfirmationAsync (string message)
+    {
+        if ( _xamlRoot is null )
+            return false;
+
+        var dialog = new ContentDialog
+        {
+            Title = "Confirm" ,
+            Content = message ,
+            PrimaryButtonText = "Yes" ,
+            CloseButtonText = "No" ,
+            DefaultButton = ContentDialogButton.Primary ,
+            XamlRoot = _xamlRoot
+        };
+        ContentDialogResult result = await dialog.ShowAsync();
+        return result == ContentDialogResult.Primary;
+    }
 }

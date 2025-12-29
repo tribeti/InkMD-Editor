@@ -293,6 +293,48 @@ public sealed partial class EditorPage : Page
         return newTab;
     }
 
+    private async void DeleteItem_Click (object sender , RoutedEventArgs e)
+    {
+        if ( treeview.SelectedItem is not TreeViewNode node || node.Content is not IStorageItem item )
+        {
+            return;
+        }
+        bool isConfirmed = await _dialogService.ShowConfirmationAsync($"Do you want to delete: {item.Name}?");
+        if ( isConfirmed )
+        {
+            if ( item is StorageFile file )
+            {
+                try
+                {
+                    var (tab, content) = GetSelectedTabContent();
+                    if ( content is not null && content.GetFilePath() == file.Path )
+                    {
+                        System.IO.File.Delete(file.Path);
+                        Tabs.TabItems.Remove(tab!);
+                        node.Parent?.Children.Remove(node);
+                    }
+                }
+                catch ( Exception ex )
+                {
+                    await _viewModel.ShowErrorAsync($"Error closing tab: {ex.Message}");
+                }
+
+            }
+            else if ( item is StorageFolder folder )
+            {
+                try
+                {
+                    System.IO.Directory.Delete(folder.Path , true);
+                    node.Parent?.Children.Remove(node);
+                }
+                catch ( Exception ex )
+                {
+                    await _viewModel.ShowErrorAsync($"Error deleting folder: {ex.Message}");
+                }
+            }
+        }
+    }
+
     private (TabViewItem? tab, IEditableContent? content) GetSelectedTabContent () =>
         Tabs.SelectedItem is TabViewItem tab ? (tab, tab.Content as IEditableContent) : (null, null);
 }
