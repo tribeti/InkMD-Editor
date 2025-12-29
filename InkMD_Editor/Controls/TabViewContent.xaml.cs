@@ -104,10 +104,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     private void SetContentToCurrentEditBox (string text) => CurrentEditBox?.SetText(text);
 
-    public string GetContent ()
-    {
-        return GetCurrentEditBoxText();
-    }
+    public string GetContent () => GetCurrentEditBoxText();
 
     public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
 

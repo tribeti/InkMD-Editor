@@ -299,7 +299,7 @@ public sealed partial class EditorPage : Page
         {
             return;
         }
-        bool isConfirmed = await _dialogService.ShowConfirmationAsync($"Do you want to delete: {item.Name}?");
+        bool isConfirmed = await _viewModel.ShowConfirmationAsync($"Do you want to delete: {item.Name}?");
         if ( isConfirmed )
         {
             if ( item is StorageFile file )
