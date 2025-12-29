@@ -55,6 +55,33 @@ public sealed partial class EditorPage : Page
                 tabContent.SetViewMode(msg.NewMode);
             }
         });
+
+        WeakReferenceMessenger.Default.Register<EditCommandMessage>(this , (r , msg) =>
+        {
+            var (_, content) = GetSelectedTabContent();
+            if ( content is not IEditableContent editable )
+                return;
+
+            switch ( msg.Command )
+            {
+                case EditCommandType.Undo:
+                    editable.Undo();
+                    break;
+
+                case EditCommandType.Redo:
+                    editable.Redo();
+                    break;
+                case EditCommandType.Cut:
+                    editable.Cut();
+                    break;
+                case EditCommandType.Copy:
+                    editable.Copy();
+                    break;
+                case EditCommandType.Paste:
+                    editable.Paste();
+                    break;
+            }
+        });
     }
 
     private void UpdateMenuVisibility ()

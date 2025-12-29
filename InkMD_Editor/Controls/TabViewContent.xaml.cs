@@ -112,6 +112,16 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void SetFilePath (string filePath , string fileName) => ViewModel.SetFilePath(filePath , fileName);
 
+    public void Undo () => CurrentEditBox?.Undo();
+
+    public void Redo () => CurrentEditBox?.Redo();
+
+    public void Cut () => CurrentEditBox?.Cut();
+
+    public void Copy () => CurrentEditBox?.Copy();
+
+    public void Paste () => CurrentEditBox?.Paste();
+
     private async void InitializeWebViews ()
     {
         try

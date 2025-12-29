@@ -148,29 +148,44 @@
                 </controls:TabbedCommandBarItem>
                 <!--  edit menu items  -->
                 <controls:TabbedCommandBarItem Header="Edit">
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE7A7;}" Label="Undo">
+                    <AppBarButton
+                        Command="{x:Bind ViewModel.UndoCommand}"
+                        Icon="{ui:FontIcon Glyph=&#xE7A7;}"
+                        Label="Undo">
                         <AppBarButton.KeyboardAccelerators>
                             <KeyboardAccelerator Key="Z" Modifiers="Control" />
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE7A6;}" Label="Redo">
+                    <AppBarButton
+                        Command="{x:Bind ViewModel.RedoCommand}"
+                        Icon="{ui:FontIcon Glyph=&#xE7A6;}"
+                        Label="Redo">
                         <AppBarButton.KeyboardAccelerators>
                             <KeyboardAccelerator Key="Y" Modifiers="Control" />
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
                     <AppBarSeparator />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE8C6;}" Label="Cut">
+                    <AppBarButton
+                        Command="{x:Bind ViewModel.CutCommand}"
+                        Icon="{ui:FontIcon Glyph=&#xE8C6;}"
+                        Label="Cut">
                         <AppBarButton.KeyboardAccelerators>
                             <KeyboardAccelerator Key="X" Modifiers="Control" />
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE8C8;}" Label="Copy">
+                    <AppBarButton
+                        Command="{x:Bind ViewModel.CopyCommand}"
+                        Icon="{ui:FontIcon Glyph=&#xE8C8;}"
+                        Label="Copy">
                         <AppBarButton.KeyboardAccelerators>
                             <KeyboardAccelerator Key="C" Modifiers="Control" />
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
                     <AppBarSeparator />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xE77F;}" Label="Paste">
+                    <AppBarButton
+                        Command="{x:Bind ViewModel.PasteCommand}"
+                        Icon="{ui:FontIcon Glyph=&#xE77F;}"
+                        Label="Paste">
                         <AppBarButton.KeyboardAccelerators>
                             <KeyboardAccelerator Key="V" Modifiers="Control" />
                         </AppBarButton.KeyboardAccelerators>

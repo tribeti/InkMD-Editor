@@ -327,34 +327,31 @@ public sealed partial class MainMenu : UserControl
     // Edit commands
     private void UndoAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
     {
-        // if (ViewModel.UndoCommand?.CanExecute(null) == true)
-        // {
-        //     ViewModel.UndoCommand.Execute(null);
-        // }
+        TryExecuteCommand(ViewModel.UndoCommand , args);
         args.Handled = true;
     }
 
     private void RedoAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
     {
-        // TODO: Implement redo logic
+        TryExecuteCommand(ViewModel.RedoCommand , args);
         args.Handled = true;
     }
 
     private void CutAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
     {
-        // TODO: Implement cut logic
+        TryExecuteCommand(ViewModel.CutCommand , args);
         args.Handled = true;
     }
 
     private void CopyAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
     {
-        // TODO: Implement copy logic
+        TryExecuteCommand(ViewModel.CopyCommand , args);
         args.Handled = true;
     }
 
     private void PasteAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
     {
-        // TODO: Implement paste logic
+        TryExecuteCommand(ViewModel.PasteCommand , args);
         args.Handled = true;
     }
 

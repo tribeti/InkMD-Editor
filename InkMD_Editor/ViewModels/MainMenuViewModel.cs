@@ -81,10 +81,7 @@ public partial class MainMenuViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static void ExitApplication ()
-    {
-        App.Current.Exit();
-    }
+    private static void ExitApplication () => App.Current.Exit();
 
     public async Task<bool> CreateFileAsync (string fileName , string extension)
     {
@@ -130,8 +127,7 @@ public partial class MainMenuViewModel : ObservableObject
 
     public void SendTemplateSelectedMessage (string content , bool createNewFile)
     {
-        WeakReferenceMessenger.Default.Send(
-            new TemplateSelectedMessage(content , createNewFile));
+        WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile));
     }
 
     [RelayCommand]
@@ -183,6 +179,36 @@ public partial class MainMenuViewModel : ObservableObject
 
         var htmlBody = Markdown.ToHtml(markdown , _markdownPipeline);
         return GitHubPreview.WrapWithGitHubStyle(htmlBody);
+    }
+
+    [RelayCommand]
+    private void Undo ()
+    {
+        WeakReferenceMessenger.Default.Send(new EditCommandMessage(EditCommandType.Undo));
+    }
+
+    [RelayCommand]
+    private void Redo ()
+    {
+        WeakReferenceMessenger.Default.Send(new EditCommandMessage(EditCommandType.Redo));
+    }
+
+    [RelayCommand]
+    private void Cut ()
+    {
+        WeakReferenceMessenger.Default.Send(new EditCommandMessage(EditCommandType.Cut));
+    }
+
+    [RelayCommand]
+    private void Copy ()
+    {
+        WeakReferenceMessenger.Default.Send(new EditCommandMessage(EditCommandType.Copy));
+    }
+
+    [RelayCommand]
+    private void Paste ()
+    {
+        WeakReferenceMessenger.Default.Send(new EditCommandMessage(EditCommandType.Paste));
     }
 
     public void Cleanup ()
