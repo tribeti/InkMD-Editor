@@ -7,6 +7,7 @@ using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -311,7 +312,7 @@ public sealed partial class EditorPage : Page
                     {
                         Tabs.TabItems.Remove(tabToClose);
                     }
-                    await Task.Run(() => System.IO.File.Delete(file.Path));
+                    await file.DeleteAsync();
                 }
                 else if ( item is StorageFolder folder )
                 {
@@ -319,15 +320,14 @@ public sealed partial class EditorPage : Page
                     .Where(tab =>
                         tab.Content is IEditableContent content &&
                         !string.IsNullOrEmpty(content.GetFilePath()) &&
-                        content.GetFilePath().StartsWith(folder.Path + System.IO.Path.DirectorySeparatorChar , StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                        IsDescendantPath(content.GetFilePath() , folder.Path)).ToList();
 
                     foreach ( var tab in tabsToRemove )
                     {
                         Tabs.TabItems.Remove(tab);
                     }
 
-                    await Task.Run(() => System.IO.Directory.Delete(folder.Path , true));
+                    await folder.DeleteAsync();
                 }
 
                 if ( node.Parent is not null )
@@ -349,6 +349,28 @@ public sealed partial class EditorPage : Page
 
     private (TabViewItem? tab, IEditableContent? content) GetSelectedTabContent () =>
         Tabs.SelectedItem is TabViewItem tab ? (tab, tab.Content as IEditableContent) : (null, null);
+
+    private static bool IsDescendantPath (string descendantPath , string ancestorPath)
+    {
+        if ( string.IsNullOrEmpty(descendantPath) || string.IsNullOrEmpty(ancestorPath) )
+            return false;
+
+        try
+        {
+            var normalizedDescendant = Path.GetFullPath(descendantPath)
+                .TrimEnd(Path.DirectorySeparatorChar , Path.AltDirectorySeparatorChar);
+            var normalizedAncestor = Path.GetFullPath(ancestorPath)
+                .TrimEnd(Path.DirectorySeparatorChar , Path.AltDirectorySeparatorChar);
+
+            return normalizedDescendant.StartsWith(
+                normalizedAncestor + Path.DirectorySeparatorChar ,
+                StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
 
 public sealed partial class ExplorerItemTemplateSelector : DataTemplateSelector
