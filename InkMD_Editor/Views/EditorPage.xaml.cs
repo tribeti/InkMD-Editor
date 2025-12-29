@@ -308,11 +308,15 @@ public sealed partial class EditorPage : Page
                 if ( item is StorageFile file )
                 {
                     var tabToClose = FindTabByFilePath(file.Path);
+                    await file.DeleteAsync();
                     if ( tabToClose is not null )
                     {
+                        if ( tabToClose.Content is TabViewContent tabContent )
+                        {
+                            tabContent.DisposeWebView();
+                        }
                         Tabs.TabItems.Remove(tabToClose);
                     }
-                    await file.DeleteAsync();
                 }
                 else if ( item is StorageFolder folder )
                 {
@@ -322,12 +326,16 @@ public sealed partial class EditorPage : Page
                         !string.IsNullOrEmpty(content.GetFilePath()) &&
                         IsDescendantPath(content.GetFilePath() , folder.Path)).ToList();
 
+                    await folder.DeleteAsync();
+
                     foreach ( var tab in tabsToRemove )
                     {
+                        if ( tab.Content is TabViewContent tabContent )
+                        {
+                            tabContent.DisposeWebView();
+                        }
                         Tabs.TabItems.Remove(tab);
                     }
-
-                    await folder.DeleteAsync();
                 }
 
                 if ( node.Parent is not null )
