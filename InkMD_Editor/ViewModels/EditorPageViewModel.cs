@@ -268,4 +268,5 @@ public partial class EditorPageViewModel : ObservableObject
 
     public async Task ShowSuccessAsync (string message) => await _dialogService.ShowSuccessAsync(message);
 
+    public async Task<bool> ShowConfirmationAsync (string message) => await _dialogService.ShowConfirmationAsync(message);
 }

@@ -7,6 +7,7 @@ using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -293,8 +294,91 @@ public sealed partial class EditorPage : Page
         return newTab;
     }
 
+    private async void DeleteItem_Click (object sender , RoutedEventArgs e)
+    {
+        if ( treeview.SelectedItem is not TreeViewNode node || node.Content is not IStorageItem item )
+        {
+            return;
+        }
+        bool isConfirmed = await _viewModel.ShowConfirmationAsync($"Do you want to delete: {item.Name}?");
+        if ( isConfirmed )
+        {
+            try
+            {
+                if ( item is StorageFile file )
+                {
+                    var tabToClose = FindTabByFilePath(file.Path);
+                    await file.DeleteAsync();
+                    if ( tabToClose is not null )
+                    {
+                        if ( tabToClose.Content is TabViewContent tabContent )
+                        {
+                            tabContent.DisposeWebView();
+                        }
+                        Tabs.TabItems.Remove(tabToClose);
+                    }
+                }
+                else if ( item is StorageFolder folder )
+                {
+                    var tabsToRemove = Tabs.TabItems.OfType<TabViewItem>()
+                    .Where(tab =>
+                        tab.Content is IEditableContent content &&
+                        !string.IsNullOrEmpty(content.GetFilePath()) &&
+                        IsDescendantPath(content.GetFilePath() , folder.Path)).ToList();
+
+                    await folder.DeleteAsync();
+
+                    foreach ( var tab in tabsToRemove )
+                    {
+                        if ( tab.Content is TabViewContent tabContent )
+                        {
+                            tabContent.DisposeWebView();
+                        }
+                        Tabs.TabItems.Remove(tab);
+                    }
+                }
+
+                if ( node.Parent is not null )
+                {
+                    node.Parent.Children.Remove(node);
+                }
+                else
+                {
+                    treeview.RootNodes.Remove(node);
+                }
+            }
+            catch ( Exception ex )
+            {
+                var itemType = item is StorageFile ? "file" : "folder";
+                await _viewModel.ShowErrorAsync($"Error deleting {itemType}: {ex.Message}");
+            }
+        }
+    }
+
     private (TabViewItem? tab, IEditableContent? content) GetSelectedTabContent () =>
         Tabs.SelectedItem is TabViewItem tab ? (tab, tab.Content as IEditableContent) : (null, null);
+
+    private static bool IsDescendantPath (string descendantPath , string ancestorPath)
+    {
+        if ( string.IsNullOrEmpty(descendantPath) || string.IsNullOrEmpty(ancestorPath) )
+            return false;
+
+        try
+        {
+            var normalizedDescendant = Path.GetFullPath(descendantPath)
+                .TrimEnd(Path.DirectorySeparatorChar , Path.AltDirectorySeparatorChar);
+            var normalizedAncestor = Path.GetFullPath(ancestorPath)
+                .TrimEnd(Path.DirectorySeparatorChar , Path.AltDirectorySeparatorChar);
+
+            return normalizedDescendant.StartsWith(
+                normalizedAncestor + Path.DirectorySeparatorChar ,
+                StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
 
 public sealed partial class ExplorerItemTemplateSelector : DataTemplateSelector

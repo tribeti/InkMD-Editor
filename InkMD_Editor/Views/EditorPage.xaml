@@ -31,7 +31,7 @@
                     <KeyboardAccelerator Key="V" Modifiers="Control" />
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
-            <MenuFlyoutItem Text="Delete">
+            <MenuFlyoutItem Click="DeleteItem_Click" Text="Delete">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Delete" />
                 </MenuFlyoutItem.KeyboardAccelerators>
