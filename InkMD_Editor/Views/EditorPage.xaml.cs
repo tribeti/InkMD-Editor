@@ -311,7 +311,7 @@ public sealed partial class EditorPage : Page
                     {
                         Tabs.TabItems.Remove(tabToClose);
                     }
-                    System.IO.File.Delete(file.Path);
+                    await Task.Run(() => System.IO.File.Delete(file.Path));
                 }
                 else if ( item is StorageFolder folder )
                 {
@@ -327,7 +327,7 @@ public sealed partial class EditorPage : Page
                         Tabs.TabItems.Remove(tab);
                     }
 
-                    System.IO.Directory.Delete(folder.Path , true);
+                    await Task.Run(() => System.IO.Directory.Delete(folder.Path , true));
                 }
 
                 if ( node.Parent is not null )
