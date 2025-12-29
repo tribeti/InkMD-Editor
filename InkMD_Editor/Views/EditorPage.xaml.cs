@@ -306,17 +306,17 @@ public sealed partial class EditorPage : Page
             {
                 try
                 {
-                    var (tab, content) = GetSelectedTabContent();
-                    if ( content is not null && content.GetFilePath() == file.Path )
+                    var tabToClose = FindTabByFilePath(file.Path);
+                    if ( tabToClose is not null )
                     {
-                        System.IO.File.Delete(file.Path);
-                        Tabs.TabItems.Remove(tab!);
-                        node.Parent?.Children.Remove(node);
+                        Tabs.TabItems.Remove(tabToClose);
                     }
+                    System.IO.File.Delete(file.Path);
+                    node.Parent?.Children.Remove(node);
                 }
                 catch ( Exception ex )
                 {
-                    await _viewModel.ShowErrorAsync($"Error closing tab: {ex.Message}");
+                    await _viewModel.ShowErrorAsync($"Error deleting file: {ex.Message}");
                 }
 
             }
@@ -324,6 +324,18 @@ public sealed partial class EditorPage : Page
             {
                 try
                 {
+                    var tabsToRemove = Tabs.TabItems.OfType<TabViewItem>()
+                    .Where(tab =>
+                        tab.Content is IEditableContent content &&
+                        !string.IsNullOrEmpty(content.GetFilePath()) &&
+                        content.GetFilePath().StartsWith(folder.Path + System.IO.Path.DirectorySeparatorChar , StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                    foreach ( var tab in tabsToRemove )
+                    {
+                        Tabs.TabItems.Remove(tab);
+                    }
+
                     System.IO.Directory.Delete(folder.Path , true);
                     node.Parent?.Children.Remove(node);
                 }
