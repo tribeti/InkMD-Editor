@@ -75,7 +75,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     private void EditBox_TextChanged (TextControlBox sender)
     {
-        string text = GetCurrentEditBoxText();
+        string text = sender.GetText();
         UpdateMarkdownPreview(text);
         ViewModel.CurrentContent = text;
     }
@@ -104,7 +104,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         UpdateMarkdownPreview(text);
     }
 
-    private void SetContentToCurrentEditBox (string text) => CurrentEditBox?.SetText(text);
+    private void SetContentToCurrentEditBox (string text) => CurrentEditBox?.LoadText(text);
 
     public string GetContent () => GetCurrentEditBoxText();
 

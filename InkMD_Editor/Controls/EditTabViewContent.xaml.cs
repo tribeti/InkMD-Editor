@@ -17,9 +17,8 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
     public void SetContent (string text , string? fileName)
     {
-        EditBox.SetText(text);
+        EditBox.LoadText(text);
         ViewModel.FileName = fileName;
-        ViewModel.CurrentContent = text;
     }
 
     public string GetContent () => EditBox.GetText() ?? string.Empty;
@@ -39,4 +38,9 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     public void Copy () => EditBox?.Copy();
 
     public void Paste () => EditBox?.Paste();
+
+    private void EditBox_TextChanged (TextControlBox sender)
+    {
+        ViewModel.CurrentContent = sender.GetText();
+    }
 }

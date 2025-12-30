@@ -18,5 +18,6 @@
         x:Name="EditBox"
         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
         FontFamily="{x:Bind ViewModel.FontFamily, Mode=OneWay}"
-        FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}" />
+        FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
+        TextChanged="EditBox_TextChanged" />
 </UserControl>
