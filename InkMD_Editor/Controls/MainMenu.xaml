@@ -13,7 +13,6 @@
     mc:Ignorable="d">
 
     <UserControl.KeyboardAccelerators>
-        <!--  File commands  -->
         <KeyboardAccelerator
             Key="N"
             Invoked="NewMDFileAccelerator_Invoked"
@@ -34,28 +33,6 @@
             Key="S"
             Invoked="SaveAsAccelerator_Invoked"
             Modifiers="Control,Shift" />
-
-        <!--  Edit commands  -->
-        <KeyboardAccelerator
-            Key="Z"
-            Invoked="UndoAccelerator_Invoked"
-            Modifiers="Control" />
-        <KeyboardAccelerator
-            Key="Y"
-            Invoked="RedoAccelerator_Invoked"
-            Modifiers="Control" />
-        <KeyboardAccelerator
-            Key="X"
-            Invoked="CutAccelerator_Invoked"
-            Modifiers="Control" />
-        <KeyboardAccelerator
-            Key="C"
-            Invoked="CopyAccelerator_Invoked"
-            Modifiers="Control" />
-        <KeyboardAccelerator
-            Key="V"
-            Invoked="PasteAccelerator_Invoked"
-            Modifiers="Control" />
     </UserControl.KeyboardAccelerators>
 
     <RelativePanel>
@@ -97,11 +74,8 @@
                     <AppBarButton
                         Click="NewMDFile_Click"
                         Icon="{ui:FontIcon Glyph=&#xE729;}"
-                        Label="New .md File">
-                        <AppBarButton.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="N" Modifiers="Control" />
-                        </AppBarButton.KeyboardAccelerators>
-                    </AppBarButton>
+                        KeyboardAcceleratorTextOverride="Ctrl+N"
+                        Label="New .md File" />
                     <AppBarButton
                         Click="NewFile_Click"
                         Icon="{ui:FontIcon Glyph=&#xE7C3;}"
@@ -110,40 +84,29 @@
                     <AppBarButton
                         Command="{x:Bind ViewModel.OpenFileCommand}"
                         Icon="{ui:FontIcon Glyph=&#xE8E5;}"
-                        Label="Open file">
-                        <AppBarButton.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="O" Modifiers="Control" />
-                        </AppBarButton.KeyboardAccelerators>
-                    </AppBarButton>
+                        KeyboardAcceleratorTextOverride="Ctrl+O"
+                        Label="Open file" />
                     <AppBarButton
                         Command="{x:Bind ViewModel.OpenFolderCommand}"
                         Icon="{ui:FontIcon Glyph=&#xE8DA;}"
-                        Label="Open folder">
-                        <AppBarButton.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="O" Modifiers="Control,Shift" />
-                        </AppBarButton.KeyboardAccelerators>
-                    </AppBarButton>
+                        KeyboardAcceleratorTextOverride="Ctrl+Shift+O"
+                        Label="Open folder" />
                     <AppBarSeparator />
                     <AppBarButton
                         Command="{x:Bind ViewModel.SaveCommand}"
                         Icon="{ui:FontIcon Glyph=&#xE74E;}"
-                        Label="Save">
-                        <AppBarButton.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="S" Modifiers="Control" />
-                        </AppBarButton.KeyboardAccelerators>
-                    </AppBarButton>
+                        KeyboardAcceleratorTextOverride="Ctrl+S"
+                        Label="Save" />
                     <AppBarButton
                         Command="{x:Bind ViewModel.SaveAsCommand}"
                         Icon="{ui:FontIcon Glyph=&#xE792;}"
-                        Label="Save As">
-                        <AppBarButton.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="S" Modifiers="Control,Shift" />
-                        </AppBarButton.KeyboardAccelerators>
-                    </AppBarButton>
+                        KeyboardAcceleratorTextOverride="Ctrl+Shift+S"
+                        Label="Save As" />
                     <AppBarSeparator />
                     <AppBarButton
                         Command="{x:Bind ViewModel.ExitApplicationCommand}"
                         Icon="{ui:FontIcon Glyph=&#xF3B1;}"
+                        KeyboardAcceleratorTextOverride="Alt+F4"
                         Label="Exit" />
                 </controls:TabbedCommandBarItem>
                 <!--  edit menu items  -->

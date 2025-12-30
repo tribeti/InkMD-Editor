@@ -16,26 +16,13 @@
 
     <Page.Resources>
         <MenuFlyout x:Key="MyContextMenu">
-            <MenuFlyoutItem Text="New Markdown File">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="N" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem Text="New Folder">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="N" Modifiers="Control,Shift" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem Text="Paste">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="V" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem Click="DeleteItem_Click" Text="Delete">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Delete" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
+            <MenuFlyoutItem KeyboardAcceleratorTextOverride="Ctrl+N" Text="New Markdown File" />
+            <MenuFlyoutItem KeyboardAcceleratorTextOverride="Ctrl+Shift+N" Text="New Folder" />
+            <MenuFlyoutItem KeyboardAcceleratorTextOverride="Ctrl+V" Text="Paste" />
+            <MenuFlyoutItem
+                Click="DeleteItem_Click"
+                KeyboardAcceleratorTextOverride="Delete"
+                Text="Delete" />
         </MenuFlyout>
 
         <DataTemplate x:Key="FolderTemplate" x:DataType="TreeViewNode">

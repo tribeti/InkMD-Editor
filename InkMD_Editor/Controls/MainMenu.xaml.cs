@@ -298,9 +298,6 @@ public sealed partial class MainMenu : UserControl
         }
     }
 
-    // ==================== KEYBOARD ACCELERATOR HANDLERS ====================
-    // File commands
-
     private void TryExecuteCommand (System.Windows.Input.ICommand? command , KeyboardAcceleratorInvokedEventArgs args)
     {
         if ( command?.CanExecute(null) == true )
@@ -323,37 +320,6 @@ public sealed partial class MainMenu : UserControl
     private void SaveAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.SaveCommand , args);
 
     private void SaveAsAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.SaveAsCommand , args);
-
-    // Edit commands
-    private void UndoAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        TryExecuteCommand(ViewModel.UndoCommand , args);
-        args.Handled = true;
-    }
-
-    private void RedoAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        TryExecuteCommand(ViewModel.RedoCommand , args);
-        args.Handled = true;
-    }
-
-    private void CutAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        TryExecuteCommand(ViewModel.CutCommand , args);
-        args.Handled = true;
-    }
-
-    private void CopyAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        TryExecuteCommand(ViewModel.CopyCommand , args);
-        args.Handled = true;
-    }
-
-    private void PasteAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        TryExecuteCommand(ViewModel.PasteCommand , args);
-        args.Handled = true;
-    }
 
     public void Dispose ()
     {
