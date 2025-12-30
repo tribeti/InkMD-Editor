@@ -11,6 +11,7 @@ public partial class EditTabViewModel : ObservableObject, IRecipient<FontChanged
     public partial string? FileName { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSaved))]
     public partial string? FilePath { get; set; }
 
     [ObservableProperty]
@@ -18,7 +19,7 @@ public partial class EditTabViewModel : ObservableObject, IRecipient<FontChanged
     public partial string? OriginalContent { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSaved) , nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(IsDirty))]
     public partial string? CurrentContent { get; set; }
 
     [ObservableProperty]
@@ -26,6 +27,11 @@ public partial class EditTabViewModel : ObservableObject, IRecipient<FontChanged
 
     [ObservableProperty]
     public partial double FontSize { get; set; } = AppSettings.GetFontSize();
+
+    [ObservableProperty]
+    public partial bool IsLoadingContent { get; set; }
+
+    private bool _lastDirtyState = false;
 
     public bool IsSaved => !string.IsNullOrEmpty(FilePath);
 
@@ -43,21 +49,38 @@ public partial class EditTabViewModel : ObservableObject, IRecipient<FontChanged
         FileName = name;
     }
 
-    public void Receive (FontChangedMessage message)
-    {
-        FontFamily = message.FontFamily;
-        FontSize = message.FontSize;
-    }
-
     public void MarkAsClean ()
     {
         OriginalContent = CurrentContent;
+        _lastDirtyState = false;
         OnPropertyChanged(nameof(IsDirty));
+
+        WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty , false));
     }
 
     public void SetOriginalContent (string content)
     {
         OriginalContent = content;
         CurrentContent = content;
+        _lastDirtyState = false;
+    }
+
+    partial void OnCurrentContentChanged (string? value)
+    {
+        if ( IsLoadingContent )
+            return;
+
+        bool currentDirtyState = IsDirty;
+        if ( currentDirtyState != _lastDirtyState )
+        {
+            _lastDirtyState = currentDirtyState;
+            WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty , currentDirtyState));
+        }
+    }
+
+    public void Receive (FontChangedMessage message)
+    {
+        FontFamily = message.FontFamily;
+        FontSize = message.FontSize;
     }
 }

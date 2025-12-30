@@ -11,6 +11,7 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     public partial string? FileName { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSaved))]
     public partial string? FilePath { get; set; }
 
     [ObservableProperty]
@@ -18,7 +19,7 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     public partial string? OriginalContent { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSaved) , nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(IsDirty))]
     public partial string? CurrentContent { get; set; }
 
     [ObservableProperty]
@@ -68,22 +69,19 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
         OriginalContent = CurrentContent;
         _lastDirtyState = false;
         OnPropertyChanged(nameof(IsDirty));
-        WeakReferenceMessenger.Default.Send(new ContentChangedMessage(
-            FilePath ?? string.Empty ,
-            false
-        ));
+
+        WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty , false));
     }
 
     /// <summary>
-    /// Set the original content when loading a file
+    /// Set the original content when loading a file (internal use)
+    /// Note: IsLoadingContent flag should be managed by the caller
     /// </summary>
     public void SetOriginalContent (string content)
     {
-        IsLoadingContent = true;
         OriginalContent = content;
         CurrentContent = content;
         _lastDirtyState = false;
-        IsLoadingContent = false;
     }
 
     /// <summary>
@@ -91,20 +89,15 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     /// </summary>
     partial void OnCurrentContentChanged (string? value)
     {
-        // Don't check dirty state while loading content
         if ( IsLoadingContent )
             return;
 
         bool currentDirtyState = IsDirty;
 
-        // Only send message if dirty state actually changed
         if ( currentDirtyState != _lastDirtyState )
         {
             _lastDirtyState = currentDirtyState;
-            WeakReferenceMessenger.Default.Send(new ContentChangedMessage(
-                FilePath ?? string.Empty ,
-                currentDirtyState
-            ));
+            WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty , currentDirtyState));
         }
     }
 
