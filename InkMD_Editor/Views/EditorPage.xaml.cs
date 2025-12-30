@@ -55,6 +55,24 @@ public sealed partial class EditorPage : Page
                 tabContent.SetViewMode(msg.NewMode);
             }
         });
+
+        WeakReferenceMessenger.Default.Register<EditCommandMessage>(this , (r , msg) =>
+        {
+            var (_, content) = GetSelectedTabContent();
+            if ( content is not IEditableContent editable )
+                return;
+
+            Action action = msg.Command switch
+            {
+                EditCommandType.Undo => editable.Undo,
+                EditCommandType.Redo => editable.Redo,
+                EditCommandType.Cut => editable.Cut,
+                EditCommandType.Copy => editable.Copy,
+                EditCommandType.Paste => editable.Paste,
+                _ => throw new ArgumentOutOfRangeException(nameof(msg.Command) , $"Unsupported command: {msg.Command}")
+            };
+            action();
+        });
     }
 
     private void UpdateMenuVisibility ()

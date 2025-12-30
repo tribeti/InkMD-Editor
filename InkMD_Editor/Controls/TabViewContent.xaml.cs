@@ -62,12 +62,14 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         {
             EditBox.EnableSyntaxHighlighting = true;
             EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
+            EditBox.DoAutoPairing = true;
         }
 
         if ( EditBox_Split is not null )
         {
             EditBox_Split.EnableSyntaxHighlighting = true;
             EditBox_Split.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
+            EditBox_Split.DoAutoPairing = true;
         }
     }
 
@@ -111,6 +113,16 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public string GetFileName () => ViewModel.FileName ?? string.Empty;
 
     public void SetFilePath (string filePath , string fileName) => ViewModel.SetFilePath(filePath , fileName);
+
+    public void Undo () => CurrentEditBox?.Undo();
+
+    public void Redo () => CurrentEditBox?.Redo();
+
+    public void Cut () => CurrentEditBox?.Cut();
+
+    public void Copy () => CurrentEditBox?.Copy();
+
+    public void Paste () => CurrentEditBox?.Paste();
 
     private async void InitializeWebViews ()
     {

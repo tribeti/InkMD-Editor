@@ -282,10 +282,7 @@ public sealed partial class MainMenu : UserControl
         }
     }
 
-    private async void About_Click (object sender , RoutedEventArgs e)
-    {
-        await AboutDialog.ShowAsync();
-    }
+    private async void About_Click (object sender , RoutedEventArgs e) => await AboutDialog.ShowAsync();
 
     private void DisplayMode_SelectionChanged (object sender , SelectionChangedEventArgs e)
     {
@@ -297,9 +294,6 @@ public sealed partial class MainMenu : UserControl
             WeakReferenceMessenger.Default.Send(new ViewModeChangedMessage(newMode));
         }
     }
-
-    // ==================== KEYBOARD ACCELERATOR HANDLERS ====================
-    // File commands
 
     private void TryExecuteCommand (System.Windows.Input.ICommand? command , KeyboardAcceleratorInvokedEventArgs args)
     {
@@ -323,40 +317,6 @@ public sealed partial class MainMenu : UserControl
     private void SaveAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.SaveCommand , args);
 
     private void SaveAsAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.SaveAsCommand , args);
-
-    // Edit commands
-    private void UndoAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        // if (ViewModel.UndoCommand?.CanExecute(null) == true)
-        // {
-        //     ViewModel.UndoCommand.Execute(null);
-        // }
-        args.Handled = true;
-    }
-
-    private void RedoAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        // TODO: Implement redo logic
-        args.Handled = true;
-    }
-
-    private void CutAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        // TODO: Implement cut logic
-        args.Handled = true;
-    }
-
-    private void CopyAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        // TODO: Implement copy logic
-        args.Handled = true;
-    }
-
-    private void PasteAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
-    {
-        // TODO: Implement paste logic
-        args.Handled = true;
-    }
 
     public void Dispose ()
     {
