@@ -47,6 +47,8 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
     public bool IsDirty () => ViewModel.IsDirty;
 
+    public void MarkAsClean () => ViewModel.MarkAsClean();
+
     private void EditBox_TextChanged (TextControlBox sender)
     {
         if ( _isLoadingContent )

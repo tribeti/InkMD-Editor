@@ -67,7 +67,7 @@ public partial class MainMenuViewModel : ObservableObject
     [RelayCommand]
     private static void Save ()
     {
-        WeakReferenceMessenger.Default.Send(new SaveFileMessage(isNewFile: false));
+        WeakReferenceMessenger.Default.Send(new SaveFileMessage(IsNewFile: false));
     }
 
     [RelayCommand]

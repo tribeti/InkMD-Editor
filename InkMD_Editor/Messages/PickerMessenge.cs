@@ -2,33 +2,17 @@
 
 namespace InkMD_Editor.Messages;
 
-public class FileOpenedMessage (StorageFile file)
-{
-    public StorageFile File { get; } = file;
-}
+public record FileOpenedMessage (StorageFile File);
 
-public class FolderOpenedMessage (StorageFolder folder)
-{
-    public StorageFolder Folder { get; } = folder;
-}
+public record FolderOpenedMessage (StorageFolder Folder);
 
 public class ErrorMessage (string message)
 {
     public string Message { get; } = message;
 }
 
-public class SaveFileMessage (bool isNewFile = false)
-{
-    public bool IsNewFile { get; set; } = isNewFile;
-}
+public record SaveFileMessage (bool IsNewFile = false);
 
-public class SaveFileRequestMessage (string filePath)
-{
-    public string FilePath { get; } = filePath;
-}
+public record SaveFileRequestMessage (string FilePath);
 
-public class FileSavedMessage (string filePath , string fileName)
-{
-    public string FilePath { get; } = filePath;
-    public string FileName { get; } = fileName;
-}
+public record FileSavedMessage (string FilePath , string FileName);

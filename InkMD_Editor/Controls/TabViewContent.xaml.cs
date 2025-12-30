@@ -133,6 +133,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void Paste () => CurrentEditBox?.Paste();
 
+    public void MarkAsClean () => ViewModel.MarkAsClean();
+
     private async void InitializeWebViews ()
     {
         try

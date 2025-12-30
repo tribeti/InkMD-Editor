@@ -248,16 +248,7 @@ public sealed partial class EditorPage : Page
         }
 
         await _viewModel.HandleSaveFile(content);
-
-        if ( content is TabViewContent tabViewContent )
-        {
-            tabViewContent.ViewModel.MarkAsClean();
-        }
-        else if ( content is EditTabViewContent editTabViewContent )
-        {
-            editTabViewContent.ViewModel.MarkAsClean();
-        }
-
+        content.MarkAsClean();
         tab.Header = content.GetFileName();
     }
 
@@ -269,16 +260,7 @@ public sealed partial class EditorPage : Page
             if ( content is not null )
             {
                 await _viewModel.SaveFileToPath(filePath , content);
-
-                if ( content is TabViewContent tabViewContent )
-                {
-                    tabViewContent.ViewModel.MarkAsClean();
-                }
-                else if ( content is EditTabViewContent editTabViewContent )
-                {
-                    editTabViewContent.ViewModel.MarkAsClean();
-                }
-
+                content.MarkAsClean();
                 tab!.Header = content.GetFileName();
             }
         }
