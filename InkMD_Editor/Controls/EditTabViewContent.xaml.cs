@@ -1,6 +1,7 @@
 ﻿using InkMD_Editor.Interfaces;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml.Controls;
+using System.Collections.Generic;
 using TextControlBoxNS;
 
 namespace InkMD_Editor.Controls;
@@ -26,6 +27,8 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     }
 
     public string GetContent () => EditBox.GetText() ?? string.Empty;
+
+    public IEnumerable<string> GetContentToSaveFile () => EditBox.Lines ?? [];
 
     public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
 

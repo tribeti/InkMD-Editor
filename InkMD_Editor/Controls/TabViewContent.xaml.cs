@@ -4,6 +4,7 @@ using InkMD_Editor.ViewModels;
 using Markdig;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Collections.Generic;
 using TextControlBoxNS;
 
 namespace InkMD_Editor.Controls;
@@ -114,6 +115,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     private void SetContentToCurrentEditBox (string text) => CurrentEditBox?.LoadText(text);
 
     public string GetContent () => GetCurrentEditBoxText();
+
+    public IEnumerable<string> GetContentToSaveFile () => CurrentEditBox?.Lines ?? [];
 
     public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
 

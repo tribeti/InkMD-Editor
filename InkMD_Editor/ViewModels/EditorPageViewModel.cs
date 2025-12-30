@@ -168,9 +168,7 @@ public partial class EditorPageViewModel : ObservableObject
     {
         try
         {
-            string editorText = content.GetContent();
-            await File.WriteAllTextAsync(filePath , editorText , Encoding.UTF8);
-
+            await File.WriteAllLinesAsync(filePath , content.GetContentToSaveFile() , Encoding.UTF8);
             content.SetFilePath(filePath , Path.GetFileName(filePath));
             WeakReferenceMessenger.Default.Send(new FileSavedMessage(filePath , Path.GetFileName(filePath)));
         }

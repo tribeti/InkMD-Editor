@@ -1,4 +1,6 @@
-﻿namespace InkMD_Editor.Interfaces;
+﻿using System.Collections.Generic;
+
+namespace InkMD_Editor.Interfaces;
 
 public interface IEditableContent
 {
@@ -14,4 +16,5 @@ public interface IEditableContent
     void Paste ();
     bool IsDirty ();
     void MarkAsClean ();
+    IEnumerable<string> GetContentToSaveFile ();
 }
