@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Helpers;
-using InkMD_Editor.Messagers;
+using InkMD_Editor.Messages;
 using Microsoft.UI;
 using Microsoft.Windows.Storage.Pickers;
 using System;

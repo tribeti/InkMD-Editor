@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Controls;
-using InkMD_Editor.Messagers;
+using InkMD_Editor.Messages;
 using InkMD_Editor.Models;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;

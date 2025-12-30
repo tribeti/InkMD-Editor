@@ -8,6 +8,7 @@ namespace InkMD_Editor.Controls;
 public sealed partial class EditTabViewContent : UserControl, IEditableContent
 {
     public EditTabViewModel ViewModel { get; set; } = new();
+
     public EditTabViewContent ()
     {
         InitializeComponent();
@@ -17,8 +18,11 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
     public void SetContent (string text , string? fileName)
     {
-        EditBox.LoadText(text);
+        ViewModel.IsLoadingContent = true;
         ViewModel.FileName = fileName;
+        ViewModel.SetOriginalContent(text);
+        EditBox.LoadText(text);
+        ViewModel.IsLoadingContent = false;
     }
 
     public string GetContent () => EditBox.GetText() ?? string.Empty;
@@ -38,6 +42,10 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     public void Copy () => EditBox?.Copy();
 
     public void Paste () => EditBox?.Paste();
+
+    public bool IsDirty () => ViewModel.IsDirty;
+
+    public void MarkAsClean () => ViewModel.MarkAsClean();
 
     private void EditBox_TextChanged (TextControlBox sender)
     {

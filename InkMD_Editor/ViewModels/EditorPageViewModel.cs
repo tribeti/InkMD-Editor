@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Helpers;
 using InkMD_Editor.Interfaces;
-using InkMD_Editor.Messagers;
+using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -172,8 +172,6 @@ public partial class EditorPageViewModel : ObservableObject
             await File.WriteAllTextAsync(filePath , editorText , Encoding.UTF8);
 
             content.SetFilePath(filePath , Path.GetFileName(filePath));
-
-            await ShowSuccessAsync($"Saved: {Path.GetFileName(filePath)}");
             WeakReferenceMessenger.Default.Send(new FileSavedMessage(filePath , Path.GetFileName(filePath)));
         }
         catch ( Exception ex )
