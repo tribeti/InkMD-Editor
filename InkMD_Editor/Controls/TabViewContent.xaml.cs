@@ -37,6 +37,9 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         {
             ViewModel.CurrentContent = currentText;
         }
+
+        ViewModel.IsLoadingContent = true;
+
         ViewModel.Tag = tag;
         string content = ViewModel.CurrentContent ?? String.Empty;
         SetContentToCurrentEditBox(content);
@@ -45,6 +48,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         {
             UpdateMarkdownPreview(content);
         }
+
+        ViewModel.IsLoadingContent = false;
     }
 
     private void TabViewContent_Loaded (object sender , Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -98,10 +103,12 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void SetContent (string text , string? fileName)
     {
+        ViewModel.IsLoadingContent = true;
         ViewModel.FileName = fileName;
-        ViewModel.CurrentContent = text;
+        ViewModel.SetOriginalContent(text);
         SetContentToCurrentEditBox(text);
         UpdateMarkdownPreview(text);
+        ViewModel.IsLoadingContent = false;
     }
 
     private void SetContentToCurrentEditBox (string text) => CurrentEditBox?.LoadText(text);
@@ -114,6 +121,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void SetFilePath (string filePath , string fileName) => ViewModel.SetFilePath(filePath , fileName);
 
+    public bool IsDirty () => ViewModel.IsDirty;
+
     public void Undo () => CurrentEditBox?.Undo();
 
     public void Redo () => CurrentEditBox?.Redo();
@@ -123,6 +132,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public void Copy () => CurrentEditBox?.Copy();
 
     public void Paste () => CurrentEditBox?.Paste();
+
+    public void MarkAsClean () => ViewModel.MarkAsClean();
 
     private async void InitializeWebViews ()
     {

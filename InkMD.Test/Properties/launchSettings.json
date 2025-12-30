@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "InkMD.Test (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "InkMD.Test (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
