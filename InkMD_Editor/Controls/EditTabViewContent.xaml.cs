@@ -30,13 +30,13 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
     public void SetFilePath (string filePath , string fileName) => ViewModel.SetFilePath(filePath , fileName);
 
-    public void Undo () => EditBox.Undo();
+    public void Undo () => EditBox?.Undo();
 
-    public void Redo () => EditBox.Redo();
+    public void Redo () => EditBox?.Redo();
 
-    public void Cut () => EditBox.Cut();
+    public void Cut () => EditBox?.Cut();
 
-    public void Copy () => EditBox.Copy();
+    public void Copy () => EditBox?.Copy();
 
-    public void Paste () => EditBox.Paste();
+    public void Paste () => EditBox?.Paste();
 }
