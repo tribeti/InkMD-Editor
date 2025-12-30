@@ -17,7 +17,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
     public void SetContent (string text , string? fileName)
     {
-        EditBox.SetText(text);
+        EditBox.LoadText(text);
         ViewModel.FileName = fileName;
         ViewModel.CurrentContent = text;
     }
