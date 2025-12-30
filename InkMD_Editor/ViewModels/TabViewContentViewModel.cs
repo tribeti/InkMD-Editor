@@ -68,7 +68,6 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     {
         OriginalContent = CurrentContent;
         _lastDirtyState = false;
-        OnPropertyChanged(nameof(IsDirty));
 
         WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty , false));
     }

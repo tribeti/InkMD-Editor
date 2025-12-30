@@ -1,6 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using InkMD_Editor.Interfaces;
-using InkMD_Editor.Messages;
+﻿using InkMD_Editor.Interfaces;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using TextControlBoxNS;
@@ -10,7 +8,6 @@ namespace InkMD_Editor.Controls;
 public sealed partial class EditTabViewContent : UserControl, IEditableContent
 {
     public EditTabViewModel ViewModel { get; set; } = new();
-    private bool _isLoadingContent = false;
 
     public EditTabViewContent ()
     {
@@ -22,8 +19,9 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     public void SetContent (string text , string? fileName)
     {
         ViewModel.IsLoadingContent = true;
-        EditBox.LoadText(text);
         ViewModel.FileName = fileName;
+        ViewModel.SetOriginalContent(text);
+        EditBox.LoadText(text);
         ViewModel.IsLoadingContent = false;
     }
 
@@ -51,15 +49,6 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
     private void EditBox_TextChanged (TextControlBox sender)
     {
-        if ( _isLoadingContent )
-            return;
-
-        bool wasDirty = ViewModel.IsDirty;
         ViewModel.CurrentContent = sender.GetText();
-
-        if ( wasDirty != ViewModel.IsDirty )
-        {
-            WeakReferenceMessenger.Default.Send(new ContentChangedMessage(ViewModel.FilePath ?? string.Empty , ViewModel.IsDirty));
-        }
     }
 }

@@ -53,7 +53,6 @@ public partial class EditTabViewModel : ObservableObject, IRecipient<FontChanged
     {
         OriginalContent = CurrentContent;
         _lastDirtyState = false;
-        OnPropertyChanged(nameof(IsDirty));
 
         WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty , false));
     }
