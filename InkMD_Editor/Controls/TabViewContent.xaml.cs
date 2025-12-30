@@ -116,7 +116,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public string GetContent () => GetCurrentEditBoxText();
 
-    public IEnumerable<string> GetContentToSaveFile () => EditBox.Lines ?? [];
+    public IEnumerable<string> GetContentToSaveFile () => CurrentEditBox?.Lines ?? [];
 
     public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
 
