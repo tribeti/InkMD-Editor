@@ -18,7 +18,7 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     public partial string? OriginalContent { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSaved),nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(IsSaved) , nameof(IsDirty))]
     public partial string? CurrentContent { get; set; }
 
     [ObservableProperty]
@@ -30,11 +30,16 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     [ObservableProperty]
     public partial string Tag { get; set; } = "split";
 
+    [ObservableProperty]
+    public partial bool IsLoadingContent { get; set; }
+
+    private bool _lastDirtyState = false;
+
     /// <summary>
     /// Check if the file has been saved
     /// </summary>
     public bool IsSaved => !string.IsNullOrEmpty(FilePath);
-    
+
     /// <summary>
     /// Check if the file has unsaved changes
     /// </summary>
@@ -55,19 +60,18 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
         FileName = name;
     }
 
-    public void Receive (FontChangedMessage message)
-    {
-        FontFamily = message.FontFamily;
-        FontSize = message.FontSize;
-    }
-
     /// <summary>
     /// Mark the file as clean (no unsaved changes)
     /// </summary>
     public void MarkAsClean ()
     {
         OriginalContent = CurrentContent;
+        _lastDirtyState = false;
         OnPropertyChanged(nameof(IsDirty));
+        WeakReferenceMessenger.Default.Send(new ContentChangedMessage(
+            FilePath ?? string.Empty ,
+            false
+        ));
     }
 
     /// <summary>
@@ -75,7 +79,38 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     /// </summary>
     public void SetOriginalContent (string content)
     {
+        IsLoadingContent = true;
         OriginalContent = content;
         CurrentContent = content;
+        _lastDirtyState = false;
+        IsLoadingContent = false;
+    }
+
+    /// <summary>
+    /// Called when CurrentContent changes - send message if dirty state changed
+    /// </summary>
+    partial void OnCurrentContentChanged (string? value)
+    {
+        // Don't check dirty state while loading content
+        if ( IsLoadingContent )
+            return;
+
+        bool currentDirtyState = IsDirty;
+
+        // Only send message if dirty state actually changed
+        if ( currentDirtyState != _lastDirtyState )
+        {
+            _lastDirtyState = currentDirtyState;
+            WeakReferenceMessenger.Default.Send(new ContentChangedMessage(
+                FilePath ?? string.Empty ,
+                currentDirtyState
+            ));
+        }
+    }
+
+    public void Receive (FontChangedMessage message)
+    {
+        FontFamily = message.FontFamily;
+        FontSize = message.FontSize;
     }
 }

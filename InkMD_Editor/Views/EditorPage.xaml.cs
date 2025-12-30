@@ -347,7 +347,7 @@ public sealed partial class EditorPage : Page
         {
             string fileName = content.GetFileName();
             bool isDirty = content.IsDirty();
-            tab.Header = isDirty ? $"{fileName} •" : fileName;
+            tab.Header = isDirty ? $"{fileName} ●" : fileName;
         }
     }
 
