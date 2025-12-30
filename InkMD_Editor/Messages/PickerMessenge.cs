@@ -1,6 +1,6 @@
 ﻿using Windows.Storage;
 
-namespace InkMD_Editor.Messagers;
+namespace InkMD_Editor.Messages;
 
 public class FileOpenedMessage (StorageFile file)
 {

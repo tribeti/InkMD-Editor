@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Helpers;
-using InkMD_Editor.Messagers;
+using InkMD_Editor.Messages;
 
 namespace InkMD_Editor.ViewModels;
 
@@ -14,6 +14,11 @@ public partial class EditTabViewModel : ObservableObject, IRecipient<FontChanged
     public partial string? FilePath { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDirty))]
+    public partial string? OriginalContent { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSaved) , nameof(IsDirty))]
     public partial string? CurrentContent { get; set; }
 
     [ObservableProperty]
@@ -23,6 +28,8 @@ public partial class EditTabViewModel : ObservableObject, IRecipient<FontChanged
     public partial double FontSize { get; set; } = AppSettings.GetFontSize();
 
     public bool IsSaved => !string.IsNullOrEmpty(FilePath);
+
+    public bool IsDirty => OriginalContent != CurrentContent;
 
     public EditTabViewModel ()
     {
@@ -40,5 +47,17 @@ public partial class EditTabViewModel : ObservableObject, IRecipient<FontChanged
     {
         FontFamily = message.FontFamily;
         FontSize = message.FontSize;
+    }
+
+    public void MarkAsClean ()
+    {
+        OriginalContent = CurrentContent;
+        OnPropertyChanged(nameof(IsDirty));
+    }
+
+    public void SetOriginalContent (string content)
+    {
+        OriginalContent = content;
+        CurrentContent = content;
     }
 }

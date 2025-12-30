@@ -1,4 +1,4 @@
-﻿namespace InkMD_Editor.Messagers
+﻿namespace InkMD_Editor.Messages
 {
     public class CreateFileMessage (string fileName , bool isMarkdown , string? filePath = null)
     {

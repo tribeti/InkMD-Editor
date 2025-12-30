@@ -1,3 +1,3 @@
-﻿namespace InkMD_Editor.Messagers;
+﻿namespace InkMD_Editor.Messages;
 
 public record ViewModeChangedMessage (string NewMode);

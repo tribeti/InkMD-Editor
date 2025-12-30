@@ -1,4 +1,4 @@
-﻿namespace InkMD_Editor.Messagers;
+﻿namespace InkMD_Editor.Messages;
 
 public class TemplateSelectedMessage (string content , bool createNewFile = false)
 {

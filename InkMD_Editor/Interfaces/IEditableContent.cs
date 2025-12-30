@@ -12,4 +12,5 @@ public interface IEditableContent
     void Cut ();
     void Copy ();
     void Paste ();
+    bool IsDirty ();
 }

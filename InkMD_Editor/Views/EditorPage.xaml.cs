@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Controls;
 using InkMD_Editor.Interfaces;
-using InkMD_Editor.Messagers;
+using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml;
@@ -46,6 +46,11 @@ public sealed partial class EditorPage : Page
         WeakReferenceMessenger.Default.Register<ErrorMessage>(this , async (r , msg) => await _viewModel.ShowErrorAsync(msg.Message));
 
         WeakReferenceMessenger.Default.Register<TemplateSelectedMessage>(this , async (r , msg) => await HandleTemplateSelected(msg.Content , msg.CreateNewFile));
+
+        WeakReferenceMessenger.Default.Register<ContentChangedMessage>(this , (r , msg) =>
+        {
+            UpdateTabHeaderForDirtyState();
+        });
 
         WeakReferenceMessenger.Default.Register<ViewModeChangedMessage>(this , (r , msg) =>
         {
@@ -243,6 +248,12 @@ public sealed partial class EditorPage : Page
         }
 
         await _viewModel.HandleSaveFile(content);
+
+        if ( content is TabViewContent tabViewContent )
+        {
+            tabViewContent.ViewModel.MarkAsClean();
+        }
+
         tab.Header = content.GetFileName();
     }
 
@@ -254,6 +265,10 @@ public sealed partial class EditorPage : Page
             if ( content is not null )
             {
                 await _viewModel.SaveFileToPath(filePath , content);
+                if ( content is TabViewContent tabViewContent )
+                {
+                    tabViewContent.ViewModel.MarkAsClean();
+                }
                 tab!.Header = content.GetFileName();
             }
         }
@@ -275,8 +290,21 @@ public sealed partial class EditorPage : Page
         UpdateMenuVisibility();
     }
 
-    private void TabView_TabCloseRequested (TabView sender , TabViewTabCloseRequestedEventArgs args)
+    private async void TabView_TabCloseRequested (TabView sender , TabViewTabCloseRequestedEventArgs args)
     {
+        if ( args.Tab.Content is IEditableContent content && content.IsDirty() )
+        {
+            string fileName = content.GetFileName();
+            bool shouldClose = await _viewModel.ShowConfirmationAsync(
+                $"Do you want to close '{fileName}' without saving changes?"
+            );
+
+            if ( !shouldClose )
+            {
+                return;
+            }
+        }
+
         if ( args.Tab.Content is TabViewContent tabContent )
         {
             tabContent.DisposeWebView();
@@ -310,6 +338,17 @@ public sealed partial class EditorPage : Page
         }
 
         return newTab;
+    }
+
+    private void UpdateTabHeaderForDirtyState ()
+    {
+        var (tab, content) = GetSelectedTabContent();
+        if ( tab is not null && content is not null )
+        {
+            string fileName = content.GetFileName();
+            bool isDirty = content.IsDirty();
+            tab.Header = isDirty ? $"{fileName} •" : fileName;
+        }
     }
 
     private async void DeleteItem_Click (object sender , RoutedEventArgs e)

@@ -1,5 +1,7 @@
-﻿using InkMD_Editor.Helpers;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using InkMD_Editor.Helpers;
 using InkMD_Editor.Interfaces;
+using InkMD_Editor.Messages;
 using InkMD_Editor.ViewModels;
 using Markdig;
 using Microsoft.UI.Xaml.Controls;
@@ -12,6 +14,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 {
     public TabViewContentViewModel ViewModel { get; } = new();
     private readonly MarkdownPipeline _markdownPipeline;
+    private bool _isLoadingContent = false;
 
     public TabViewContent ()
     {
@@ -75,9 +78,19 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     private void EditBox_TextChanged (TextControlBox sender)
     {
+        if ( _isLoadingContent )
+            return;
+
         string text = sender.GetText();
         UpdateMarkdownPreview(text);
+
+        bool wasDirty = ViewModel.IsDirty;
         ViewModel.CurrentContent = text;
+
+        if ( wasDirty != ViewModel.IsDirty )
+        {
+            WeakReferenceMessenger.Default.Send(new ContentChangedMessage(ViewModel.FilePath ?? string.Empty , ViewModel.IsDirty));
+        }
     }
 
     private TextControlBox? CurrentEditBox => ViewModel.Tag switch
@@ -123,6 +136,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public void Copy () => CurrentEditBox?.Copy();
 
     public void Paste () => CurrentEditBox?.Paste();
+
+    public bool IsDirty () => ViewModel.IsDirty;
 
     private async void InitializeWebViews ()
     {
