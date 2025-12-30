@@ -282,10 +282,7 @@ public sealed partial class MainMenu : UserControl
         }
     }
 
-    private async void About_Click (object sender , RoutedEventArgs e)
-    {
-        await AboutDialog.ShowAsync();
-    }
+    private async void About_Click (object sender , RoutedEventArgs e) => await AboutDialog.ShowAsync();
 
     private void DisplayMode_SelectionChanged (object sender , SelectionChangedEventArgs e)
     {
