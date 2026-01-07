@@ -4,7 +4,7 @@ using Windows.Storage;
 
 namespace InkMD_Editor.Services;
 
-public static class ThemeService
+public class ThemeService
 {
     private const string ThemeSettingKey = "AppTheme";
 

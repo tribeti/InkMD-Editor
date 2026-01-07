@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace InkMD_Editor.Services;
 
-public class DialogService
+public class DialogService : IDialogService
 {
     private XamlRoot? _xamlRoot;
 
