@@ -4,93 +4,78 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.Storage;
 
 namespace InkMD_Editor.Services;
 
-public class TemplateService
+public static class TemplateService
 {
-    public static async Task<string> LoadTemplateAsync (string fileName)
-    {
-        try
-        {
-            var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            var file = await folder.GetFileAsync($"Assets\\Templates\\{fileName}");
-            return await FileIO.ReadTextAsync(file);
-        }
-        catch ( FileNotFoundException )
-        {
-            throw new Exception($"Template '{fileName}' not found!");
-        }
-    }
+    private const string TemplatesPath = @"Assets\Templates";
+    private const string IconsPath = @"Assets\Icons";
 
-    public static async Task<string> LoadIconAsync (string iconName)
-    {
-        try
-        {
-            var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            var file = await folder.GetFileAsync($"Assets\\Icons\\{iconName}");
-            return await FileIO.ReadTextAsync(file);
-        }
-        catch ( FileNotFoundException )
-        {
-            throw new Exception($"Icon '{iconName}' not found!");
-        }
-    }
+    public static Task<string> LoadTemplateAsync (string fileName) => ReadFileContentAsync(TemplatesPath , fileName , "Template");
 
     public static async Task<List<MdTemplate>> GetAllTemplatesAsync ()
     {
-        var templates = new List<MdTemplate>();
         try
         {
-            var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            var templatesFolder = await folder.GetFolderAsync("Assets\\Templates");
-            var files = await templatesFolder.GetFilesAsync();
+            var files = await GetFilesFromFolderAsync(TemplatesPath , [".md"]);
 
-            foreach ( var file in files.Where(f => f.FileType == ".md") )
+            return files.Select(file => new MdTemplate
             {
-                templates.Add(new MdTemplate
-                {
-                    FileName = file.Name ,
-                    DisplayName = Path.GetFileNameWithoutExtension(file.Name) ,
-                    Path = file.Path
-                });
-            }
+                FileName = file.Name ,
+                DisplayName = Path.GetFileNameWithoutExtension(file.Name) ,
+                Path = file.Path
+            }).ToList();
         }
         catch ( Exception ex )
         {
-            throw new Exception($"Error load icons: {ex.Message}" , ex);
+            throw new Exception($"Error loading templates: {ex.Message}" , ex);
         }
-
-        return templates;
     }
 
     public static async Task<List<IconItem>> GetAllIconsAsync ()
     {
-        var icons = new List<IconItem>();
         try
         {
-            var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            var iconsFolder = await folder.GetFolderAsync("Assets\\Icons");
-            var files = await iconsFolder.GetFilesAsync();
-            var imageExtensions = new [] { ".svg" };
+            var files = await GetFilesFromFolderAsync(IconsPath , [".svg"]);
 
-            foreach ( var file in files.Where(f => imageExtensions.Contains(f.FileType.ToLower())).OrderBy(f => f.Name) )
-            {
-                string nameWithoutExtension = Path.GetFileNameWithoutExtension(file.Name).ToLower();
-                icons.Add(new IconItem
-                {
-                    Name = nameWithoutExtension ,
-                    ImagePath = file.Path ,
-                    FileName = file.Name
-                });
-            }
+            return files.OrderBy(f => f.Name)
+                        .Select(file => new IconItem
+                        {
+                            Name = Path.GetFileNameWithoutExtension(file.Name).ToLower() ,
+                            ImagePath = file.Path ,
+                            FileName = file.Name
+                        }).ToList();
         }
         catch ( Exception ex )
         {
-            throw new Exception($"Error load icons: {ex.Message}" , ex);
+            throw new Exception($"Error loading icons: {ex.Message}" , ex);
         }
+    }
 
-        return icons;
+    private static async Task<string> ReadFileContentAsync (string folderPath , string fileName , string itemType)
+    {
+        try
+        {
+            var folder = Package.Current.InstalledLocation;
+            var file = await folder.GetFileAsync(Path.Combine(folderPath , fileName));
+            return await FileIO.ReadTextAsync(file);
+        }
+        catch ( FileNotFoundException )
+        {
+            throw new Exception($"{itemType} '{fileName}' not found in {folderPath}!");
+        }
+    }
+
+    private static async Task<IEnumerable<StorageFile>> GetFilesFromFolderAsync (string folderPath , string [] allowedExtensions)
+    {
+        var folder = Package.Current.InstalledLocation;
+        var targetFolder = await folder.GetFolderAsync(folderPath);
+        var files = await targetFolder.GetFilesAsync();
+
+        return files.Where(f => allowedExtensions.Any(ext =>
+            f.FileType.Equals(ext , StringComparison.OrdinalIgnoreCase)));
     }
 }
