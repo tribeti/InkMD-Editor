@@ -4,6 +4,7 @@ using InkMD_Editor.Interfaces;
 using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -16,17 +17,17 @@ namespace InkMD_Editor.Views;
 
 public sealed partial class EditorPage : Page
 {
-    private readonly DialogService _dialogService = new();
-    public EditorPageViewModel ViewModel { get; }
+    private readonly EditorPageViewModel _viewModel;
+    private readonly IDialogService _dialogService;
 
-    public EditorPage (EditorPageViewModel viewModel , DialogService dialogService)
+    public EditorPage ()
     {
+        var app = (App) Application.Current;
+        _viewModel = app.Services.GetRequiredService<EditorPageViewModel>();
+        _dialogService = app.Services.GetRequiredService<IDialogService>();
+
         InitializeComponent();
-
-        ViewModel = viewModel;
-        DataContext = ViewModel;
-
-        ViewModel.Initialize();
+        _viewModel.Initialize();
         InitTreeView();
         SetupMessengers();
 
@@ -44,7 +45,7 @@ public sealed partial class EditorPage : Page
         messenger.Register<FolderOpenedMessage>(this , async (r , msg) => await RefreshTreeViewWithFolder(msg.Folder));
         messenger.Register<SaveFileRequestMessage>(this , (r , msg) => SaveCurrentTabContent(msg.FilePath));
         messenger.Register<SaveFileMessage>(this , async (r , msg) => await HandleSaveFile());
-        messenger.Register<ErrorMessage>(this , async (r , msg) => await ViewModel.ShowErrorAsync(msg.Message));
+        messenger.Register<ErrorMessage>(this , async (r , msg) => await _viewModel.ShowErrorAsync(msg.Message));
         messenger.Register<TemplateSelectedMessage>(this , async (r , msg) => await HandleTemplateSelected(msg.Content , msg.CreateNewFile));
         messenger.Register<ContentChangedMessage>(this , (r , msg) => UpdateTabHeaderForDirtyState());
 
@@ -94,7 +95,7 @@ public sealed partial class EditorPage : Page
 
     private void CreateNewTabWithContent (string content)
     {
-        var result = ViewModel.CreateNewTabContent(content , Tabs.TabItems.Count);
+        var result = _viewModel.CreateNewTabContent(content , Tabs.TabItems.Count);
         if ( !result.success || result.content is null )
             return;
 
@@ -112,15 +113,15 @@ public sealed partial class EditorPage : Page
         var (_, tabContent) = GetSelectedTabContent();
         if ( Tabs.TabItems.Count == 0 || tabContent is null )
         {
-            await ViewModel.ShowErrorAsync("There is no open file. Please open or create one first.");
+            await _viewModel.ShowErrorAsync("There is no open file. Please open or create one first.");
             return;
         }
 
-        var (success, newContent, error) = await ViewModel.InsertIntoDocumentAsync(content , tabContent);
+        var (success, newContent, error) = await _viewModel.InsertIntoDocumentAsync(content , tabContent);
 
         if ( !success )
         {
-            await ViewModel.ShowErrorAsync(error ?? "Unknown error");
+            await _viewModel.ShowErrorAsync(error ?? "Unknown error");
             return;
         }
 
@@ -129,7 +130,7 @@ public sealed partial class EditorPage : Page
 
     private async void InitTreeView ()
     {
-        if ( await ViewModel.InitializeTreeViewAsync() is { } node )
+        if ( await _viewModel.InitializeTreeViewAsync() is { } node )
         {
             treeview.RootNodes.Add(node);
         }
@@ -138,7 +139,7 @@ public sealed partial class EditorPage : Page
     private async Task RefreshTreeViewWithFolder (StorageFolder folder)
     {
         treeview.RootNodes.Clear();
-        if ( await ViewModel.RefreshTreeViewWithFolderAsync(folder) is { } node )
+        if ( await _viewModel.RefreshTreeViewWithFolderAsync(folder) is { } node )
         {
             treeview.RootNodes.Add(node);
         }
@@ -147,10 +148,10 @@ public sealed partial class EditorPage : Page
     private void TreeView_Expanding (TreeView sender , TreeViewExpandingEventArgs args)
     {
         if ( args.Node.HasUnrealizedChildren )
-            _ = ViewModel.FillTreeNodeAsync(args.Node);
+            _ = _viewModel.FillTreeNodeAsync(args.Node);
     }
 
-    private void TreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args) => ViewModel.CollapseTreeNode(args.Node);
+    private void TreeView_Collapsed (TreeView sender , TreeViewCollapsedEventArgs args) => _viewModel.CollapseTreeNode(args.Node);
 
     private async void TreeView_ItemInvoked (TreeView sender , TreeViewItemInvokedEventArgs args)
     {
@@ -178,12 +179,12 @@ public sealed partial class EditorPage : Page
                 return;
             }
 
-            var result = await ViewModel.OpenFileAsync(file);
+            var result = await _viewModel.OpenFileAsync(file);
             if ( result is null )
                 return;
 
             var (contentStr, fileName, filePath) = result.Value;
-            var isMarkdown = ViewModel.IsMarkdownFile(file);
+            var isMarkdown = _viewModel.IsMarkdownFile(file);
             var newTab = CreateNewTab(Tabs.TabItems.Count , isMarkdown);
 
             if ( newTab.Content is IEditableContent content )
@@ -197,7 +198,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            await ViewModel.ShowErrorAsync($"Cannot open file: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Cannot open file: {ex.Message}");
         }
     }
 
@@ -206,11 +207,11 @@ public sealed partial class EditorPage : Page
         var (tab, content) = GetSelectedTabContent();
         if ( tab is null || content is null )
         {
-            await ViewModel.ShowErrorAsync("There is no open document");
+            await _viewModel.ShowErrorAsync("There is no open document");
             return;
         }
 
-        await ViewModel.HandleSaveFile(content);
+        await _viewModel.HandleSaveFile(content);
         content.MarkAsClean();
         tab.Header = content.GetFileName();
     }
@@ -222,14 +223,14 @@ public sealed partial class EditorPage : Page
             var (tab, content) = GetSelectedTabContent();
             if ( content is not null )
             {
-                await ViewModel.SaveFileToPath(filePath , content);
+                await _viewModel.SaveFileToPath(filePath , content);
                 content.MarkAsClean();
                 tab?.Header = content.GetFileName();
             }
         }
         catch ( Exception ex )
         {
-            await ViewModel.ShowErrorAsync($"Cannot save file: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Cannot save file: {ex.Message}");
         }
     }
 
@@ -274,7 +275,7 @@ public sealed partial class EditorPage : Page
     {
         if ( args.Tab.Content is IEditableContent { } content && content.IsDirty() )
         {
-            if ( !await ViewModel.ShowConfirmationAsync($"Do you want to close '{content.GetFileName()}' without saving changes?") )
+            if ( !await _viewModel.ShowConfirmationAsync($"Do you want to close '{content.GetFileName()}' without saving changes?") )
                 return;
         }
 
@@ -294,7 +295,7 @@ public sealed partial class EditorPage : Page
         if ( treeview.SelectedItem is not TreeViewNode { Content: IStorageItem item } node )
             return;
 
-        if ( !await ViewModel.ShowConfirmationAsync($"Do you want to delete: {item.Name}?") )
+        if ( !await _viewModel.ShowConfirmationAsync($"Do you want to delete: {item.Name}?") )
             return;
 
         try
@@ -334,7 +335,7 @@ public sealed partial class EditorPage : Page
         }
         catch ( Exception ex )
         {
-            await ViewModel.ShowErrorAsync($"Error deleting item: {ex.Message}");
+            await _viewModel.ShowErrorAsync($"Error deleting item: {ex.Message}");
         }
     }
 
