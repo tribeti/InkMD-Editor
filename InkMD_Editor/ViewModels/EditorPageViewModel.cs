@@ -14,10 +14,10 @@ using Windows.Storage.Streams;
 
 namespace InkMD_Editor.ViewModels;
 
-public partial class EditorPageViewModel () : ObservableObject
+public partial class EditorPageViewModel (FileService fileService , DialogService dialogService) : ObservableObject
 {
-    private readonly FileService _fileService = new();
-    private DialogService _dialogService = new();
+    private readonly FileService _fileService = fileService;
+    private DialogService _dialogService = dialogService;
 
     [ObservableProperty]
     public partial string? RootPath { get; set; }
@@ -28,8 +28,6 @@ public partial class EditorPageViewModel () : ObservableObject
             ? path
             : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     }
-
-    public void SetDialogService (DialogService dialogService) => _dialogService = dialogService;
 
     public async Task<TreeViewNode?> InitializeTreeViewAsync ()
     {
