@@ -339,17 +339,22 @@ public sealed partial class EditorPage : Page
         }
     }
 
-    private static bool IsDescendantPath (string? descendantPath , string? ancestorPath)
+    private static bool IsDescendantPath (string descendantPath , string ancestorPath)
     {
         if ( string.IsNullOrEmpty(descendantPath) || string.IsNullOrEmpty(ancestorPath) )
             return false;
+
         try
         {
-            var descendant = Path.GetFullPath(descendantPath).TrimEnd(Path.DirectorySeparatorChar);
-            var ancestor = Path.GetFullPath(ancestorPath).TrimEnd(Path.DirectorySeparatorChar);
-            return descendant.StartsWith(ancestor + Path.DirectorySeparatorChar , StringComparison.OrdinalIgnoreCase);
+            var normalizedDescendant = Path.GetFullPath(descendantPath).TrimEnd(Path.DirectorySeparatorChar , Path.AltDirectorySeparatorChar);
+            var normalizedAncestor = Path.GetFullPath(ancestorPath).TrimEnd(Path.DirectorySeparatorChar , Path.AltDirectorySeparatorChar);
+
+            return normalizedDescendant.StartsWith(normalizedAncestor + Path.DirectorySeparatorChar , StringComparison.OrdinalIgnoreCase);
         }
-        catch { return false; }
+        catch
+        {
+            return false;
+        }
     }
 }
 
