@@ -16,8 +16,8 @@ namespace InkMD_Editor.ViewModels;
 
 public partial class EditorPageViewModel (IFileService fileService , IDialogService dialogService) : ObservableObject
 {
-    private readonly IFileService _fileService = fileService;
-    private readonly IDialogService _dialogService = dialogService;
+    private readonly IFileService _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
+    private readonly IDialogService _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
     [ObservableProperty]
     public partial string? RootPath { get; set; }

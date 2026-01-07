@@ -27,13 +27,13 @@ public sealed partial class EditorPage : Page
         _dialogService = app.Services.GetRequiredService<IDialogService>();
 
         InitializeComponent();
-        _viewModel.Initialize();
-        InitTreeView();
-        SetupMessengers();
 
-        Loaded += (s , e) =>
+        Loaded += async (s , e) =>
         {
             _dialogService.SetXamlRoot(XamlRoot);
+            _viewModel.Initialize();
+            await InitTreeViewAsync();
+            SetupMessengers();
         };
     }
 
@@ -128,7 +128,7 @@ public sealed partial class EditorPage : Page
         tabContent.SetContent(newContent! , tabContent.GetFileName());
     }
 
-    private async void InitTreeView ()
+    private async Task InitTreeViewAsync ()
     {
         if ( await _viewModel.InitializeTreeViewAsync() is { } node )
         {
