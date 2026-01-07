@@ -14,35 +14,26 @@ using Windows.Storage.Streams;
 
 namespace InkMD_Editor.ViewModels;
 
-public partial class EditorPageViewModel : ObservableObject
+public partial class EditorPageViewModel (IFileService fileService , IDialogService dialogService) : ObservableObject
 {
-    private readonly FileService _fileService = new();
-    private DialogService _dialogService = new();
+    private readonly IFileService _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
+    private readonly IDialogService _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
     [ObservableProperty]
     public partial string? RootPath { get; set; }
 
-    public EditorPageViewModel ()
+    public void Initialize ()
     {
-        InitializeRootPath();
-    }
-
-    private void InitializeRootPath ()
-    {
-        RootPath = AppSettings.GetLastFolderPath();
-        if ( string.IsNullOrEmpty(RootPath) )
-        {
-            RootPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-        }
-    }
-
-    public void SetDialogService (DialogService dialogService)
-    {
-        _dialogService = dialogService;
+        RootPath = AppSettings.GetLastFolderPath() is { Length: > 0 } path
+            ? path
+            : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     }
 
     public async Task<TreeViewNode?> InitializeTreeViewAsync ()
     {
+        if ( string.IsNullOrEmpty(RootPath) )
+            Initialize();
+
         try
         {
             var folder = await StorageFolder.GetFolderFromPathAsync(RootPath!);
@@ -68,23 +59,19 @@ public partial class EditorPageViewModel : ObservableObject
         }
         catch ( Exception ex )
         {
-            await ShowErrorAsync($"TreeView can not refresh: {ex.Message}");
+            await ShowErrorAsync($"Cannot refresh tree: {ex.Message}");
             return null;
         }
     }
 
     public async Task<bool> FillTreeNodeAsync (TreeViewNode node)
     {
-        var folder = GetStorageFolder(node);
-        if ( folder is null )
-        {
+        if ( GetStorageFolder(node) is not { } folder )
             return false;
-        }
 
         try
         {
             var itemsList = await folder.GetItemsAsync();
-
             if ( itemsList.Count == 0 )
             {
                 node.HasUnrealizedChildren = false;
@@ -93,12 +80,11 @@ public partial class EditorPageViewModel : ObservableObject
 
             foreach ( var item in itemsList )
             {
-                var newNode = new TreeViewNode
+                node.Children.Add(new TreeViewNode
                 {
                     Content = item ,
                     HasUnrealizedChildren = item is StorageFolder
-                };
-                node.Children.Add(newNode);
+                });
             }
 
             node.HasUnrealizedChildren = false;
@@ -117,18 +103,15 @@ public partial class EditorPageViewModel : ObservableObject
         node.HasUnrealizedChildren = true;
     }
 
-    private static TreeViewNode CreateTreeViewNode (StorageFolder folder) =>
-        new()
-        {
-            Content = folder ,
-            IsExpanded = true ,
-            HasUnrealizedChildren = true
-        };
+    private static TreeViewNode CreateTreeViewNode (StorageFolder folder) => new()
+    {
+        Content = folder ,
+        IsExpanded = true ,
+        HasUnrealizedChildren = true
+    };
 
     private static StorageFolder? GetStorageFolder (TreeViewNode node) =>
-        node.Content is StorageFolder && node.HasUnrealizedChildren
-            ? node.Content as StorageFolder
-            : null;
+        node is { Content: StorageFolder folder, HasUnrealizedChildren: true } ? folder : null;
 
     public async Task<(string content, string fileName, string filePath)?> OpenFileAsync (StorageFile file)
     {
@@ -169,8 +152,10 @@ public partial class EditorPageViewModel : ObservableObject
         try
         {
             await File.WriteAllLinesAsync(filePath , content.GetContentToSaveFile() , Encoding.UTF8);
-            content.SetFilePath(filePath , Path.GetFileName(filePath));
-            WeakReferenceMessenger.Default.Send(new FileSavedMessage(filePath , Path.GetFileName(filePath)));
+            var fileName = Path.GetFileName(filePath);
+
+            content.SetFilePath(filePath , fileName);
+            WeakReferenceMessenger.Default.Send(new FileSavedMessage(filePath , fileName));
         }
         catch ( Exception ex )
         {
@@ -178,24 +163,19 @@ public partial class EditorPageViewModel : ObservableObject
         }
     }
 
-    public (bool success, string? content, string? error) CreateNewTabContent (string templateContent , int tabCount)
-    {
-        return (true, templateContent, null);
-    }
+    public (bool success, string? content, string? error) CreateNewTabContent (string templateContent , int tabCount) => (true, templateContent, null);
 
     public async Task<(bool success, string? newContent, string? error)> InsertIntoDocumentAsync (string templateContent , IEditableContent? tabContent)
     {
         if ( tabContent is null )
-        {
             return (false, null, "Cannot access current documents.");
-        }
 
         try
         {
             var currentContent = tabContent.GetContent();
             var newContent = string.IsNullOrWhiteSpace(currentContent)
                 ? templateContent
-                : currentContent + "\n\n" + templateContent;
+                : $"{currentContent}\n\n{templateContent}";
 
             return (true, newContent, null);
         }
@@ -210,21 +190,15 @@ public partial class EditorPageViewModel : ObservableObject
         try
         {
             var buffer = await FileIO.ReadBufferAsync(file);
-            var bytes = BufferToBytes(buffer);
+            using var dataReader = DataReader.FromBuffer(buffer);
+            var bytes = new byte [buffer.Length];
+            dataReader.ReadBytes(bytes);
             return DetectAndDecodeBytes(bytes);
         }
         catch
         {
             return string.Empty;
         }
-    }
-
-    private static byte [] BufferToBytes (IBuffer buffer)
-    {
-        using var dataReader = DataReader.FromBuffer(buffer);
-        var bytes = new byte [buffer.Length];
-        dataReader.ReadBytes(bytes);
-        return bytes;
     }
 
     private static string DetectAndDecodeBytes (ReadOnlySpan<byte> bytes)
@@ -234,19 +208,13 @@ public partial class EditorPageViewModel : ObservableObject
         ReadOnlySpan<byte> utf16BeBom = [0xFE , 0xFF];
 
         if ( bytes.Length >= 3 && bytes [..3].SequenceEqual(utf8Bom) )
-        {
             return Encoding.UTF8.GetString(bytes [3..]);
-        }
 
         if ( bytes.Length >= 2 && bytes [..2].SequenceEqual(utf16LeBom) )
-        {
             return Encoding.Unicode.GetString(bytes [2..]);
-        }
 
         if ( bytes.Length >= 2 && bytes [..2].SequenceEqual(utf16BeBom) )
-        {
             return Encoding.BigEndianUnicode.GetString(bytes [2..]);
-        }
 
         try
         {
@@ -260,9 +228,7 @@ public partial class EditorPageViewModel : ObservableObject
 
     public bool IsMarkdownFile (StorageFile? file) => file?.FileType.Equals(".md" , StringComparison.OrdinalIgnoreCase) ?? false;
 
-    public async Task ShowErrorAsync (string message) => await _dialogService.ShowErrorAsync(message);
-
-    public async Task ShowSuccessAsync (string message) => await _dialogService.ShowSuccessAsync(message);
-
-    public async Task<bool> ShowConfirmationAsync (string message) => await _dialogService.ShowConfirmationAsync(message);
+    public Task ShowErrorAsync (string message) => _dialogService.ShowErrorAsync(message);
+    public Task ShowSuccessAsync (string message) => _dialogService.ShowSuccessAsync(message);
+    public Task<bool> ShowConfirmationAsync (string message) => _dialogService.ShowConfirmationAsync(message);
 }

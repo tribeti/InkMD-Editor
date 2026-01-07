@@ -73,7 +73,8 @@
                     RelativePanel.AlignLeftWithPanel="True"
                     RelativePanel.AlignRightWithPanel="True"
                     RelativePanel.AlignTopWithPanel="True"
-                    Text="{x:Bind _viewModel.RootPath}" />
+                    Text="{x:Bind _viewModel.RootPath, Mode=OneWay}" />
+
                 <AutoSuggestBox
                     x:Name="Box"
                     Margin="12,8"
@@ -82,6 +83,7 @@
                     RelativePanel.AlignLeftWithPanel="True"
                     RelativePanel.AlignRightWithPanel="True"
                     RelativePanel.Below="dir" />
+
                 <ScrollViewer
                     ContextFlyout="{StaticResource MyContextMenu}"
                     HorizontalScrollBarVisibility="Auto"
@@ -90,6 +92,7 @@
                     RelativePanel.AlignRightWithPanel="True"
                     RelativePanel.Below="Box"
                     VerticalScrollBarVisibility="Auto">
+
                     <TreeView
                         x:Name="treeview"
                         Padding="8"
