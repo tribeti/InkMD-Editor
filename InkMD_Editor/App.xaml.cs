@@ -44,7 +44,7 @@ public partial class App : Application
     protected override void OnLaunched (LaunchActivatedEventArgs args)
     {
         MainWindow = Services.GetRequiredService<MainWindow>();
-        ThemeService.ApplyTheme(MainWindow);
+        Services.GetRequiredService<ThemeService>().ApplyTheme(MainWindow);
         MainWindow.Activate();
     }
 }

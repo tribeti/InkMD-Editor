@@ -43,7 +43,7 @@ public class ThemeService
         };
     }
 
-    public static void ApplyTheme (Window window)
+    public void ApplyTheme (Window window)
     {
         if ( window?.Content is FrameworkElement rootElement )
         {
