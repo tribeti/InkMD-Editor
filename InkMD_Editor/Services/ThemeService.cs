@@ -15,12 +15,12 @@ public class ThemeService
         Default = 2
     }
 
-    public static void SaveTheme (AppTheme theme)
+    public void SaveTheme (AppTheme theme)
     {
         ApplicationData.Current.LocalSettings.Values [ThemeSettingKey] = (int) theme;
     }
 
-    public static AppTheme GetSavedTheme ()
+    public AppTheme GetSavedTheme ()
     {
         if ( ApplicationData.Current.LocalSettings.Values.TryGetValue(ThemeSettingKey , out object? value) && value is int themeValue )
         {
@@ -32,7 +32,7 @@ public class ThemeService
         return AppTheme.Default;
     }
 
-    public static ElementTheme ToElementTheme (AppTheme theme)
+    public ElementTheme ToElementTheme (AppTheme theme)
     {
         return theme switch
         {
@@ -52,7 +52,7 @@ public class ThemeService
         }
     }
 
-    public static void SetTheme (Window window , AppTheme theme)
+    public void SetTheme (Window window , AppTheme theme)
     {
         if ( window?.Content is FrameworkElement rootElement )
         {

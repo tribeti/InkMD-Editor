@@ -29,7 +29,7 @@ public class TemplateService
         try
         {
             var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            var file = await folder.GetFileAsync($"Assets\\Templates\\Icons\\{iconName}");
+            var file = await folder.GetFileAsync($"Assets\\Icons\\{iconName}");
             return await FileIO.ReadTextAsync(file);
         }
         catch ( FileNotFoundException )

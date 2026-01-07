@@ -2,6 +2,8 @@ using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Helpers;
 using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Linq;
@@ -10,9 +12,14 @@ namespace InkMD_Editor.Views;
 
 public sealed partial class SettingsPage : Page
 {
+    private readonly ThemeService _themeService;
+
     public SettingsPage ()
     {
         InitializeComponent();
+        var app = (App) Application.Current;
+        _themeService = app.Services.GetRequiredService<ThemeService>();
+
         LoadSavedTheme();
         LoadSavedFontAndSize();
     }
@@ -28,24 +35,21 @@ public sealed partial class SettingsPage : Page
 
     private void LoadSavedTheme ()
     {
-        var savedTheme = ThemeService.GetSavedTheme();
+        var savedTheme = _themeService.GetSavedTheme();
         ThemeComboBox.SelectedItem = ThemeComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(item => item.Tag as string == savedTheme.ToString());
     }
 
     private void ThemeComboBox_SelectionChanged (object sender , SelectionChangedEventArgs e)
     {
         if ( ThemeComboBox.SelectedItem is not ComboBoxItem { Tag: string themeTag } )
-        {
             return;
-        }
 
-        if ( Enum.TryParse<ThemeService.AppTheme>(themeTag , out var selectedTheme) )
+        if ( !Enum.TryParse<ThemeService.AppTheme>(themeTag , out var selectedTheme) )
+            return;
+
+        if ( App.MainWindow is Window window )
         {
-            var window = App.MainWindow;
-            if ( window is not null )
-            {
-                ThemeService.SetTheme(window , selectedTheme);
-            }
+            _themeService.SetTheme(window , selectedTheme);
         }
     }
 
@@ -72,19 +76,14 @@ public sealed partial class SettingsPage : Page
         var fontFamily = AppSettings.GetFontFamily();
         var fontSize = AppSettings.GetFontSize();
 
-        var message = new FontChangedMessage(fontFamily , fontSize);
-        WeakReferenceMessenger.Default.Send(message);
+        WeakReferenceMessenger.Default.Send(new FontChangedMessage(fontFamily , fontSize));
     }
 
-    private void Button_Click (object sender , Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void Button_Click (object sender , RoutedEventArgs e)
     {
         if ( Frame.CanGoBack )
-        {
             Frame.GoBack();
-        }
         else
-        {
             Frame.Navigate(typeof(EditorPage));
-        }
     }
 }

@@ -24,7 +24,6 @@ public partial class App : Application
         // Register Services
         services.AddSingleton<IFileService , FileService>();
         services.AddSingleton<IDialogService , DialogService>();
-        services.AddSingleton<TemplateService>();
         services.AddSingleton<ThemeService>();
 
         // Register ViewModels
