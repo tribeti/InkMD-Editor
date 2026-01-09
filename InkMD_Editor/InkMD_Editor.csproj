@@ -17,7 +17,7 @@
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
 	<ItemGroup>
-		<Content Include="Assets\**\*.*" Exclude="Assets\.git\**\*">
+		<Content Include="Assets\**\*.*" Exclude="Assets\.git,Assets\.github,Assets\README.md">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
@@ -93,9 +93,9 @@
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<PublishTrimmed>False</PublishTrimmed>
 		<!--<PublishAot>true</PublishAot>-->
-		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-		<PackageCertificateThumbprint>F8493499E06722E9441803E4272B82EF30EF0DDB</PackageCertificateThumbprint>
+		<PackageCertificateThumbprint>BC0EB1E314406027A3C8AB6D9E1AC1B45F47F42A</PackageCertificateThumbprint>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
@@ -104,5 +104,6 @@
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
 		<AppxPackageDir>D:\VS\InkMD-Editor\Output\</AppxPackageDir>
+		<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
 	</PropertyGroup>
 </Project>
