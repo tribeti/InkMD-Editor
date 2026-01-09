@@ -45,9 +45,9 @@
 		<PackageReference Include="Markdig" Version="0.44.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
 		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.3.2" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7463" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
-		<PackageReference Include="TextControlBox.WinUI.JuliusKirsch" Version="1.5.1" />
+		<PackageReference Include="TextControlBox.WinUI.JuliusKirsch" Version="1.6.0" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="Controls\EditTabViewContent.xaml">
@@ -99,7 +99,7 @@
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
-		<AppxBundle>Always</AppxBundle>
+		<AppxBundle>Never</AppxBundle>
 		<AppInstallerUri>D:\VS\InkMD-Editor\Output</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
