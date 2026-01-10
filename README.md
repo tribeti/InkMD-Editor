@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="180" src="https://raw.githubusercontent.com/tribeti/InkMD-Editor/main/assets/logo.png" alt="InkMD Logo" />
+  <img width="180" src="https://github.com/tribeti/InkMD-Assets/blob/main/Square400x400Logo.png?raw=true" alt="InkMD Logo" />
 </p>
 
 <p align="center">
