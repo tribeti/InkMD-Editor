@@ -43,7 +43,9 @@
 ---
 
 ## 🛠️ Installation
-You can download the pre-built binaries for Windows from the [Releases](https://github.com/tribeti/InkMD-Editor/releases) page.
+You can download the pre-built binaries for Windows from the [Releases](https://github.com/tribeti/InkMD-Editor/releases) page.  
+Or   
+you can download offically from [Microsoft Store](https://apps.microsoft.com/detail/9NNX83392BPP?hl=en-us&gl=US&ocid=pdpshare).
 
 ## 🔨 Build from source
 ### 1. Set up the environment
