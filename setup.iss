@@ -24,7 +24,7 @@ ArchitecturesInstallIn64BitMode=x64
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "D:\VS\InkMD-Editor\Output\InkMD_Editor_0.1.1.0_Test\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\VS\InkMD-Editor\Output\InkMD_Editor_0.1.3.0_x64_Test\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Source: "D:\VS\InkMD-Editor\Output\runtime\windowsdesktop-runtime-10.0.1-win-x64.exe"; Flags: dontcopy
 
 [Icons]

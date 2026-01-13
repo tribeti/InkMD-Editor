@@ -19,6 +19,7 @@ public sealed partial class EditorPage : Page
 {
     private readonly EditorPageViewModel _viewModel;
     private readonly IDialogService _dialogService;
+    private bool _isInitialized = false;
 
     public EditorPage ()
     {
@@ -30,10 +31,13 @@ public sealed partial class EditorPage : Page
 
         Loaded += async (s , e) =>
         {
+            if ( _isInitialized )
+                return;
             _dialogService.SetXamlRoot(XamlRoot);
             _viewModel.Initialize();
             await InitTreeViewAsync();
             SetupMessengers();
+            _isInitialized = true;
         };
     }
 

@@ -26,13 +26,11 @@ public partial class App : Application
         services.AddSingleton<IDialogService , DialogService>();
         services.AddSingleton<ThemeService>();
 
-        // Register ViewModels
+        // Register ViewModels & Views
         services.AddTransient<EditorPageViewModel>();
         services.AddTransient<MainMenuViewModel>();
         services.AddTransient<TabViewContentViewModel>();
         services.AddTransient<EditTabViewModel>();
-
-        // Register Views (Pages)
         services.AddSingleton<MainWindow>();
         services.AddTransient<Views.EditorPage>();
         services.AddTransient<Views.SettingsPage>();

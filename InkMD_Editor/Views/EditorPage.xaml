@@ -62,11 +62,31 @@
 
         <Grid x:Name="Body" Grid.Row="1">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MaxWidth="50" />
                 <ColumnDefinition Width="Auto" MinWidth="200" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <RelativePanel Grid.Column="0" Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
+            <RelativePanel
+                Grid.Column="0"
+                Margin="16,0,0,0"
+                Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
+                <Button x:Name="File">
+                    <FontIcon Glyph="&#xE8D5;" />
+                </Button>
+                <Button
+                    x:Name="Github"
+                    Margin="0,8,0,0"
+                    RelativePanel.AlignHorizontalCenterWith="File"
+                    RelativePanel.Below="File">
+                    <Image
+                        Width="20"
+                        Height="20"
+                        Source="{ThemeResource ImageSource}" />
+                </Button>
+            </RelativePanel>
+
+            <RelativePanel Grid.Column="1" Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
                 <TextBlock
                     x:Name="dir"
                     Padding="16,8,0,0"
@@ -107,6 +127,7 @@
             </RelativePanel>
 
             <controls:GridSplitter
+                Grid.Column="1"
                 Width="8"
                 HorizontalAlignment="Right"
                 ResizeBehavior="BasedOnAlignment"
@@ -116,7 +137,7 @@
                 </controls:GridSplitter.RenderTransform>
             </controls:GridSplitter>
 
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="2">
                 <TabView
                     x:Name="Tabs"
                     VerticalAlignment="Stretch"

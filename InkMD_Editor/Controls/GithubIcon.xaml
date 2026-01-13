@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:InkMD_Editor.Controls">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <ImageSource x:Key="ImageSource">ms-appx:///Assets/github-mark.png</ImageSource>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <ImageSource x:Key="ImageSource">ms-appx:///Assets/github-mark-white.png</ImageSource>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>
