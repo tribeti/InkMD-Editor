@@ -32,6 +32,7 @@
 	<ItemGroup>
 	  <None Remove="Controls\AboutDialog.xaml" />
 	  <None Remove="Controls\EditTabViewContent.xaml" />
+	  <None Remove="Controls\GithubIcon.xaml" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" Version="0.1.251101-build.2372" />
@@ -48,6 +49,11 @@
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7463" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
 		<PackageReference Include="TextControlBox.WinUI.JuliusKirsch" Version="1.6.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Controls\GithubIcon.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="Controls\EditTabViewContent.xaml">
@@ -105,5 +111,10 @@
 		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
 		<AppxPackageDir>D:\VS\InkMD-Editor\Output\</AppxPackageDir>
 		<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+
+		<SelfContained>true</SelfContained>
+		<!-- To embed native binaries of the core runtime that are separate files into the single file. -->
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
 	</PropertyGroup>
 </Project>
