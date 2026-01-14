@@ -283,7 +283,7 @@ public sealed partial class EditorPage : Page
         }
 
         if ( args.Tab.Content is TabViewContent tabContent )
-            tabContent.DisposeWebView();
+            tabContent.Dispose();
 
         sender.TabItems.Remove(args.Tab);
 

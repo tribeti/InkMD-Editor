@@ -12,6 +12,5 @@ public class ContentService
         _contentState = new State<string>(string.Empty);
     }
 
-    public IDisposable SubcribetoContentChanges (Action<string> onChange) => _contentState.Subscribe(onChange);
-
+    public IDisposable SubscribeToContentChanges (Action<string> onChange) => _contentState.Subscribe(onChange);
 }

@@ -182,4 +182,10 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         MarkdownPreview_Split?.Close();
         MarkdownPreview?.Close();
     }
+
+    public void Dispose ()
+    {
+        ViewModel.Dispose();
+        DisposeWebView();
+    }
 }

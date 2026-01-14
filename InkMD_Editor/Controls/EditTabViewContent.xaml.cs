@@ -54,4 +54,9 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     {
         ViewModel.CurrentContent = sender.GetText();
     }
+
+    public void Dispose ()
+    {
+        ViewModel.Dispose();
+    }
 }
