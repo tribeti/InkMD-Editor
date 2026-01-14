@@ -22,12 +22,11 @@ public static class TemplateService
         {
             var files = await GetFilesFromFolderAsync(TemplatesPath , [".md"]);
 
-            return files.Select(file => new MdTemplate
-            {
-                FileName = file.Name ,
-                DisplayName = Path.GetFileNameWithoutExtension(file.Name) ,
-                Path = file.Path
-            }).ToList();
+            return files.Select(file => new MdTemplate(
+                file.Name ,
+                Path.GetFileNameWithoutExtension(file.Name) ,
+                file.Path
+            )).ToList();
         }
         catch ( Exception ex )
         {
@@ -42,12 +41,11 @@ public static class TemplateService
             var files = await GetFilesFromFolderAsync(IconsPath , [".svg"]);
 
             return files.OrderBy(f => f.Name)
-                        .Select(file => new IconItem
-                        {
-                            Name = Path.GetFileNameWithoutExtension(file.Name).ToLower() ,
-                            ImagePath = file.Path ,
-                            FileName = file.Name
-                        }).ToList();
+                        .Select(file => new IconItem(
+                            Path.GetFileNameWithoutExtension(file.Name).ToLower() ,
+                            file.Path ,
+                            file.Name
+                        )).ToList();
         }
         catch ( Exception ex )
         {

@@ -13,10 +13,13 @@ using System.Threading.Tasks;
 
 namespace InkMD_Editor.ViewModels;
 
-public partial class MainMenuViewModel : ObservableObject
+public partial class MainMenuViewModel (IFileService fileService) : ObservableObject
 {
-    private readonly FileService _fileService = new();
-    private readonly MarkdownPipeline _markdownPipeline;
+    private readonly IFileService _fileService = fileService;
+    private readonly MarkdownPipeline _markdownPipeline = new MarkdownPipelineBuilder()
+        .UseAdvancedExtensions()
+        .UseEmojiAndSmiley()
+        .Build();
 
     [ObservableProperty]
     public partial ObservableCollection<IconItem> IconItems { get; set; } = [];
@@ -35,14 +38,6 @@ public partial class MainMenuViewModel : ObservableObject
 
     [ObservableProperty]
     public partial bool TemplatesLoaded { get; set; }
-
-    public MainMenuViewModel ()
-    {
-        _markdownPipeline = new MarkdownPipelineBuilder()
-            .UseAdvancedExtensions()
-            .UseEmojiAndSmiley()
-            .Build();
-    }
 
     [RelayCommand]
     private async Task OpenFileAsync ()

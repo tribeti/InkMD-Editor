@@ -4,6 +4,7 @@ using InkMD_Editor.Messages;
 using InkMD_Editor.Models;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -17,12 +18,16 @@ namespace InkMD_Editor.Controls;
 
 public sealed partial class MainMenu : UserControl
 {
-    private readonly DialogService _dialogService = new();
-    private MainMenuViewModel ViewModel { get; set; } = new();
+    private readonly IDialogService _dialogService;
+    private MainMenuViewModel ViewModel { get; }
     private bool _isInternalUpdate = false;
 
     public MainMenu ()
     {
+        var app = (App) Application.Current;
+        _dialogService = app.Services.GetRequiredService<IDialogService>();
+        ViewModel = app.Services.GetRequiredService<MainMenuViewModel>();
+
         InitializeComponent();
         DataContext = ViewModel;
         Unloaded += (s , e) => Dispose();

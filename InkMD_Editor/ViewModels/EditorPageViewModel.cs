@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Helpers;
-using InkMD_Editor.Interfaces;
 using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
 using Microsoft.UI.Xaml.Controls;

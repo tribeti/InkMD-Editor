@@ -1,4 +1,4 @@
-﻿using InkMD_Editor.Interfaces;
+﻿using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ namespace InkMD_Editor.Controls;
 
 public sealed partial class EditTabViewContent : UserControl, IEditableContent
 {
-    public EditTabViewModel ViewModel { get; set; } = new();
+    public TabViewContentViewModel ViewModel { get; } = new();
 
     public EditTabViewContent ()
     {
