@@ -1,5 +1,5 @@
 ﻿using InkMD_Editor.Helpers;
-using InkMD_Editor.Interfaces;
+using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Markdig;
 using Microsoft.UI.Xaml.Controls;
@@ -181,5 +181,11 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     {
         MarkdownPreview_Split?.Close();
         MarkdownPreview?.Close();
+    }
+
+    public void Dispose ()
+    {
+        ViewModel.Dispose();
+        DisposeWebView();
     }
 }

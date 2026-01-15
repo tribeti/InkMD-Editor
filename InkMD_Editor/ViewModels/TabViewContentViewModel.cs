@@ -2,10 +2,11 @@
 using CommunityToolkit.Mvvm.Messaging;
 using InkMD_Editor.Helpers;
 using InkMD_Editor.Messages;
+using System;
 
 namespace InkMD_Editor.ViewModels;
 
-public partial class TabViewContentViewModel : ObservableObject, IRecipient<FontChangedMessage>
+public partial class TabViewContentViewModel : ObservableObject, IRecipient<FontChangedMessage>, IDisposable
 {
     [ObservableProperty]
     public partial string? FileName { get; set; }
@@ -104,5 +105,10 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     {
         FontFamily = message.FontFamily;
         FontSize = message.FontSize;
+    }
+
+    public void Dispose ()
+    {
+        WeakReferenceMessenger.Default.UnregisterAll(this);
     }
 }
