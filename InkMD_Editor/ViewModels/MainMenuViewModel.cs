@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace InkMD_Editor.ViewModels;
 
-public partial class MainMenuViewModel (IFileService fileService) : ObservableObject
+public partial class MainMenuViewModel(IFileService fileService) : ObservableObject
 {
     private readonly IFileService _fileService = fileService;
     private readonly MarkdownPipeline _markdownPipeline = new MarkdownPipelineBuilder()
@@ -40,54 +40,54 @@ public partial class MainMenuViewModel (IFileService fileService) : ObservableOb
     public partial bool TemplatesLoaded { get; set; }
 
     [RelayCommand]
-    private async Task OpenFileAsync ()
+    private async Task OpenFileAsync()
     {
         var storageFile = await _fileService.OpenFileAsync();
-        if ( storageFile is not null )
+        if (storageFile is not null)
         {
             WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
         }
     }
 
     [RelayCommand]
-    private async Task OpenFolderAsync ()
+    private async Task OpenFolderAsync()
     {
         var storageFolder = await _fileService.OpenFolderAsync();
-        if ( storageFolder is not null )
+        if (storageFolder is not null)
         {
             WeakReferenceMessenger.Default.Send(new FolderOpenedMessage(storageFolder));
         }
     }
 
     [RelayCommand]
-    private static void Save ()
+    private static void Save()
     {
         WeakReferenceMessenger.Default.Send(new SaveFileMessage(IsNewFile: false));
     }
 
     [RelayCommand]
-    private async Task SaveAsAsync ()
+    private async Task SaveAsAsync()
     {
         var filePath = await _fileService.SaveFileAsync();
-        if ( filePath is not null )
+        if (filePath is not null)
         {
             WeakReferenceMessenger.Default.Send(new SaveFileRequestMessage(filePath));
         }
     }
 
     [RelayCommand]
-    private static void ExitApplication () => App.Current.Exit();
+    private static void ExitApplication() => App.Current.Exit();
 
-    public async Task<bool> CreateFileAsync (string fileName , string extension)
+    public async Task<bool> CreateFileAsync(string fileName, string extension)
     {
-        if ( string.IsNullOrWhiteSpace(fileName) )
+        if (string.IsNullOrWhiteSpace(fileName))
         {
             fileName = "Untitled";
         }
 
-        var storageFile = await _fileService.CreateFileDirectlyAsync(fileName , extension);
+        var storageFile = await _fileService.CreateFileDirectlyAsync(fileName, extension);
 
-        if ( storageFile is not null )
+        if (storageFile is not null)
         {
             WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
             return true;
@@ -97,9 +97,9 @@ public partial class MainMenuViewModel (IFileService fileService) : ObservableOb
     }
 
     [RelayCommand]
-    private async Task LoadTemplatesAsync ()
+    private async Task LoadTemplatesAsync()
     {
-        if ( TemplatesLoaded )
+        if (TemplatesLoaded)
         {
             return;
         }
@@ -108,7 +108,7 @@ public partial class MainMenuViewModel (IFileService fileService) : ObservableOb
         TemplatesLoaded = true;
     }
 
-    public async Task<string?> LoadTemplateContentAsync (string fileName)
+    public async Task<string?> LoadTemplateContentAsync(string fileName)
     {
         try
         {
@@ -120,15 +120,15 @@ public partial class MainMenuViewModel (IFileService fileService) : ObservableOb
         }
     }
 
-    public void SendTemplateSelectedMessage (string content , bool createNewFile)
+    public void SendTemplateSelectedMessage(string content, bool createNewFile)
     {
-        WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content , createNewFile));
+        WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content, createNewFile));
     }
 
     [RelayCommand]
-    private async Task LoadIconsAsync ()
+    private async Task LoadIconsAsync()
     {
-        if ( IconsLoaded )
+        if (IconsLoaded)
         {
             return;
         }
@@ -137,63 +137,63 @@ public partial class MainMenuViewModel (IFileService fileService) : ObservableOb
         IconsLoaded = true;
     }
 
-    public void AddSelectedIcon (string iconName)
+    public void AddSelectedIcon(string iconName)
     {
-        if ( !SelectedIcons.Contains(iconName) )
+        if (!SelectedIcons.Contains(iconName))
         {
             SelectedIcons.Add(iconName);
             UpdateGeneratedIconCode();
         }
     }
 
-    public void RemoveSelectedIcon (string iconName)
+    public void RemoveSelectedIcon(string iconName)
     {
         SelectedIcons.Remove(iconName);
         UpdateGeneratedIconCode();
     }
 
-    public void ClearSelectedIcons ()
+    public void ClearSelectedIcons()
     {
         SelectedIcons.Clear();
         UpdateGeneratedIconCode();
     }
 
-    private void UpdateGeneratedIconCode ()
+    private void UpdateGeneratedIconCode()
     {
         GeneratedIconCode = SelectedIcons.Count == 0
             ? "![](https://ink-md-server.vercel.app/api?i=)"
-            : $"![](https://ink-md-server.vercel.app/api?i={string.Join("," , SelectedIcons)})";
+            : $"![](https://ink-md-server.vercel.app/api?i={string.Join(",", SelectedIcons)})";
     }
 
-    public string ConvertMarkdownToHtml (string markdown)
+    public string ConvertMarkdownToHtml(string markdown)
     {
-        if ( string.IsNullOrWhiteSpace(markdown) )
+        if (string.IsNullOrWhiteSpace(markdown))
         {
             return GitHubPreview.GetEmptyPreviewHtml();
         }
 
-        var htmlBody = Markdown.ToHtml(markdown , _markdownPipeline);
+        var htmlBody = Markdown.ToHtml(markdown, _markdownPipeline);
         return GitHubPreview.WrapWithGitHubStyle(htmlBody);
     }
 
-    private void SendEditCommand (EditCommandType commandType) => WeakReferenceMessenger.Default.Send(new EditCommandMessage(commandType));
+    private void SendEditCommand(EditCommandType commandType) => WeakReferenceMessenger.Default.Send(new EditCommandMessage(commandType));
 
     [RelayCommand]
-    private void Undo () => SendEditCommand(EditCommandType.Undo);
+    private void Undo() => SendEditCommand(EditCommandType.Undo);
 
     [RelayCommand]
-    private void Redo () => SendEditCommand(EditCommandType.Redo);
+    private void Redo() => SendEditCommand(EditCommandType.Redo);
 
     [RelayCommand]
-    private void Cut () => SendEditCommand(EditCommandType.Cut);
+    private void Cut() => SendEditCommand(EditCommandType.Cut);
 
     [RelayCommand]
-    private void Copy () => SendEditCommand(EditCommandType.Copy);
+    private void Copy() => SendEditCommand(EditCommandType.Copy);
 
     [RelayCommand]
-    private void Paste () => SendEditCommand(EditCommandType.Paste);
+    private void Paste() => SendEditCommand(EditCommandType.Paste);
 
-    public void Cleanup ()
+    public void Cleanup()
     {
         Templates.Clear();
         IconItems.Clear();

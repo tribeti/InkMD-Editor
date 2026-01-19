@@ -117,5 +117,9 @@
 		<!-- To embed native binaries of the core runtime that are separate files into the single file. -->
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+		<Authors>tribeti</Authors>
+		<Title>InkMD Editor</Title>
+		<Description>InkMD Editor is a powerful yet lightweight desktop application designed for developers and writers who demand a seamless Markdown experience.</Description>
+		<RepositoryUrl>https://github.com/tribeti/InkMD-Editor</RepositoryUrl>
 	</PropertyGroup>
 </Project>

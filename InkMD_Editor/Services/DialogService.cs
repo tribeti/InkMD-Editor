@@ -9,48 +9,48 @@ public class DialogService : IDialogService
 {
     private XamlRoot? _xamlRoot;
 
-    public void SetXamlRoot (XamlRoot xamlRoot) => _xamlRoot = xamlRoot;
+    public void SetXamlRoot(XamlRoot xamlRoot) => _xamlRoot = xamlRoot;
 
-    public async Task ShowErrorAsync (string message)
+    public async Task ShowErrorAsync(string message)
     {
-        if ( _xamlRoot is null )
+        if (_xamlRoot is null)
             return;
         var dialog = new ContentDialog
         {
-            Title = "Error" ,
-            Content = message ,
-            CloseButtonText = "OK" ,
+            Title = "Error",
+            Content = message,
+            CloseButtonText = "OK",
             XamlRoot = _xamlRoot
         };
         await dialog.ShowAsync();
     }
 
-    public async Task ShowSuccessAsync (string message)
+    public async Task ShowSuccessAsync(string message)
     {
-        if ( _xamlRoot is null )
+        if (_xamlRoot is null)
             return;
         var dialog = new ContentDialog
         {
-            Title = "Done" ,
-            Content = message ,
-            CloseButtonText = "OK" ,
+            Title = "Done",
+            Content = message,
+            CloseButtonText = "OK",
             XamlRoot = _xamlRoot
         };
         await dialog.ShowAsync();
     }
 
-    public async Task<bool> ShowConfirmationAsync (string message)
+    public async Task<bool> ShowConfirmationAsync(string message)
     {
-        if ( _xamlRoot is null )
+        if (_xamlRoot is null)
             return false;
 
         var dialog = new ContentDialog
         {
-            Title = "Confirm" ,
-            Content = message ,
-            PrimaryButtonText = "Yes" ,
-            CloseButtonText = "No" ,
-            DefaultButton = ContentDialogButton.Primary ,
+            Title = "Confirm",
+            Content = message,
+            PrimaryButtonText = "Yes",
+            CloseButtonText = "No",
+            DefaultButton = ContentDialogButton.Primary,
             XamlRoot = _xamlRoot
         };
         ContentDialogResult result = await dialog.ShowAsync();

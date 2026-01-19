@@ -10,14 +10,14 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 {
     public TabViewContentViewModel ViewModel { get; } = new();
 
-    public EditTabViewContent ()
+    public EditTabViewContent()
     {
         InitializeComponent();
         EditBox.EnableSyntaxHighlighting = true;
         EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
     }
 
-    public void SetContent (string text , string? fileName)
+    public void SetContent(string text, string? fileName)
     {
         ViewModel.IsLoadingContent = true;
         ViewModel.FileName = fileName;
@@ -26,36 +26,36 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         ViewModel.IsLoadingContent = false;
     }
 
-    public string GetContent () => EditBox.GetText() ?? string.Empty;
+    public string GetContent() => EditBox.GetText() ?? string.Empty;
 
-    public IEnumerable<string> GetContentToSaveFile () => EditBox.Lines ?? [];
+    public IEnumerable<string> GetContentToSaveFile() => EditBox.Lines ?? [];
 
-    public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
+    public string GetFilePath() => ViewModel.FilePath ?? string.Empty;
 
-    public string GetFileName () => ViewModel.FileName ?? string.Empty;
+    public string GetFileName() => ViewModel.FileName ?? string.Empty;
 
-    public void SetFilePath (string filePath , string fileName) => ViewModel.SetFilePath(filePath , fileName);
+    public void SetFilePath(string filePath, string fileName) => ViewModel.SetFilePath(filePath, fileName);
 
-    public void Undo () => EditBox?.Undo();
+    public void Undo() => EditBox?.Undo();
 
-    public void Redo () => EditBox?.Redo();
+    public void Redo() => EditBox?.Redo();
 
-    public void Cut () => EditBox?.Cut();
+    public void Cut() => EditBox?.Cut();
 
-    public void Copy () => EditBox?.Copy();
+    public void Copy() => EditBox?.Copy();
 
-    public void Paste () => EditBox?.Paste();
+    public void Paste() => EditBox?.Paste();
 
-    public bool IsDirty () => ViewModel.IsDirty;
+    public bool IsDirty() => ViewModel.IsDirty;
 
-    public void MarkAsClean () => ViewModel.MarkAsClean();
+    public void MarkAsClean() => ViewModel.MarkAsClean();
 
-    private void EditBox_TextChanged (TextControlBox sender)
+    private void EditBox_TextChanged(TextControlBox sender)
     {
         ViewModel.CurrentContent = sender.GetText();
     }
 
-    public void Dispose ()
+    public void Dispose()
     {
         ViewModel.Dispose();
     }

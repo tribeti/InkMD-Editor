@@ -5,6 +5,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
   </Folder>
+  <Project Path="InkMD.Core/InkMD.Core.csproj" Id="9f78cb68-6477-44bf-898a-a313413092f0" />
   <Project Path="InkMD_Editor/InkMD_Editor.csproj">
     <Platform Project="x64" />
     <Deploy />

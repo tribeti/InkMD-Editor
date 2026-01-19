@@ -9,4 +9,4 @@ public enum EditCommandType
     Paste
 }
 
-public record EditCommandMessage (EditCommandType Command);
+public record EditCommandMessage(EditCommandType Command);

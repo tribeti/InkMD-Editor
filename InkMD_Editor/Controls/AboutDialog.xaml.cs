@@ -4,7 +4,7 @@ namespace InkMD_Editor.Controls;
 
 public sealed partial class AboutDialog : ContentDialog
 {
-    public AboutDialog ()
+    public AboutDialog()
     {
         InitializeComponent();
     }

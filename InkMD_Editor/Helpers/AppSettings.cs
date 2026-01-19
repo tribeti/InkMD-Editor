@@ -11,64 +11,64 @@ public static class AppSettings
     private const string FONT_FAMILY_KEY = "EditorFontFamily";
     private const string FONT_SIZE_KEY = "EditorFontSize";
 
-    public static string GetLastFolderPath ()
+    public static string GetLastFolderPath()
     {
-        if ( _localSettings.Values.TryGetValue(LAST_FOLDER_KEY , out var value) )
+        if (_localSettings.Values.TryGetValue(LAST_FOLDER_KEY, out var value))
         {
             return value?.ToString() ?? "";
         }
         return "";
     }
 
-    public static void SetLastFolderPath (string folderPath)
+    public static void SetLastFolderPath(string folderPath)
     {
-        _localSettings.Values [LAST_FOLDER_KEY] = folderPath;
+        _localSettings.Values[LAST_FOLDER_KEY] = folderPath;
     }
 
-    public static string GetLastOpenFolderPath ()
+    public static string GetLastOpenFolderPath()
     {
-        if ( _localSettings.Values.TryGetValue(LAST_OPEN_FOLDER_KEY , out var value) )
+        if (_localSettings.Values.TryGetValue(LAST_OPEN_FOLDER_KEY, out var value))
         {
             return value?.ToString() ?? "";
         }
         return "";
     }
 
-    public static void SetLastOpenFolderPath (string folderPath)
+    public static void SetLastOpenFolderPath(string folderPath)
     {
-        _localSettings.Values [LAST_OPEN_FOLDER_KEY] = folderPath;
+        _localSettings.Values[LAST_OPEN_FOLDER_KEY] = folderPath;
     }
 
-    public static string GetFontFamily ()
+    public static string GetFontFamily()
     {
-        if ( _localSettings.Values.TryGetValue(FONT_FAMILY_KEY , out var value) )
+        if (_localSettings.Values.TryGetValue(FONT_FAMILY_KEY, out var value))
         {
             return value?.ToString() ?? "Cascadia Mono";
         }
         return "Cascadia Mono";
     }
 
-    public static void SetFontFamily (string fontFamily)
+    public static void SetFontFamily(string fontFamily)
     {
-        _localSettings.Values [FONT_FAMILY_KEY] = fontFamily;
+        _localSettings.Values[FONT_FAMILY_KEY] = fontFamily;
     }
 
-    public static double GetFontSize ()
+    public static double GetFontSize()
     {
-        if ( _localSettings.Values.TryGetValue(FONT_SIZE_KEY , out var value) )
+        if (_localSettings.Values.TryGetValue(FONT_SIZE_KEY, out var value))
         {
-            if ( value is double doubleValue )
+            if (value is double doubleValue)
                 return doubleValue;
-            if ( value is int intValue )
+            if (value is int intValue)
                 return intValue;
-            if ( double.TryParse(value?.ToString() , out double parsedValue) )
+            if (double.TryParse(value?.ToString(), out double parsedValue))
                 return parsedValue;
         }
         return 14;
     }
 
-    public static void SetFontSize (double fontSize)
+    public static void SetFontSize(double fontSize)
     {
-        _localSettings.Values [FONT_SIZE_KEY] = fontSize;
+        _localSettings.Values[FONT_SIZE_KEY] = fontSize;
     }
 }

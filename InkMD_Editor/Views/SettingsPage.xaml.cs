@@ -14,7 +14,7 @@ public sealed partial class SettingsPage : Page
 {
     private readonly ThemeService _themeService;
 
-    public SettingsPage ()
+    public SettingsPage()
     {
         InitializeComponent();
         var app = (App) Application.Current;
@@ -24,7 +24,7 @@ public sealed partial class SettingsPage : Page
         LoadSavedFontAndSize();
     }
 
-    private void LoadSavedFontAndSize ()
+    private void LoadSavedFontAndSize()
     {
         var savedFontFamily = AppSettings.GetFontFamily();
         FontFamilyComboBox.SelectedItem = savedFontFamily;
@@ -33,55 +33,55 @@ public sealed partial class SettingsPage : Page
         FontSizeBox.Value = savedFontSize;
     }
 
-    private void LoadSavedTheme ()
+    private void LoadSavedTheme()
     {
         var savedTheme = _themeService.GetSavedTheme();
         ThemeComboBox.SelectedItem = ThemeComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(item => item.Tag as string == savedTheme.ToString());
     }
 
-    private void ThemeComboBox_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if ( ThemeComboBox.SelectedItem is not ComboBoxItem { Tag: string themeTag } )
+        if (ThemeComboBox.SelectedItem is not ComboBoxItem { Tag: string themeTag })
             return;
 
-        if ( !Enum.TryParse<ThemeService.AppTheme>(themeTag , out var selectedTheme) )
+        if (!Enum.TryParse<ThemeService.AppTheme>(themeTag, out var selectedTheme))
             return;
 
-        if ( App.MainWindow is Window window )
+        if (App.MainWindow is Window window)
         {
-            _themeService.SetTheme(window , selectedTheme);
+            _themeService.SetTheme(window, selectedTheme);
         }
     }
 
-    private void FontFamilyComboBox_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    private void FontFamilyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if ( FontFamilyComboBox.SelectedItem is string fontFamily )
+        if (FontFamilyComboBox.SelectedItem is string fontFamily)
         {
             AppSettings.SetFontFamily(fontFamily);
             FontSettingsChanged();
         }
     }
 
-    private void FontSizeBox_ValueChanged (NumberBox sender , NumberBoxValueChangedEventArgs args)
+    private void FontSizeBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
     {
-        if ( args.NewValue >= 8 && args.NewValue <= 72 )
+        if (args.NewValue >= 8 && args.NewValue <= 72)
         {
             AppSettings.SetFontSize(args.NewValue);
             FontSettingsChanged();
         }
     }
 
-    private void FontSettingsChanged ()
+    private void FontSettingsChanged()
     {
         var fontFamily = AppSettings.GetFontFamily();
         var fontSize = AppSettings.GetFontSize();
 
-        WeakReferenceMessenger.Default.Send(new FontChangedMessage(fontFamily , fontSize));
+        WeakReferenceMessenger.Default.Send(new FontChangedMessage(fontFamily, fontSize));
     }
 
-    private void Button_Click (object sender , RoutedEventArgs e)
+    private void Button_Click(object sender, RoutedEventArgs e)
     {
-        if ( Frame.CanGoBack )
+        if (Frame.CanGoBack)
             Frame.GoBack();
         else
             Frame.Navigate(typeof(EditorPage));

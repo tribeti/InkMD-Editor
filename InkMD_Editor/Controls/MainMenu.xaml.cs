@@ -22,7 +22,7 @@ public sealed partial class MainMenu : UserControl
     private MainMenuViewModel ViewModel { get; }
     private bool _isInternalUpdate = false;
 
-    public MainMenu ()
+    public MainMenu()
     {
         var app = (App) Application.Current;
         _dialogService = app.Services.GetRequiredService<IDialogService>();
@@ -30,17 +30,17 @@ public sealed partial class MainMenu : UserControl
 
         InitializeComponent();
         DataContext = ViewModel;
-        Unloaded += (s , e) => Dispose();
+        Unloaded += (s, e) => Dispose();
     }
 
-    public void SetVisibility (bool isVisible)
+    public void SetVisibility(bool isVisible)
     {
         DisplayMode.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    public void UpdateVisibilityForTab (object? tabContent)
+    public void UpdateVisibilityForTab(object? tabContent)
     {
-        if ( tabContent is not TabViewContent content )
+        if (tabContent is not TabViewContent content)
         {
             DisplayMode.Visibility = Visibility.Collapsed;
             return;
@@ -55,7 +55,7 @@ public sealed partial class MainMenu : UserControl
             var itemToSelect = DisplayMode.Items.OfType<SegmentedItem>()
                 .FirstOrDefault(item => item.Tag?.ToString() == currentMode);
 
-            if ( itemToSelect is not null )
+            if (itemToSelect is not null)
             {
                 DisplayMode.SelectedItem = itemToSelect;
             }
@@ -67,32 +67,32 @@ public sealed partial class MainMenu : UserControl
     }
 
 
-    private async void TemplateFlyout_Opening (object sender , object e)
+    private async void TemplateFlyout_Opening(object sender, object e)
     {
         try
         {
             await ViewModel.LoadTemplatesCommand.ExecuteAsync(null);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             await _dialogService.ShowErrorAsync($"Cannot load template: {ex.Message}");
         }
     }
 
-    private async void TemplateGridView_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    private async void TemplateGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if ( e.AddedItems.Count > 0 && e.AddedItems [0] is MdTemplate selectedTemplate )
+        if (e.AddedItems.Count > 0 && e.AddedItems[0] is MdTemplate selectedTemplate)
         {
             await HandleTemplateSelection(selectedTemplate);
         }
     }
 
-    private async Task HandleTemplateSelection (MdTemplate template)
+    private async Task HandleTemplateSelection(MdTemplate template)
     {
         try
         {
             var content = await ViewModel.LoadTemplateContentAsync(template.FileName);
-            if ( content is null )
+            if (content is null)
             {
                 await _dialogService.ShowErrorAsync("Cannot load template content");
                 return;
@@ -100,17 +100,17 @@ public sealed partial class MainMenu : UserControl
 
             TemplateFlyout.Hide();
             TemplateGridView.SelectedItem = null;
-            await ShowTemplatePreviewDialog(template.DisplayName , content);
+            await ShowTemplatePreviewDialog(template.DisplayName, content);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             await _dialogService.ShowErrorAsync($"Cannot load template: {ex.Message}");
         }
     }
 
-    private async Task ShowTemplatePreviewDialog (string templateName , string content)
+    private async Task ShowTemplatePreviewDialog(string templateName, string content)
     {
-        if ( TemplateDialog is null || previewWebView is null )
+        if (TemplateDialog is null || previewWebView is null)
         {
             await _dialogService.ShowErrorAsync("Error: Cannot load dialog");
             return;
@@ -125,7 +125,7 @@ public sealed partial class MainMenu : UserControl
             var html = ViewModel.ConvertMarkdownToHtml(content);
             previewWebView.NavigateToString(html);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             await _dialogService.ShowErrorAsync($"Cannot show preview: {ex.Message}");
             return;
@@ -134,17 +134,17 @@ public sealed partial class MainMenu : UserControl
         var result = await TemplateDialog.ShowAsync();
         CleanupWebView();
 
-        if ( result is ContentDialogResult.Primary )
+        if (result is ContentDialogResult.Primary)
         {
-            ViewModel.SendTemplateSelectedMessage(content , createNewFile: true);
+            ViewModel.SendTemplateSelectedMessage(content, createNewFile: true);
         }
-        else if ( result is ContentDialogResult.Secondary )
+        else if (result is ContentDialogResult.Secondary)
         {
-            ViewModel.SendTemplateSelectedMessage(content , createNewFile: false);
+            ViewModel.SendTemplateSelectedMessage(content, createNewFile: false);
         }
     }
 
-    private async void AppBarButton_Click (object sender , RoutedEventArgs e)
+    private async void AppBarButton_Click(object sender, RoutedEventArgs e)
     {
         ViewModel.ClearSelectedIcons();
         IconGridView.SelectedItems.Clear();
@@ -155,36 +155,36 @@ public sealed partial class MainMenu : UserControl
             IconsDialog.DefaultButton = ContentDialogButton.Primary;
             await IconsDialog.ShowAsync();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             await _dialogService.ShowErrorAsync($"Cannot load icon: {ex.Message}");
         }
     }
 
-    private void IconGridView_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    private void IconGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        foreach ( var item in e.AddedItems )
+        foreach (var item in e.AddedItems)
         {
-            if ( item is IconItem icon )
+            if (item is IconItem icon)
             {
                 ViewModel.AddSelectedIcon(icon.Name);
             }
         }
 
-        foreach ( var item in e.RemovedItems )
+        foreach (var item in e.RemovedItems)
         {
-            if ( item is IconItem icon )
+            if (item is IconItem icon)
             {
                 ViewModel.RemoveSelectedIcon(icon.Name);
             }
         }
     }
 
-    private async void CopyBtn_Click (object sender , RoutedEventArgs e)
+    private async void CopyBtn_Click(object sender, RoutedEventArgs e)
     {
         var contentToCopy = CodeDisplay.Text;
 
-        if ( string.IsNullOrEmpty(contentToCopy) )
+        if (string.IsNullOrEmpty(contentToCopy))
         {
             return;
         }
@@ -196,57 +196,57 @@ public sealed partial class MainMenu : UserControl
         await ShowCopyFeedback();
     }
 
-    private async Task ShowCopyFeedback ()
+    private async Task ShowCopyFeedback()
     {
         CopyIcon.Visibility = Visibility.Collapsed;
         CheckIcon.Visibility = Visibility.Visible;
-        ToolTipService.SetToolTip(CopyBtn , "Copied!");
+        ToolTipService.SetToolTip(CopyBtn, "Copied!");
 
         await Task.Delay(2000);
 
         CopyIcon.Visibility = Visibility.Visible;
         CheckIcon.Visibility = Visibility.Collapsed;
-        ToolTipService.SetToolTip(CopyBtn , "Copy code");
+        ToolTipService.SetToolTip(CopyBtn, "Copy code");
     }
 
-    private async void NewMDFile_Click (object? sender , RoutedEventArgs? e)
+    private async void NewMDFile_Click(object? sender, RoutedEventArgs? e)
     {
         MdFileNameBox.Text = string.Empty;
         MdFileNameBox.Focus(FocusState.Programmatic);
 
         var result = await NewMdDialog.ShowAsync();
 
-        if ( result is ContentDialogResult.Primary )
+        if (result is ContentDialogResult.Primary)
         {
             var fileName = string.IsNullOrWhiteSpace(MdFileNameBox.Text.Trim()) ? "README" : MdFileNameBox.Text.Trim();
-            var (nameWithoutExt, extension) = ParseFileName(fileName , ".md");
+            var (nameWithoutExt, extension) = ParseFileName(fileName, ".md");
 
-            await CreateFileWithErrorHandling(nameWithoutExt , extension);
+            await CreateFileWithErrorHandling(nameWithoutExt, extension);
         }
     }
 
-    private async void NewFile_Click (object sender , RoutedEventArgs e)
+    private async void NewFile_Click(object sender, RoutedEventArgs e)
     {
         FileNameBox.Text = string.Empty;
         FileNameBox.Focus(FocusState.Programmatic);
 
         var result = await NewFileDialog.ShowAsync();
 
-        if ( result is ContentDialogResult.Primary )
+        if (result is ContentDialogResult.Primary)
         {
             var fileName = string.IsNullOrWhiteSpace(FileNameBox.Text.Trim()) ? "Untitled" : FileNameBox.Text.Trim();
-            var (nameWithoutExt, extension) = ParseFileName(fileName , string.Empty);
+            var (nameWithoutExt, extension) = ParseFileName(fileName, string.Empty);
 
-            await CreateFileWithErrorHandling(nameWithoutExt , extension);
+            await CreateFileWithErrorHandling(nameWithoutExt, extension);
         }
     }
 
-    private static (string name, string extension) ParseFileName (string fileName , string defaultExtension)
+    private static (string name, string extension) ParseFileName(string fileName, string defaultExtension)
     {
         var extension = Path.GetExtension(fileName);
         var nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
 
-        if ( string.IsNullOrEmpty(extension) )
+        if (string.IsNullOrEmpty(extension))
         {
             nameWithoutExt = fileName;
             extension = defaultExtension;
@@ -255,84 +255,84 @@ public sealed partial class MainMenu : UserControl
         return (nameWithoutExt, extension);
     }
 
-    private async Task CreateFileWithErrorHandling (string fileName , string extension)
+    private async Task CreateFileWithErrorHandling(string fileName, string extension)
     {
-        var success = await ViewModel.CreateFileAsync(fileName , extension);
-        if ( !success )
+        var success = await ViewModel.CreateFileAsync(fileName, extension);
+        if (!success)
         {
             await _dialogService.ShowErrorAsync("File was not created. Please check the file name and destination folder.");
         }
     }
 
-    private async Task InitializeWebViewAsync ()
+    private async Task InitializeWebViewAsync()
     {
-        if ( previewWebView?.CoreWebView2 is null )
+        if (previewWebView?.CoreWebView2 is null)
         {
             await previewWebView!.EnsureCoreWebView2Async();
         }
     }
 
-    private void CleanupWebView ()
+    private void CleanupWebView()
     {
         try
         {
-            if ( previewWebView?.CoreWebView2 is not null )
+            if (previewWebView?.CoreWebView2 is not null)
             {
                 previewWebView.NavigateToString("<html><body></body></html>");
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            throw new Exception($"Error load: {ex.Message}" , ex);
+            throw new Exception($"Error load: {ex.Message}", ex);
         }
     }
 
-    private async void About_Click (object sender , RoutedEventArgs e) => await AboutDialog.ShowAsync();
+    private async void About_Click(object sender, RoutedEventArgs e) => await AboutDialog.ShowAsync();
 
-    private void DisplayMode_SelectionChanged (object sender , SelectionChangedEventArgs e)
+    private void DisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if ( _isInternalUpdate )
+        if (_isInternalUpdate)
             return;
 
-        if ( DisplayMode.SelectedItem is SegmentedItem selectedItem && selectedItem.Tag is string newMode )
+        if (DisplayMode.SelectedItem is SegmentedItem selectedItem && selectedItem.Tag is string newMode)
         {
             WeakReferenceMessenger.Default.Send(new ViewModeChangedMessage(newMode));
         }
     }
 
-    private void TryExecuteCommand (System.Windows.Input.ICommand? command , KeyboardAcceleratorInvokedEventArgs args)
+    private void TryExecuteCommand(System.Windows.Input.ICommand? command, KeyboardAcceleratorInvokedEventArgs args)
     {
-        if ( command?.CanExecute(null) == true )
+        if (command?.CanExecute(null) == true)
         {
             command.Execute(null);
         }
         args.Handled = true;
     }
 
-    private void NewMDFileAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args)
+    private void NewMDFileAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        NewMDFile_Click(null , null);
+        NewMDFile_Click(null, null);
         args.Handled = true;
     }
 
-    private void OpenFileAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.OpenFileCommand , args);
+    private void OpenFileAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.OpenFileCommand, args);
 
-    private void OpenFolderAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.OpenFolderCommand , args);
+    private void OpenFolderAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.OpenFolderCommand, args);
 
-    private void SaveAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.SaveCommand , args);
+    private void SaveAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.SaveCommand, args);
 
-    private void SaveAsAccelerator_Invoked (KeyboardAccelerator sender , KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.SaveAsCommand , args);
+    private void SaveAsAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args) => TryExecuteCommand(ViewModel.SaveAsCommand, args);
 
-    public void Dispose ()
+    public void Dispose()
     {
         try
         {
             CleanupWebView();
             ViewModel.Cleanup();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            throw new Exception($"Error during cleanup in Dispose: {ex.Message}" , ex);
+            throw new Exception($"Error during cleanup in Dispose: {ex.Message}", ex);
         }
     }
 }

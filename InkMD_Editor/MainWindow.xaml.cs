@@ -5,9 +5,9 @@ namespace InkMD_Editor;
 
 public sealed partial class MainWindow : Window
 {
-    public MainWindow ()
+    public MainWindow()
     {
-        AppWindow.Resize(new Windows.Graphics.SizeInt32(1600 , 1000));
+        AppWindow.Resize(new Windows.Graphics.SizeInt32(1600, 1000));
         InitializeComponent();
         AppWindow.TitleBar.PreferredTheme = TitleBarTheme.UseDefaultAppMode;
         AppWindow.Title = "InkMD Editor";

@@ -11,19 +11,19 @@ public partial class App : Application
     public static Window? MainWindow { get; private set; }
     public IServiceProvider Services { get; }
 
-    public App ()
+    public App()
     {
         Services = ConfigureServices();
         InitializeComponent();
     }
 
-    private static ServiceProvider ConfigureServices ()
+    private static ServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
 
         // Register Services
-        services.AddSingleton<IFileService , FileService>();
-        services.AddSingleton<IDialogService , DialogService>();
+        services.AddSingleton<IFileService, FileService>();
+        services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<ThemeService>();
 
         // Register ViewModels & Views
@@ -37,7 +37,7 @@ public partial class App : Application
         return services.BuildServiceProvider();
     }
 
-    protected override void OnLaunched (LaunchActivatedEventArgs args)
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         MainWindow = Services.GetRequiredService<MainWindow>();
         Services.GetRequiredService<ThemeService>().ApplyTheme(MainWindow);

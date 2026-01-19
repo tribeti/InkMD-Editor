@@ -14,7 +14,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public TabViewContentViewModel ViewModel { get; } = new();
     private readonly MarkdownPipeline _markdownPipeline;
 
-    public TabViewContent ()
+    public TabViewContent()
     {
         InitializeComponent();
         this.DataContext = ViewModel;
@@ -31,10 +31,10 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         this.Loaded += TabViewContent_Loaded;
     }
 
-    public void SetViewMode (string tag)
+    public void SetViewMode(string tag)
     {
         string currentText = GetCurrentEditBoxText();
-        if ( !string.IsNullOrEmpty(currentText) )
+        if (!string.IsNullOrEmpty(currentText))
         {
             ViewModel.CurrentContent = currentText;
         }
@@ -45,7 +45,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         string content = ViewModel.CurrentContent ?? String.Empty;
         SetContentToCurrentEditBox(content);
 
-        if ( ViewModel.Tag is "split" or "preview" )
+        if (ViewModel.Tag is "split" or "preview")
         {
             UpdateMarkdownPreview(content);
         }
@@ -53,25 +53,25 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         ViewModel.IsLoadingContent = false;
     }
 
-    private void TabViewContent_Loaded (object sender , Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void TabViewContent_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        if ( !string.IsNullOrEmpty(ViewModel.CurrentContent) )
+        if (!string.IsNullOrEmpty(ViewModel.CurrentContent))
         {
             SetContentToCurrentEditBox(ViewModel.CurrentContent);
             UpdateMarkdownPreview(ViewModel.CurrentContent);
         }
     }
 
-    private void InitializeEditBoxes ()
+    private void InitializeEditBoxes()
     {
-        if ( EditBox is not null )
+        if (EditBox is not null)
         {
             EditBox.EnableSyntaxHighlighting = true;
             EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
             EditBox.DoAutoPairing = true;
         }
 
-        if ( EditBox_Split is not null )
+        if (EditBox_Split is not null)
         {
             EditBox_Split.EnableSyntaxHighlighting = true;
             EditBox_Split.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
@@ -79,7 +79,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
     }
 
-    private void EditBox_TextChanged (TextControlBox sender)
+    private void EditBox_TextChanged(TextControlBox sender)
     {
         string text = sender.GetText();
         UpdateMarkdownPreview(text);
@@ -100,9 +100,9 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         _ => null
     };
 
-    private string GetCurrentEditBoxText () => CurrentEditBox?.GetText() ?? string.Empty;
+    private string GetCurrentEditBoxText() => CurrentEditBox?.GetText() ?? string.Empty;
 
-    public void SetContent (string text , string? fileName)
+    public void SetContent(string text, string? fileName)
     {
         ViewModel.IsLoadingContent = true;
         ViewModel.FileName = fileName;
@@ -112,43 +112,43 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         ViewModel.IsLoadingContent = false;
     }
 
-    private void SetContentToCurrentEditBox (string text) => CurrentEditBox?.LoadText(text);
+    private void SetContentToCurrentEditBox(string text) => CurrentEditBox?.LoadText(text);
 
-    public string GetContent () => GetCurrentEditBoxText();
+    public string GetContent() => GetCurrentEditBoxText();
 
-    public IEnumerable<string> GetContentToSaveFile () => CurrentEditBox?.Lines ?? [];
+    public IEnumerable<string> GetContentToSaveFile() => CurrentEditBox?.Lines ?? [];
 
-    public string GetFilePath () => ViewModel.FilePath ?? string.Empty;
+    public string GetFilePath() => ViewModel.FilePath ?? string.Empty;
 
-    public string GetFileName () => ViewModel.FileName ?? string.Empty;
+    public string GetFileName() => ViewModel.FileName ?? string.Empty;
 
-    public void SetFilePath (string filePath , string fileName) => ViewModel.SetFilePath(filePath , fileName);
+    public void SetFilePath(string filePath, string fileName) => ViewModel.SetFilePath(filePath, fileName);
 
-    public bool IsDirty () => ViewModel.IsDirty;
+    public bool IsDirty() => ViewModel.IsDirty;
 
-    public void Undo () => CurrentEditBox?.Undo();
+    public void Undo() => CurrentEditBox?.Undo();
 
-    public void Redo () => CurrentEditBox?.Redo();
+    public void Redo() => CurrentEditBox?.Redo();
 
-    public void Cut () => CurrentEditBox?.Cut();
+    public void Cut() => CurrentEditBox?.Cut();
 
-    public void Copy () => CurrentEditBox?.Copy();
+    public void Copy() => CurrentEditBox?.Copy();
 
-    public void Paste () => CurrentEditBox?.Paste();
+    public void Paste() => CurrentEditBox?.Paste();
 
-    public void MarkAsClean () => ViewModel.MarkAsClean();
+    public void MarkAsClean() => ViewModel.MarkAsClean();
 
-    private async void InitializeWebViews ()
+    private async void InitializeWebViews()
     {
         try
         {
-            if ( MarkdownPreview_Split is not null )
+            if (MarkdownPreview_Split is not null)
             {
                 await MarkdownPreview_Split.EnsureCoreWebView2Async();
                 MarkdownPreview_Split.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
             }
 
-            if ( MarkdownPreview is not null )
+            if (MarkdownPreview is not null)
             {
                 await MarkdownPreview.EnsureCoreWebView2Async();
                 MarkdownPreview.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
@@ -157,7 +157,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         catch { }
     }
 
-    private void UpdateMarkdownPreview (string markdownText)
+    private void UpdateMarkdownPreview(string markdownText)
     {
         try
         {
@@ -167,23 +167,23 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         catch { }
     }
 
-    private string ConvertMarkdownToHtml (string markdown)
+    private string ConvertMarkdownToHtml(string markdown)
     {
-        if ( string.IsNullOrWhiteSpace(markdown) )
+        if (string.IsNullOrWhiteSpace(markdown))
             return GitHubPreview.GetEmptyPreviewHtml();
 
-        string htmlBody = Markdown.ToHtml(markdown , _markdownPipeline);
+        string htmlBody = Markdown.ToHtml(markdown, _markdownPipeline);
 
         return GitHubPreview.WrapWithGitHubStyle(htmlBody);
     }
 
-    public void DisposeWebView ()
+    public void DisposeWebView()
     {
         MarkdownPreview_Split?.Close();
         MarkdownPreview?.Close();
     }
 
-    public void Dispose ()
+    public void Dispose()
     {
         ViewModel.Dispose();
         DisposeWebView();

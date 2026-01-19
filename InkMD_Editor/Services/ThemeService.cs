@@ -15,16 +15,16 @@ public class ThemeService
         Default = 2
     }
 
-    public void SaveTheme (AppTheme theme)
+    public void SaveTheme(AppTheme theme)
     {
-        ApplicationData.Current.LocalSettings.Values [ThemeSettingKey] = (int) theme;
+        ApplicationData.Current.LocalSettings.Values[ThemeSettingKey] = (int) theme;
     }
 
-    public AppTheme GetSavedTheme ()
+    public AppTheme GetSavedTheme()
     {
-        if ( ApplicationData.Current.LocalSettings.Values.TryGetValue(ThemeSettingKey , out object? value) && value is int themeValue )
+        if (ApplicationData.Current.LocalSettings.Values.TryGetValue(ThemeSettingKey, out object? value) && value is int themeValue)
         {
-            if ( Enum.IsDefined(typeof(AppTheme) , themeValue) )
+            if (Enum.IsDefined(typeof(AppTheme), themeValue))
             {
                 return (AppTheme) themeValue;
             }
@@ -32,7 +32,7 @@ public class ThemeService
         return AppTheme.Default;
     }
 
-    public ElementTheme ToElementTheme (AppTheme theme)
+    public ElementTheme ToElementTheme(AppTheme theme)
     {
         return theme switch
         {
@@ -43,18 +43,18 @@ public class ThemeService
         };
     }
 
-    public void ApplyTheme (Window window)
+    public void ApplyTheme(Window window)
     {
-        if ( window?.Content is FrameworkElement rootElement )
+        if (window?.Content is FrameworkElement rootElement)
         {
             var savedTheme = GetSavedTheme();
             rootElement.RequestedTheme = ToElementTheme(savedTheme);
         }
     }
 
-    public void SetTheme (Window window , AppTheme theme)
+    public void SetTheme(Window window, AppTheme theme)
     {
-        if ( window?.Content is FrameworkElement rootElement )
+        if (window?.Content is FrameworkElement rootElement)
         {
             SaveTheme(theme);
             rootElement.RequestedTheme = ToElementTheme(theme);

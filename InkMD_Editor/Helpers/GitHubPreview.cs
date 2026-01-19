@@ -2,12 +2,12 @@
 
 public class GitHubPreview
 {
-    public static string GetEmptyPreviewHtml ()
+    public static string GetEmptyPreviewHtml()
     {
         return WrapWithGitHubStyle("<p style='color:#888; text-align:center; margin-top:50px;'>Preview will show here...</p>");
     }
 
-    public static string WrapWithGitHubStyle (string htmlBody)
+    public static string WrapWithGitHubStyle(string htmlBody)
     {
         return $@"
             <!DOCTYPE html>

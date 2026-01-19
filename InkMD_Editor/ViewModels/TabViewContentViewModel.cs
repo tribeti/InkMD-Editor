@@ -47,7 +47,7 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     /// </summary>
     public bool IsDirty => OriginalContent != CurrentContent;
 
-    public TabViewContentViewModel ()
+    public TabViewContentViewModel()
     {
         FileName = "Untitled";
         WeakReferenceMessenger.Default.Register(this);
@@ -56,7 +56,7 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     /// <summary>
     /// Set file path and name when saving or opening a file
     /// </summary>
-    public void SetFilePath (string path , string name)
+    public void SetFilePath(string path, string name)
     {
         FilePath = path;
         FileName = name;
@@ -65,19 +65,19 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     /// <summary>
     /// Mark the file as clean (no unsaved changes)
     /// </summary>
-    public void MarkAsClean ()
+    public void MarkAsClean()
     {
         OriginalContent = CurrentContent;
         _lastDirtyState = false;
 
-        WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty , false));
+        WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty, false));
     }
 
     /// <summary>
     /// Set the original content when loading a file (internal use)
     /// Note: IsLoadingContent flag should be managed by the caller
     /// </summary>
-    public void SetOriginalContent (string content)
+    public void SetOriginalContent(string content)
     {
         OriginalContent = content;
         CurrentContent = content;
@@ -87,28 +87,29 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     /// <summary>
     /// Called when CurrentContent changes - send message if dirty state changed
     /// </summary>
-    partial void OnCurrentContentChanged (string? value)
+    partial void OnCurrentContentChanged(string? value)
     {
-        if ( IsLoadingContent )
+        if (IsLoadingContent)
             return;
 
         bool currentDirtyState = IsDirty;
 
-        if ( currentDirtyState != _lastDirtyState )
+        if (currentDirtyState != _lastDirtyState)
         {
             _lastDirtyState = currentDirtyState;
-            WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty , currentDirtyState));
+            WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty, currentDirtyState));
         }
     }
 
-    public void Receive (FontChangedMessage message)
+    public void Receive(FontChangedMessage message)
     {
         FontFamily = message.FontFamily;
         FontSize = message.FontSize;
     }
 
-    public void Dispose ()
+    public void Dispose()
     {
         WeakReferenceMessenger.Default.UnregisterAll(this);
+        GC.SuppressFinalize(this);
     }
 }
