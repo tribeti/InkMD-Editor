@@ -359,6 +359,24 @@ public sealed partial class EditorPage : Page
             return false;
         }
     }
+
+    private void ToggleFilePanelVisibility_Click(object _, RoutedEventArgs e)
+    {
+        if (FileExplorerPanel.Visibility == Visibility.Visible)
+        {
+            FileBtn.CornerRadius = new CornerRadius(8, 8, 8, 8);
+            FileExplorerPanel.Visibility = Visibility.Collapsed;
+            ExplorerSplitter.Visibility = Visibility.Collapsed;
+            ExplorerColumn.MinWidth = 0;
+        }
+        else
+        {
+            FileBtn.CornerRadius = new CornerRadius(8, 0, 0, 8);
+            ExplorerColumn.MinWidth = 200;
+            ExplorerSplitter.Visibility = Visibility.Visible;
+            FileExplorerPanel.Visibility = Visibility.Visible;
+        }
+    }
 }
 
 public sealed partial class ExplorerItemTemplateSelector : DataTemplateSelector

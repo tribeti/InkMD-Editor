@@ -56,29 +56,35 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
+        <Grid Grid.Row="0">
             <customcontrols:MainMenu x:Name="mainMenu" />
         </Grid>
 
         <Grid x:Name="Body" Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" MaxWidth="50" />
-                <ColumnDefinition Width="Auto" MinWidth="200" />
+                <ColumnDefinition
+                    x:Name="ExplorerColumn"
+                    Width="Auto"
+                    MinWidth="200" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <RelativePanel
                 Grid.Column="0"
                 Margin="16,0,0,0"
-                Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
-                <Button x:Name="File">
+                Background="Transparent">
+                <Button
+                    x:Name="FileBtn"
+                    Click="ToggleFilePanelVisibility_Click"
+                    CornerRadius="8,0,0,8">
                     <FontIcon Glyph="&#xE8D5;" />
                 </Button>
                 <Button
-                    x:Name="Github"
+                    x:Name="GithubBtn"
                     Margin="0,8,0,0"
-                    RelativePanel.AlignHorizontalCenterWith="File"
-                    RelativePanel.Below="File">
+                    RelativePanel.AlignHorizontalCenterWith="FileBtn"
+                    RelativePanel.Below="FileBtn">
                     <Image
                         Width="20"
                         Height="20"
@@ -86,7 +92,11 @@
                 </Button>
             </RelativePanel>
 
-            <RelativePanel Grid.Column="1" Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
+            <RelativePanel
+                x:Name="FileExplorerPanel"
+                Grid.Column="1"
+                Background="{ThemeResource ControlFillColorDefaultBrush}"
+                CornerRadius="0,8,8,8">
                 <TextBlock
                     x:Name="dir"
                     Padding="16,8,0,0"
@@ -127,6 +137,7 @@
             </RelativePanel>
 
             <controls:GridSplitter
+                x:Name="ExplorerSplitter"
                 Grid.Column="1"
                 Width="8"
                 HorizontalAlignment="Right"
@@ -142,7 +153,6 @@
                     x:Name="Tabs"
                     VerticalAlignment="Stretch"
                     AddTabButtonClick="TabView_AddButtonClick"
-                    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
                     SelectionChanged="TabView_SelectionChanged"
                     TabCloseRequested="TabView_TabCloseRequested"
                     TabWidthMode="SizeToContent" />
@@ -153,7 +163,7 @@
             x:Name="Footer"
             Grid.Row="2"
             Padding="8,0"
-            Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+            Background="Transparent"
             BorderThickness="0,1,0,0">
             <RelativePanel HorizontalAlignment="Left">
                 <Button
