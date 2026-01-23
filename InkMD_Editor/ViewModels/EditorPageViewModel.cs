@@ -234,9 +234,9 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
     public Task<bool> ShowConfirmationAsync(string message) => _dialogService.ShowConfirmationAsync(message);
 
     public async Task<TreeViewNode?> FilterTreeNodeByFilenameAsync(
-        TreeViewNode node,
-        string searchTerm,
-        CancellationToken cancellationToken = default)
+            TreeViewNode node,
+            string searchTerm,
+            CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
             return node;
@@ -256,6 +256,7 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
             if (hasMatches)
             {
                 filteredNode.IsExpanded = true;
+                filteredNode.HasUnrealizedChildren = false;
                 return filteredNode;
             }
 
@@ -304,7 +305,6 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
                 }
                 else if (item is StorageFolder subfolder)
                 {
-
                     var folderNode = new TreeViewNode
                     {
                         Content = subfolder,
@@ -312,8 +312,7 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
                         IsExpanded = true
                     };
 
-                    bool hasMatchingDescendants = await SearchFolderRecursivelyAsync(
-                        subfolder, folderNode, searchTerm, cancellationToken);
+                    bool hasMatchingDescendants = await SearchFolderRecursivelyAsync(subfolder, folderNode, searchTerm, cancellationToken);
                     if (itemMatches || hasMatchingDescendants)
                     {
                         parentNode.Children.Add(folderNode);
