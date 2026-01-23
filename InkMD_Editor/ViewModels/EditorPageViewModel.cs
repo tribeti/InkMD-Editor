@@ -5,7 +5,9 @@ using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -230,4 +232,78 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
     public Task ShowErrorAsync(string message) => _dialogService.ShowErrorAsync(message);
     public Task ShowSuccessAsync(string message) => _dialogService.ShowSuccessAsync(message);
     public Task<bool> ShowConfirmationAsync(string message) => _dialogService.ShowConfirmationAsync(message);
+    public TreeViewNode? FilterTreeNodeByFilename(TreeViewNode node, string searchTerm)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return node;
+
+        var filteredNode = CreateTreeViewNode(GetStorageFolder(node) ?? (node.Content as StorageFolder)!);
+        var matchingChildren = GetMatchingChildren(node, searchTerm);
+
+        foreach (var child in matchingChildren)
+        {
+            filteredNode.Children.Add(child);
+        }
+
+        if (filteredNode.Children.Count > 0)
+        {
+            filteredNode.IsExpanded = true;
+            return filteredNode;
+        }
+
+        return null;
+    }
+
+    private List<TreeViewNode> GetMatchingChildren(TreeViewNode node, string searchTerm)
+    {
+        var matches = new List<TreeViewNode>();
+
+        foreach (var child in node.Children)
+        {
+            if (child.Content is IStorageItem item)
+            {
+                var itemName = item is StorageFile file ? file.Name : ((StorageFolder) item).DisplayName;
+
+                if (itemName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                {
+                    var clonedChild = new TreeViewNode
+                    {
+                        Content = child.Content,
+                        HasUnrealizedChildren = child.Content is StorageFolder,
+                        IsExpanded = false
+                    };
+
+                    matches.Add(clonedChild);
+                }
+
+                // If it's a folder, recursively search its children
+                if (child.Content is StorageFolder && child.Children.Count > 0)
+                {
+                    var matchingGrandchildren = GetMatchingChildren(child, searchTerm);
+                    if (matchingGrandchildren.Count > 0)
+                    {
+                        var parentNode = new TreeViewNode
+                        {
+                            Content = child.Content,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = true
+                        };
+
+                        foreach (var grandchild in matchingGrandchildren)
+                        {
+                            parentNode.Children.Add(grandchild);
+                        }
+
+                        // Only add if not already in matches
+                        if (!matches.Any(m => m.Content == child.Content))
+                        {
+                            matches.Add(parentNode);
+                        }
+                    }
+                }
+            }
+        }
+
+        return matches;
+    }
 }

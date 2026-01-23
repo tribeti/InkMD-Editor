@@ -19,6 +19,7 @@ public sealed partial class EditorPage : Page
     private readonly EditorPageViewModel _viewModel;
     private readonly IDialogService _dialogService;
     private bool _isInitialized = false;
+    private TreeViewNode? _originalRootNode;
 
     public EditorPage()
     {
@@ -135,15 +136,19 @@ public sealed partial class EditorPage : Page
     {
         if (await _viewModel.InitializeTreeViewAsync() is { } node)
         {
+            _originalRootNode = node;
+            treeview.RootNodes.Clear();
             treeview.RootNodes.Add(node);
         }
     }
 
     private async Task RefreshTreeViewWithFolder(StorageFolder folder)
     {
-        treeview.RootNodes.Clear();
         if (await _viewModel.RefreshTreeViewWithFolderAsync(folder) is { } node)
         {
+            _originalRootNode = node;
+            Box.Text = string.Empty;
+            treeview.RootNodes.Clear();
             treeview.RootNodes.Add(node);
         }
     }
@@ -375,6 +380,33 @@ public sealed partial class EditorPage : Page
             ExplorerColumn.MinWidth = 200;
             ExplorerSplitter.Visibility = Visibility.Visible;
             FileExplorerPanel.Visibility = Visibility.Visible;
+        }
+    }
+
+    private async void Box_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        var searchTerm = sender.Text;
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            // Restore the original tree when search is cleared
+            await InitTreeViewAsync();
+            return;
+        }
+
+        // Show search results
+        if (_originalRootNode is not null)
+        {
+            var filteredNode = _viewModel.FilterTreeNodeByFilename(_originalRootNode, searchTerm);
+            if (filteredNode is not null)
+            {
+                treeview.RootNodes.Clear();
+                treeview.RootNodes.Add(filteredNode);
+            }
+            else
+            {
+                treeview.RootNodes.Clear();
+            }
         }
     }
 }

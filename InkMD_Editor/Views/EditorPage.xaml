@@ -110,6 +110,7 @@
                     Margin="12,8"
                     PlaceholderText="Search files..."
                     QueryIcon="Find"
+                    TextChanged="Box_TextChanged"
                     RelativePanel.AlignLeftWithPanel="True"
                     RelativePanel.AlignRightWithPanel="True"
                     RelativePanel.Below="dir" />
