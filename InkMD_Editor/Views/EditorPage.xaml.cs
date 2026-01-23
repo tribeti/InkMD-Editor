@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -20,6 +21,7 @@ public sealed partial class EditorPage : Page
     private readonly IDialogService _dialogService;
     private bool _isInitialized = false;
     private TreeViewNode? _originalRootNode;
+    private CancellationTokenSource? _searchCancellationTokenSource;
 
     public EditorPage()
     {
@@ -38,6 +40,14 @@ public sealed partial class EditorPage : Page
             await InitTreeViewAsync();
             SetupMessengers();
             _isInitialized = true;
+        };
+
+        Unloaded += (s, e) =>
+        {
+            // Clean up cancellation token when page is unloaded
+            _searchCancellationTokenSource?.Cancel();
+            _searchCancellationTokenSource?.Dispose();
+            _searchCancellationTokenSource = null;
         };
     }
 
@@ -385,7 +395,12 @@ public sealed partial class EditorPage : Page
 
     private async void Box_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
+        _searchCancellationTokenSource?.Cancel();
+        _searchCancellationTokenSource?.Dispose();
+        _searchCancellationTokenSource = new CancellationTokenSource();
+
         var searchTerm = sender.Text;
+        var cancellationToken = _searchCancellationTokenSource.Token;
 
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -397,19 +412,26 @@ public sealed partial class EditorPage : Page
             return;
         }
 
-        if (_originalRootNode is not null)
+        try
         {
-            var filteredNode = await _viewModel.FilterTreeNodeByFilenameAsync(_originalRootNode, searchTerm);
-            if (filteredNode is not null)
+            await Task.Delay(300, cancellationToken);
+            if (_originalRootNode is not null)
             {
-                treeview.RootNodes.Clear();
-                treeview.RootNodes.Add(filteredNode);
-            }
-            else
-            {
-                treeview.RootNodes.Clear();
+                var filteredNode = await _viewModel.FilterTreeNodeByFilenameAsync(
+                    _originalRootNode, searchTerm, cancellationToken);
+
+                if (filteredNode is not null)
+                {
+                    treeview.RootNodes.Clear();
+                    treeview.RootNodes.Add(filteredNode);
+                }
+                else
+                {
+                    treeview.RootNodes.Clear();
+                }
             }
         }
+        catch (OperationCanceledException) { }
     }
 }
 
