@@ -6,7 +6,9 @@ using InkMD_Editor.Services;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -230,4 +232,104 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
     public Task ShowErrorAsync(string message) => _dialogService.ShowErrorAsync(message);
     public Task ShowSuccessAsync(string message) => _dialogService.ShowSuccessAsync(message);
     public Task<bool> ShowConfirmationAsync(string message) => _dialogService.ShowConfirmationAsync(message);
+
+    public async Task<TreeViewNode?> FilterTreeNodeByFilenameAsync(
+            TreeViewNode node,
+            string searchTerm,
+            CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return node;
+
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var rootFolder = GetStorageFolder(node) ?? (node.Content as StorageFolder);
+            if (rootFolder == null)
+                return null;
+
+            var filteredNode = CreateTreeViewNode(rootFolder);
+            var hasMatches = await SearchFolderRecursivelyAsync(
+                rootFolder, filteredNode, searchTerm, cancellationToken);
+
+            if (hasMatches)
+            {
+                filteredNode.IsExpanded = true;
+                filteredNode.HasUnrealizedChildren = false;
+                return filteredNode;
+            }
+
+            return null;
+        }
+        catch (OperationCanceledException)
+        {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorAsync($"Search error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task<bool> SearchFolderRecursivelyAsync(
+        StorageFolder folder,
+        TreeViewNode parentNode,
+        string searchTerm,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var items = await folder.GetItemsAsync();
+            bool hasAnyMatch = false;
+
+            foreach (var item in items)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                bool itemMatches = item.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
+
+                if (item is StorageFile file)
+                {
+                    if (itemMatches)
+                    {
+                        parentNode.Children.Add(new TreeViewNode
+                        {
+                            Content = file,
+                            HasUnrealizedChildren = false
+                        });
+                        hasAnyMatch = true;
+                    }
+                }
+                else if (item is StorageFolder subfolder)
+                {
+                    var folderNode = new TreeViewNode
+                    {
+                        Content = subfolder,
+                        HasUnrealizedChildren = false,
+                        IsExpanded = true
+                    };
+
+                    bool hasMatchingDescendants = await SearchFolderRecursivelyAsync(subfolder, folderNode, searchTerm, cancellationToken);
+                    if (itemMatches || hasMatchingDescendants)
+                    {
+                        parentNode.Children.Add(folderNode);
+                        hasAnyMatch = true;
+                    }
+                }
+            }
+
+            return hasAnyMatch;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

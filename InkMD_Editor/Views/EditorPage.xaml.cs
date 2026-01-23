@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -19,6 +20,8 @@ public sealed partial class EditorPage : Page
     private readonly EditorPageViewModel _viewModel;
     private readonly IDialogService _dialogService;
     private bool _isInitialized = false;
+    private TreeViewNode? _originalRootNode;
+    private CancellationTokenSource? _searchCancellationTokenSource;
 
     public EditorPage()
     {
@@ -37,6 +40,14 @@ public sealed partial class EditorPage : Page
             await InitTreeViewAsync();
             SetupMessengers();
             _isInitialized = true;
+        };
+
+        Unloaded += (s, e) =>
+        {
+            // Clean up cancellation token when page is unloaded
+            _searchCancellationTokenSource?.Cancel();
+            _searchCancellationTokenSource?.Dispose();
+            _searchCancellationTokenSource = null;
         };
     }
 
@@ -135,15 +146,19 @@ public sealed partial class EditorPage : Page
     {
         if (await _viewModel.InitializeTreeViewAsync() is { } node)
         {
+            _originalRootNode = node;
+            treeview.RootNodes.Clear();
             treeview.RootNodes.Add(node);
         }
     }
 
     private async Task RefreshTreeViewWithFolder(StorageFolder folder)
     {
-        treeview.RootNodes.Clear();
         if (await _viewModel.RefreshTreeViewWithFolderAsync(folder) is { } node)
         {
+            _originalRootNode = node;
+            Box.Text = string.Empty;
+            treeview.RootNodes.Clear();
             treeview.RootNodes.Add(node);
         }
     }
@@ -376,6 +391,47 @@ public sealed partial class EditorPage : Page
             ExplorerSplitter.Visibility = Visibility.Visible;
             FileExplorerPanel.Visibility = Visibility.Visible;
         }
+    }
+
+    private async void Box_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        _searchCancellationTokenSource?.Cancel();
+        _searchCancellationTokenSource?.Dispose();
+        _searchCancellationTokenSource = new CancellationTokenSource();
+
+        var searchTerm = sender.Text;
+        var cancellationToken = _searchCancellationTokenSource.Token;
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            treeview.RootNodes.Clear();
+            if (_originalRootNode is not null)
+            {
+                treeview.RootNodes.Add(_originalRootNode);
+            }
+            return;
+        }
+
+        try
+        {
+            await Task.Delay(300, cancellationToken);
+            if (_originalRootNode is not null)
+            {
+                var filteredNode = await _viewModel.FilterTreeNodeByFilenameAsync(
+                    _originalRootNode, searchTerm, cancellationToken);
+
+                if (filteredNode is not null)
+                {
+                    treeview.RootNodes.Clear();
+                    treeview.RootNodes.Add(filteredNode);
+                }
+                else
+                {
+                    treeview.RootNodes.Clear();
+                }
+            }
+        }
+        catch (OperationCanceledException) { }
     }
 }
 
