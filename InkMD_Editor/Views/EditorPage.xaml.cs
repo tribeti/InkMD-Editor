@@ -389,15 +389,17 @@ public sealed partial class EditorPage : Page
 
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
-            // Restore the original tree when search is cleared
-            await InitTreeViewAsync();
+            treeview.RootNodes.Clear();
+            if (_originalRootNode is not null)
+            {
+                treeview.RootNodes.Add(_originalRootNode);
+            }
             return;
         }
 
-        // Show search results
         if (_originalRootNode is not null)
         {
-            var filteredNode = _viewModel.FilterTreeNodeByFilename(_originalRootNode, searchTerm);
+            var filteredNode = await _viewModel.FilterTreeNodeByFilenameAsync(_originalRootNode, searchTerm);
             if (filteredNode is not null)
             {
                 treeview.RootNodes.Clear();

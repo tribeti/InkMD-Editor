@@ -232,78 +232,81 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
     public Task ShowErrorAsync(string message) => _dialogService.ShowErrorAsync(message);
     public Task ShowSuccessAsync(string message) => _dialogService.ShowSuccessAsync(message);
     public Task<bool> ShowConfirmationAsync(string message) => _dialogService.ShowConfirmationAsync(message);
-    public TreeViewNode? FilterTreeNodeByFilename(TreeViewNode node, string searchTerm)
+
+    public async Task<TreeViewNode?> FilterTreeNodeByFilenameAsync(TreeViewNode node, string searchTerm)
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
             return node;
 
-        var filteredNode = CreateTreeViewNode(GetStorageFolder(node) ?? (node.Content as StorageFolder)!);
-        var matchingChildren = GetMatchingChildren(node, searchTerm);
-
-        foreach (var child in matchingChildren)
+        try
         {
-            filteredNode.Children.Add(child);
-        }
+            var rootFolder = GetStorageFolder(node) ?? (node.Content as StorageFolder);
+            if (rootFolder == null)
+                return null;
 
-        if (filteredNode.Children.Count > 0)
+            var filteredNode = CreateTreeViewNode(rootFolder);
+            var hasMatches = await SearchFolderRecursivelyAsync(rootFolder, filteredNode, searchTerm);
+
+            if (hasMatches)
+            {
+                filteredNode.IsExpanded = true;
+                return filteredNode;
+            }
+
+            return null;
+        }
+        catch (Exception ex)
         {
-            filteredNode.IsExpanded = true;
-            return filteredNode;
+            await ShowErrorAsync($"Search error: {ex.Message}");
+            return null;
         }
-
-        return null;
     }
 
-    private List<TreeViewNode> GetMatchingChildren(TreeViewNode node, string searchTerm)
+    private async Task<bool> SearchFolderRecursivelyAsync(StorageFolder folder, TreeViewNode parentNode, string searchTerm)
     {
-        var matches = new List<TreeViewNode>();
-
-        foreach (var child in node.Children)
+        try
         {
-            if (child.Content is IStorageItem item)
+            var items = await folder.GetItemsAsync();
+            bool hasAnyMatch = false;
+
+            foreach (var item in items)
             {
-                var itemName = item is StorageFile file ? file.Name : ((StorageFolder) item).DisplayName;
+                bool itemMatches = item.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
 
-                if (itemName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                if (item is StorageFile file)
                 {
-                    var clonedChild = new TreeViewNode
+                    if (itemMatches)
                     {
-                        Content = child.Content,
-                        HasUnrealizedChildren = child.Content is StorageFolder,
-                        IsExpanded = false
-                    };
-
-                    matches.Add(clonedChild);
+                        parentNode.Children.Add(new TreeViewNode
+                        {
+                            Content = file,
+                            HasUnrealizedChildren = false
+                        });
+                        hasAnyMatch = true;
+                    }
                 }
-
-                // If it's a folder, recursively search its children
-                if (child.Content is StorageFolder && child.Children.Count > 0)
+                else if (item is StorageFolder subfolder)
                 {
-                    var matchingGrandchildren = GetMatchingChildren(child, searchTerm);
-                    if (matchingGrandchildren.Count > 0)
+                    var folderNode = new TreeViewNode
                     {
-                        var parentNode = new TreeViewNode
-                        {
-                            Content = child.Content,
-                            HasUnrealizedChildren = false,
-                            IsExpanded = true
-                        };
-
-                        foreach (var grandchild in matchingGrandchildren)
-                        {
-                            parentNode.Children.Add(grandchild);
-                        }
-
-                        // Only add if not already in matches
-                        if (!matches.Any(m => m.Content == child.Content))
-                        {
-                            matches.Add(parentNode);
-                        }
+                        Content = subfolder,
+                        HasUnrealizedChildren = false,
+                        IsExpanded = true
+                    };
+                    bool hasMatchingDescendants = await SearchFolderRecursivelyAsync(subfolder, folderNode, searchTerm);
+                    if (itemMatches || hasMatchingDescendants)
+                    {
+                        parentNode.Children.Add(folderNode);
+                        hasAnyMatch = true;
                     }
                 }
             }
-        }
 
-        return matches;
+            return hasAnyMatch;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
