@@ -4,14 +4,9 @@ using System.Reactive.Subjects;
 
 namespace InkMD_Editor.Helpers;
 
-public class State<T>
+public class State<T>(T initialState)
 {
-    private BehaviorSubject<T> _subject;
-
-    public State(T initialState)
-    {
-        _subject = new BehaviorSubject<T>(initialState);
-    }
+    private BehaviorSubject<T> _subject = new(initialState);
 
     public T CurrentValue => _subject.Value;
 
