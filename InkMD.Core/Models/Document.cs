@@ -7,9 +7,7 @@ namespace InkMD.Core.Models;
 public class Document
 {
     public string FilePath { get; set; }
-    public string FileName => string.IsNullOrEmpty(FilePath)
-        ? "Untitled"
-        : System.IO.Path.GetFileName(FilePath);
+    public string FileName => string.IsNullOrEmpty(FilePath) ? "Untitled" : System.IO.Path.GetFileName(FilePath);
     public string Content { get; set; } = string.Empty;
     public bool IsDirty { get; set; } = false;
     public bool IsReadOnly { get; set; } = false;
