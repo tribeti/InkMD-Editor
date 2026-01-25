@@ -61,7 +61,7 @@ public sealed partial class EditorPage : Page
         messenger.Register<SaveFileMessage>(this, async (r, msg) => await HandleSaveFile());
         messenger.Register<ErrorMessage>(this, async (r, msg) => await _viewModel.ShowErrorAsync(msg.Message));
         messenger.Register<TemplateSelectedMessage>(this, async (r, msg) => await HandleTemplateSelected(msg.Content, msg.CreateNewFile));
-        messenger.Register<HyperlinkCreationMessage>(this, async (r, msg) => await HandleHyperlinkSelected(msg.DisplayText, msg.Url));
+        messenger.Register<HyperlinkCreationMessage>(this, async (r, msg) => await HandleHyperlinkSelected(msg.Markdown));
         messenger.Register<ContentChangedMessage>(this, (r, msg) => UpdateTabHeaderForDirtyState());
 
         messenger.Register<ViewModeChangedMessage>(this, (r, msg) =>
@@ -108,7 +108,7 @@ public sealed partial class EditorPage : Page
         }
     }
 
-    private async Task HandleHyperlinkSelected(string displayText, string url)
+    private async Task HandleHyperlinkSelected(string hyperlinkMarkdown)
     {
         var (_, tabContent) = GetSelectedTabContent();
         if (Tabs.TabItems.Count == 0 || tabContent is null)
@@ -117,7 +117,6 @@ public sealed partial class EditorPage : Page
             return;
         }
 
-        var hyperlinkMarkdown = $"[{displayText}]({url})";
         tabContent.InsertText(hyperlinkMarkdown);
     }
 

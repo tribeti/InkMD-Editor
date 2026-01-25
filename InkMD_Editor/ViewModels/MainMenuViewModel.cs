@@ -125,15 +125,15 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
         WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content, createNewFile));
     }
 
-    public bool TryCreateHyperlink(string displayText, string url, out string hyperlinkMarkdown)
+    public bool CreateHyperlink(string displayText, string url, out string hyperlinkMarkdown)
     {
         hyperlinkMarkdown = $"[{displayText.Trim()}]({url.Trim()})";
         return true;
     }
 
-    public void SendHyperlinkMessage(string displayText, string url)
+    public void SendHyperlinkMessage(string markdown)
     {
-        WeakReferenceMessenger.Default.Send(new HyperlinkCreationMessage(displayText, url));
+        WeakReferenceMessenger.Default.Send(new HyperlinkCreationMessage(markdown));
     }
 
     [RelayCommand]

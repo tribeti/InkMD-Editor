@@ -268,9 +268,9 @@ public sealed partial class MainMenu : UserControl
                 return;
             }
 
-            if (ViewModel.TryCreateHyperlink(displayText, url, out _))
+            if (ViewModel.CreateHyperlink(displayText, url, out var hyperlinkMarkdown))
             {
-                ViewModel.SendHyperlinkMessage(displayText, url);
+                ViewModel.SendHyperlinkMessage(hyperlinkMarkdown);
             }
         }
     }
