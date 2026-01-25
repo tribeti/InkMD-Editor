@@ -138,6 +138,14 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void MarkAsClean() => ViewModel.MarkAsClean();
 
+    public void InsertText(string text)
+    {
+        if (CurrentEditBox is null)
+            return;
+
+        CurrentEditBox.AddLine(CurrentEditBox.CurrentLineIndex, text);
+    }
+
     private async void InitializeWebViews()
     {
         try

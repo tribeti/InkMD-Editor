@@ -61,6 +61,7 @@ public sealed partial class EditorPage : Page
         messenger.Register<SaveFileMessage>(this, async (r, msg) => await HandleSaveFile());
         messenger.Register<ErrorMessage>(this, async (r, msg) => await _viewModel.ShowErrorAsync(msg.Message));
         messenger.Register<TemplateSelectedMessage>(this, async (r, msg) => await HandleTemplateSelected(msg.Content, msg.CreateNewFile));
+        messenger.Register<HyperlinkCreationMessage>(this, async (r, msg) => await HandleHyperlinkSelected(msg.DisplayText, msg.Url));
         messenger.Register<ContentChangedMessage>(this, (r, msg) => UpdateTabHeaderForDirtyState());
 
         messenger.Register<ViewModeChangedMessage>(this, (r, msg) =>
@@ -105,6 +106,19 @@ public sealed partial class EditorPage : Page
         {
             await InsertIntoCurrentDocument(content);
         }
+    }
+
+    private async Task HandleHyperlinkSelected(string displayText, string url)
+    {
+        var (_, tabContent) = GetSelectedTabContent();
+        if (Tabs.TabItems.Count == 0 || tabContent is null)
+        {
+            await _viewModel.ShowErrorAsync("There is no open file. Please open or create one first.");
+            return;
+        }
+
+        var hyperlinkMarkdown = $"[{displayText}]({url})";
+        tabContent.InsertText(hyperlinkMarkdown);
     }
 
     private void CreateNewTabWithContent(string content)

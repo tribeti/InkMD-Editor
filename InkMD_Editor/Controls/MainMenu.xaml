@@ -197,6 +197,10 @@
                             </Flyout>
                         </AppBarButton.Flyout>
                     </AppBarButton>
+                    <AppBarButton
+                        Click="HyperLink_Click"
+                        Icon="{ui:FontIcon Glyph=&#xE71B;}"
+                        Label="Hyperlink" />
                 </controls:TabbedCommandBarItem>
                 <!--  help  -->
                 <controls:TabbedCommandBarItem x:Name="Help" Header="Help">
@@ -387,5 +391,40 @@
 
         <local:AboutDialog x:Name="AboutDialog" />
 
+        <ContentDialog
+            x:Name="HyperlinkDialog"
+            Title="Hyperlink"
+            HorizontalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            DefaultButton="Primary"
+            PrimaryButtonText="Create"
+            RequestedTheme="Default"
+            SecondaryButtonText="Cancel">
+            <StackPanel Orientation="Vertical" Spacing="0">
+                <TextBox
+                    x:Name="DisplayTextBox"
+                    HorizontalAlignment="Stretch"
+                    VerticalContentAlignment="Center"
+                    PlaceholderText="abc" />
+
+                <FontIcon
+                    x:Name="LinkIcon"
+                    Margin="0,8,0,8"
+                    HorizontalAlignment="Center"
+                    Glyph="&#xE71B;"
+                    RenderTransformOrigin="0.5,0.5">
+                    <FontIcon.RenderTransform>
+                        <RotateTransform Angle="90" />
+                    </FontIcon.RenderTransform>
+                </FontIcon>
+
+                <TextBox
+                    x:Name="UrlTextBox"
+                    HorizontalAlignment="Stretch"
+                    VerticalContentAlignment="Center"
+                    PlaceholderText="abc.com" />
+
+            </StackPanel>
+        </ContentDialog>
     </RelativePanel>
 </UserControl>

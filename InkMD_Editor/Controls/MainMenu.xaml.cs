@@ -241,6 +241,29 @@ public sealed partial class MainMenu : UserControl
         }
     }
 
+    private async void HyperLink_Click(object sender, RoutedEventArgs e)
+    {
+        DisplayTextBox.Text = string.Empty;
+        UrlTextBox.Text = string.Empty;
+        DisplayTextBox.Focus(FocusState.Programmatic);
+
+        var result = await HyperlinkDialog.ShowAsync();
+        if (result is ContentDialogResult.Primary)
+        {
+            string displayText = DisplayTextBox.Text;
+            string url = UrlTextBox.Text;
+
+
+            if (!ViewModel.TryCreateHyperlink(displayText, url, out _))
+            {
+                await _dialogService.ShowErrorAsync("Please enter both display text and URL.");
+                return;
+            }
+
+            ViewModel.SendHyperlinkMessage(displayText, url);
+        }
+    }
+
     private static (string name, string extension) ParseFileName(string fileName, string defaultExtension)
     {
         var extension = Path.GetExtension(fileName);
