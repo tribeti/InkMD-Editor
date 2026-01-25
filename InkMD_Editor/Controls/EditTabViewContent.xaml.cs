@@ -50,6 +50,14 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
     public void MarkAsClean() => ViewModel.MarkAsClean();
 
+    public void InsertText(string text)
+    {
+        if (EditBox is null)
+            return;
+
+        EditBox.AddLine(EditBox.CurrentLineIndex, text);
+    }
+
     private void EditBox_TextChanged(TextControlBox sender)
     {
         ViewModel.CurrentContent = sender.GetText();

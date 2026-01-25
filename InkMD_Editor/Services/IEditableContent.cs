@@ -17,4 +17,5 @@ public interface IEditableContent
     bool IsDirty();
     void MarkAsClean();
     IEnumerable<string> GetContentToSaveFile();
+    void InsertText(string text);
 }

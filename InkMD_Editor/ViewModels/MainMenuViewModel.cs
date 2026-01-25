@@ -125,6 +125,17 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
         WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content, createNewFile));
     }
 
+    public bool CreateHyperlink(string displayText, string url, out string hyperlinkMarkdown)
+    {
+        hyperlinkMarkdown = $"[{displayText.Trim()}]({url.Trim()})";
+        return true;
+    }
+
+    public void SendHyperlinkMessage(string markdown)
+    {
+        WeakReferenceMessenger.Default.Send(new HyperlinkCreationMessage(markdown));
+    }
+
     [RelayCommand]
     private async Task LoadIconsAsync()
     {

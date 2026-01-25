@@ -241,6 +241,40 @@ public sealed partial class MainMenu : UserControl
         }
     }
 
+    private async void HyperLink_Click(object sender, RoutedEventArgs e)
+    {
+        DisplayTextBox.Text = string.Empty;
+        UrlTextBox.Text = string.Empty;
+        DisplayTextBox.Focus(FocusState.Programmatic);
+
+        var result = await HyperlinkDialog.ShowAsync();
+        if (result is ContentDialogResult.Primary)
+        {
+            string displayText = DisplayTextBox.Text;
+            string url = UrlTextBox.Text;
+
+            if (string.IsNullOrWhiteSpace(displayText) || string.IsNullOrWhiteSpace(url))
+            {
+                await _dialogService.ShowErrorAsync("Please enter both the display text and the link.");
+                return;
+            }
+
+            bool isUrlValid = Uri.TryCreate(url.Trim(), UriKind.Absolute, out var uri);
+            bool isSecureScheme = (uri?.Scheme == Uri.UriSchemeHttp || uri?.Scheme == Uri.UriSchemeHttps);
+
+            if (!isUrlValid || !isSecureScheme)
+            {
+                await _dialogService.ShowErrorAsync("Please enter a valid link starting with 'http://' or 'https://'.");
+                return;
+            }
+
+            if (ViewModel.CreateHyperlink(displayText, url, out var hyperlinkMarkdown))
+            {
+                ViewModel.SendHyperlinkMessage(hyperlinkMarkdown);
+            }
+        }
+    }
+
     private static (string name, string extension) ParseFileName(string fileName, string defaultExtension)
     {
         var extension = Path.GetExtension(fileName);
