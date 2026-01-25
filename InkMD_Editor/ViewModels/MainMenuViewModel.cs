@@ -127,13 +127,6 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
 
     public bool TryCreateHyperlink(string displayText, string url, out string hyperlinkMarkdown)
     {
-        hyperlinkMarkdown = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(displayText) || string.IsNullOrWhiteSpace(url))
-        {
-            return false;
-        }
-
         hyperlinkMarkdown = $"[{displayText.Trim()}]({url.Trim()})";
         return true;
     }

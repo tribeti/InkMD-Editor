@@ -253,14 +253,25 @@ public sealed partial class MainMenu : UserControl
             string displayText = DisplayTextBox.Text;
             string url = UrlTextBox.Text;
 
-
-            if (!ViewModel.TryCreateHyperlink(displayText, url, out _))
+            if (string.IsNullOrWhiteSpace(displayText) || string.IsNullOrWhiteSpace(url))
             {
-                await _dialogService.ShowErrorAsync("Please enter both display text and URL.");
+                await _dialogService.ShowErrorAsync("Please enter both the display text and the link.");
                 return;
             }
 
-            ViewModel.SendHyperlinkMessage(displayText, url);
+            bool isUrlValid = Uri.TryCreate(url.Trim(), UriKind.Absolute, out var uri);
+            bool isSecureScheme = (uri?.Scheme == Uri.UriSchemeHttp || uri?.Scheme == Uri.UriSchemeHttps);
+
+            if (!isUrlValid || !isSecureScheme)
+            {
+                await _dialogService.ShowErrorAsync("Please enter a valid link starting with 'http://' or 'https://'.");
+                return;
+            }
+
+            if (ViewModel.TryCreateHyperlink(displayText, url, out _))
+            {
+                ViewModel.SendHyperlinkMessage(displayText, url);
+            }
         }
     }
 
