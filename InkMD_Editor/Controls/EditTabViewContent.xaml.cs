@@ -1,10 +1,10 @@
-﻿using InkMD_Editor.Messages;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
 using TextControlBoxNS;
-using CommunityToolkit.Mvvm.Messaging;
 
 namespace InkMD_Editor.Controls;
 
@@ -17,6 +17,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         InitializeComponent();
         EditBox.EnableSyntaxHighlighting = true;
         EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
+        EditBox.SelectionChanged += (s, e) => UpdateFormattingState(EditBox);
     }
 
     public void SetContent(string text, string? fileName)
@@ -57,10 +58,24 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         if (string.IsNullOrEmpty(text))
             return;
 
-        if (IsFormattedWith(text, "**"))
+        // If it has bold+italic (***), toggle to italic (*)
+        if (IsFormattedWith(text, "***"))
+        {
+            RemoveFormatting(text, "***");
+            ApplyFormatting("*");
+        }
+        // If it has bold (**), remove it
+        else if (IsFormattedWith(text, "**"))
         {
             RemoveFormatting(text, "**");
         }
+        // If it has italic (*), toggle to bold+italic (***)
+        else if (IsFormattedWith(text, "*") && !IsFormattedWith(text, "**"))
+        {
+            RemoveFormatting(text, "*");
+            ApplyFormatting("***");
+        }
+        // No formatting, apply bold
         else
         {
             ApplyFormatting("**");
@@ -77,10 +92,24 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         if (string.IsNullOrEmpty(text))
             return;
 
-        if (IsFormattedWith(text, "*"))
+        // If it has bold+italic (***), toggle to bold (**)
+        if (IsFormattedWith(text, "***"))
+        {
+            RemoveFormatting(text, "***");
+            ApplyFormatting("**");
+        }
+        // If it has italic (*), remove it
+        else if (IsFormattedWith(text, "*") && !IsFormattedWith(text, "**"))
         {
             RemoveFormatting(text, "*");
         }
+        // If it has bold (**), toggle to bold+italic (***)
+        else if (IsFormattedWith(text, "**"))
+        {
+            RemoveFormatting(text, "**");
+            ApplyFormatting("***");
+        }
+        // No formatting, apply italic
         else
         {
             ApplyFormatting("*");
@@ -97,15 +126,75 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         if (string.IsNullOrEmpty(text))
             return;
 
-        if (IsFormattedWith(text, "~~"))
+        // Check if text already has strikethrough
+        if (HasStrikethrough(text))
         {
-            RemoveFormatting(text, "~~");
+            // Remove strikethrough but preserve bold/italic
+            RemoveStrikethrough(text);
         }
         else
         {
-            ApplyFormatting("~~");
+            // Add strikethrough while preserving any existing bold/italic
+            AddStrikethrough(text);
         }
         UpdateFormattingState(EditBox);
+    }
+
+    private bool HasStrikethrough(string text)
+    {
+        return !string.IsNullOrEmpty(text) && text.StartsWith("~~") && text.EndsWith("~~");
+    }
+
+    private void AddStrikethrough(string text)
+    {
+        if (EditBox is null)
+            return;
+
+        try
+        {
+            if (EditBox.HasSelection)
+            {
+                EditBox.SurroundSelectionWith("~~");
+            }
+            else
+            {
+                int lineIndex = EditBox.CurrentLineIndex;
+                if (lineIndex < 0 || lineIndex >= EditBox.NumberOfLines)
+                    return;
+
+                string lineText = EditBox.GetLineText(lineIndex) ?? string.Empty;
+                string strikeThroughLine = $"~~{lineText}~~";
+                EditBox.SetLineText(lineIndex, strikeThroughLine);
+            }
+        }
+        catch
+        {
+            // Silently handle errors
+        }
+    }
+
+    private void RemoveStrikethrough(string text)
+    {
+        if (EditBox is null)
+            return;
+
+        try
+        {
+            // Extract content between ~~ markers
+            string unformatted = text.StartsWith("~~") && text.EndsWith("~~")
+                ? text.Substring(2, text.Length - 4)
+                : text;
+
+            int lineIndex = EditBox.CurrentLineIndex;
+            if (lineIndex >= 0 && lineIndex < EditBox.NumberOfLines)
+            {
+                EditBox.SetLineText(lineIndex, unformatted);
+            }
+        }
+        catch
+        {
+            // Silently handle errors
+        }
     }
 
     private string GetTextToFormat()
@@ -118,8 +207,18 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
             return EditBox.SelectedText ?? string.Empty;
         }
 
-        int currentLine = EditBox.CurrentLineIndex;
-        return EditBox.GetLineText(currentLine) ?? string.Empty;
+        try
+        {
+            int currentLine = EditBox.CurrentLineIndex;
+            if (currentLine < 0 || currentLine >= EditBox.NumberOfLines)
+                return string.Empty;
+
+            return EditBox.GetLineText(currentLine) ?? string.Empty;
+        }
+        catch
+        {
+            return string.Empty;
+        }
     }
 
     private void ApplyFormatting(string marker)
@@ -127,16 +226,26 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         if (EditBox is null)
             return;
 
-        if (EditBox.HasSelection)
+        try
         {
-            EditBox.SurroundSelectionWith(marker);
+            if (EditBox.HasSelection)
+            {
+                EditBox.SurroundSelectionWith(marker);
+            }
+            else
+            {
+                int lineIndex = EditBox.CurrentLineIndex;
+                if (lineIndex < 0 || lineIndex >= EditBox.NumberOfLines)
+                    return;
+
+                string lineText = EditBox.GetLineText(lineIndex) ?? string.Empty;
+                string formattedLine = $"{marker}{lineText}{marker}";
+                EditBox.SetLineText(lineIndex, formattedLine);
+            }
         }
-        else
+        catch
         {
-            int lineIndex = EditBox.CurrentLineIndex;
-            string lineText = EditBox.GetLineText(lineIndex) ?? string.Empty;
-            string formattedLine = $"{marker}{lineText}{marker}";
-            EditBox.SetLineText(lineIndex, formattedLine);
+            // Silently handle formatting errors
         }
     }
 
@@ -145,19 +254,29 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         if (EditBox is null)
             return;
 
-        string unformatted = text.StartsWith(marker) && text.EndsWith(marker)
-            ? text.Substring(marker.Length, text.Length - 2 * marker.Length)
-            : text;
+        try
+        {
+            string unformatted = text.StartsWith(marker) && text.EndsWith(marker)
+                ? text.Substring(marker.Length, text.Length - 2 * marker.Length)
+                : text;
 
-        int lineIndex = EditBox.CurrentLineIndex;
-        EditBox.SetLineText(lineIndex, unformatted);
+            int lineIndex = EditBox.CurrentLineIndex;
+            if (lineIndex >= 0 && lineIndex < EditBox.NumberOfLines)
+            {
+                EditBox.SetLineText(lineIndex, unformatted);
+            }
+        }
+        catch
+        {
+            // Silently handle formatting errors
+        }
     }
 
     private bool IsFormattedWith(string text, string marker)
     {
-        return !string.IsNullOrEmpty(text) && 
-               text.StartsWith(marker) && 
-               text.EndsWith(marker) && 
+        return !string.IsNullOrEmpty(text) &&
+               text.StartsWith(marker) &&
+               text.EndsWith(marker) &&
                text.Length > 2 * marker.Length;
     }
 
@@ -167,10 +286,29 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
             return;
 
         string text = GetTextToFormat();
-        
-        ViewModel.IsBoldActive = IsFormattedWith(text, "**");
-        ViewModel.IsItalicActive = IsFormattedWith(text, "*") && !IsFormattedWith(text, "**");
-        ViewModel.IsStrikethroughActive = IsFormattedWith(text, "~~");
+
+        // Strip strikethrough markers first to check for bold/italic
+        string textWithoutStrikethrough = text;
+        if (text.StartsWith("~~") && text.EndsWith("~~"))
+        {
+            textWithoutStrikethrough = text.Substring(2, text.Length - 4);
+        }
+
+        // Check for bold+italic (3 stars: ***)
+        bool hasBoldItalic = IsFormattedWith(textWithoutStrikethrough, "***");
+
+        // Check for bold (2 stars: **)
+        bool hasBold = IsFormattedWith(textWithoutStrikethrough, "**") || hasBoldItalic;
+
+        // Check for italic (1 star: *), but exclude if it's bold or bold+italic
+        bool hasItalic = IsFormattedWith(textWithoutStrikethrough, "*") && !IsFormattedWith(textWithoutStrikethrough, "**");
+
+        // Strikethrough is checked independently
+        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
+
+        ViewModel.IsBoldActive = hasBold;
+        ViewModel.IsItalicActive = hasItalic || hasBoldItalic;
+        ViewModel.IsStrikethroughActive = hasStrikethrough;
 
         WeakReferenceMessenger.Default.Send(new FormattingStateMessage(
             ViewModel.IsBoldActive,

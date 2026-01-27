@@ -31,7 +31,7 @@ public sealed partial class MainMenu : UserControl
         InitializeComponent();
         DataContext = ViewModel;
         Unloaded += (s, e) => Dispose();
-        
+
         WeakReferenceMessenger.Default.Register<FormattingStateMessage>(this, HandleFormattingStateChanged);
     }
 
