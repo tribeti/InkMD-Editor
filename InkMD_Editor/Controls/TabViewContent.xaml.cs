@@ -226,7 +226,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         return !string.IsNullOrEmpty(text) && text.StartsWith("~~") && text.EndsWith("~~");
     }
 
-    private void AddStrikethrough(string text)
+    private void AddStrikethrough(string _)
     {
         if (CurrentEditBox is null)
             return;
@@ -258,8 +258,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
         try
         {
-            string unformatted = text.StartsWith("~~") && text.EndsWith("~~")
-                ? text.Substring(2, text.Length - 4)
+            string unformatted = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4
+                ? text[2..^2]
                 : text;
 
             int lineIndex = CurrentEditBox.CurrentLineIndex;
@@ -337,10 +337,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
                 CurrentEditBox.SetLineText(lineIndex, unformatted);
             }
         }
-        catch
-        {
-            // Silently handle formatting errors
-        }
+        catch { }
     }
 
     private bool IsFormattedWith(string text, string marker)
@@ -358,14 +355,14 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
         string text = GetTextToFormat();
         string textWithoutStrikethrough = text;
-        if (text.StartsWith("~~") && text.EndsWith("~~"))
+        if (text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4)
         {
-            textWithoutStrikethrough = text.Substring(2, text.Length - 4);
+            textWithoutStrikethrough = text[2..^2];
         }
         bool hasBoldItalic = IsFormattedWith(textWithoutStrikethrough, "***");
         bool hasBold = IsFormattedWith(textWithoutStrikethrough, "**") || hasBoldItalic;
         bool hasItalic = IsFormattedWith(textWithoutStrikethrough, "*") && !IsFormattedWith(textWithoutStrikethrough, "**");
-        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
+        bool hasStrikethrough = IsFormattedWith(text, "~~");
 
         ViewModel.IsBoldActive = hasBold;
         ViewModel.IsItalicActive = hasItalic || hasBoldItalic;

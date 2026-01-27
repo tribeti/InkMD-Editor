@@ -58,24 +58,20 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         if (string.IsNullOrEmpty(text))
             return;
 
-        // If it has bold+italic (***), toggle to italic (*)
         if (IsFormattedWith(text, "***"))
         {
             RemoveFormatting(text, "***");
             ApplyFormatting("*");
         }
-        // If it has bold (**), remove it
         else if (IsFormattedWith(text, "**"))
         {
             RemoveFormatting(text, "**");
         }
-        // If it has italic (*), toggle to bold+italic (***)
         else if (IsFormattedWith(text, "*") && !IsFormattedWith(text, "**"))
         {
             RemoveFormatting(text, "*");
             ApplyFormatting("***");
         }
-        // No formatting, apply bold
         else
         {
             ApplyFormatting("**");
@@ -92,24 +88,20 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         if (string.IsNullOrEmpty(text))
             return;
 
-        // If it has bold+italic (***), toggle to bold (**)
         if (IsFormattedWith(text, "***"))
         {
             RemoveFormatting(text, "***");
             ApplyFormatting("**");
         }
-        // If it has italic (*), remove it
         else if (IsFormattedWith(text, "*") && !IsFormattedWith(text, "**"))
         {
             RemoveFormatting(text, "*");
         }
-        // If it has bold (**), toggle to bold+italic (***)
         else if (IsFormattedWith(text, "**"))
         {
             RemoveFormatting(text, "**");
             ApplyFormatting("***");
         }
-        // No formatting, apply italic
         else
         {
             ApplyFormatting("*");
@@ -126,15 +118,12 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         if (string.IsNullOrEmpty(text))
             return;
 
-        // Check if text already has strikethrough
         if (HasStrikethrough(text))
         {
-            // Remove strikethrough but preserve bold/italic
             RemoveStrikethrough(text);
         }
         else
         {
-            // Add strikethrough while preserving any existing bold/italic
             AddStrikethrough(text);
         }
         UpdateFormattingState(EditBox);
@@ -145,7 +134,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         return !string.IsNullOrEmpty(text) && text.StartsWith("~~") && text.EndsWith("~~");
     }
 
-    private void AddStrikethrough(string text)
+    private void AddStrikethrough(string _)
     {
         if (EditBox is null)
             return;
@@ -167,10 +156,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
                 EditBox.SetLineText(lineIndex, strikeThroughLine);
             }
         }
-        catch
-        {
-            // Silently handle errors
-        }
+        catch { }
     }
 
     private void RemoveStrikethrough(string text)
@@ -180,9 +166,8 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
         try
         {
-            // Extract content between ~~ markers
-            string unformatted = text.StartsWith("~~") && text.EndsWith("~~")
-                ? text.Substring(2, text.Length - 4)
+            string unformatted = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4
+                ? text[2..^2]
                 : text;
 
             int lineIndex = EditBox.CurrentLineIndex;
@@ -191,10 +176,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
                 EditBox.SetLineText(lineIndex, unformatted);
             }
         }
-        catch
-        {
-            // Silently handle errors
-        }
+        catch { }
     }
 
     private string GetTextToFormat()
@@ -243,10 +225,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
                 EditBox.SetLineText(lineIndex, formattedLine);
             }
         }
-        catch
-        {
-            // Silently handle formatting errors
-        }
+        catch { }
     }
 
     private void RemoveFormatting(string text, string marker)
@@ -260,16 +239,20 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
                 ? text.Substring(marker.Length, text.Length - 2 * marker.Length)
                 : text;
 
-            int lineIndex = EditBox.CurrentLineIndex;
-            if (lineIndex >= 0 && lineIndex < EditBox.NumberOfLines)
+            if (EditBox.HasSelection)
             {
-                EditBox.SetLineText(lineIndex, unformatted);
+                EditBox.SelectedText = unformatted;
+            }
+            else
+            {
+                int lineIndex = EditBox.CurrentLineIndex;
+                if (lineIndex >= 0 && lineIndex < EditBox.NumberOfLines)
+                {
+                    EditBox.SetLineText(lineIndex, unformatted);
+                }
             }
         }
-        catch
-        {
-            // Silently handle formatting errors
-        }
+        catch { }
     }
 
     private bool IsFormattedWith(string text, string marker)
@@ -286,25 +269,17 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
             return;
 
         string text = GetTextToFormat();
-
-        // Strip strikethrough markers first to check for bold/italic
         string textWithoutStrikethrough = text;
-        if (text.StartsWith("~~") && text.EndsWith("~~"))
+
+        if (text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4)
         {
-            textWithoutStrikethrough = text.Substring(2, text.Length - 4);
+            textWithoutStrikethrough = text[2..^2];
         }
 
-        // Check for bold+italic (3 stars: ***)
         bool hasBoldItalic = IsFormattedWith(textWithoutStrikethrough, "***");
-
-        // Check for bold (2 stars: **)
         bool hasBold = IsFormattedWith(textWithoutStrikethrough, "**") || hasBoldItalic;
-
-        // Check for italic (1 star: *), but exclude if it's bold or bold+italic
         bool hasItalic = IsFormattedWith(textWithoutStrikethrough, "*") && !IsFormattedWith(textWithoutStrikethrough, "**");
-
-        // Strikethrough is checked independently
-        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
+        bool hasStrikethrough = IsFormattedWith(text, "~~");
 
         ViewModel.IsBoldActive = hasBold;
         ViewModel.IsItalicActive = hasItalic || hasBoldItalic;
