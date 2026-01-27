@@ -204,6 +204,15 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
     [RelayCommand]
     private void Paste() => SendEditCommand(EditCommandType.Paste);
 
+    [RelayCommand]
+    private void Bold() => SendEditCommand(EditCommandType.Bold);
+
+    [RelayCommand]
+    private void Italic() => SendEditCommand(EditCommandType.Italic);
+
+    [RelayCommand]
+    private void Strikethrough() => SendEditCommand(EditCommandType.Strikethrough);
+
     public void Cleanup()
     {
         Templates.Clear();

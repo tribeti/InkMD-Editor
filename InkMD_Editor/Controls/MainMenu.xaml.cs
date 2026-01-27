@@ -31,6 +31,15 @@ public sealed partial class MainMenu : UserControl
         InitializeComponent();
         DataContext = ViewModel;
         Unloaded += (s, e) => Dispose();
+
+        WeakReferenceMessenger.Default.Register<FormattingStateMessage>(this, HandleFormattingStateChanged);
+    }
+
+    private void HandleFormattingStateChanged(object recipient, FormattingStateMessage message)
+    {
+        BoldButton?.IsChecked = message.IsBoldActive;
+        ItalicButton?.IsChecked = message.IsItalicActive;
+        StrikethroughButton?.IsChecked = message.IsStrikethroughActive;
     }
 
     public void SetVisibility(bool isVisible)
@@ -65,7 +74,6 @@ public sealed partial class MainMenu : UserControl
             _isInternalUpdate = false;
         }
     }
-
 
     private async void TemplateFlyout_Opening(object sender, object e)
     {

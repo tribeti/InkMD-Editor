@@ -1,4 +1,6 @@
-﻿using InkMD_Editor.Services;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using InkMD_Editor.Messages;
+using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
@@ -14,7 +16,8 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     {
         InitializeComponent();
         EditBox.EnableSyntaxHighlighting = true;
-        EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
+        EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.None);
+        WeakReferenceMessenger.Default.Send(new FormattingStateMessage(false, false, false));
     }
 
     public void SetContent(string text, string? fileName)
@@ -45,6 +48,10 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     public void Copy() => EditBox?.Copy();
 
     public void Paste() => EditBox?.Paste();
+
+    public void ApplyBold() { }
+    public void ApplyItalic() { }
+    public void ApplyStrikethrough() { }
 
     public bool IsDirty() => ViewModel.IsDirty;
 

@@ -85,6 +85,9 @@ public sealed partial class EditorPage : Page
             EditCommandType.Cut => editable.Cut,
             EditCommandType.Copy => editable.Copy,
             EditCommandType.Paste => editable.Paste,
+            EditCommandType.Bold => editable.ApplyBold,
+            EditCommandType.Italic => editable.ApplyItalic,
+            EditCommandType.Strikethrough => editable.ApplyStrikethrough,
             _ => () => { }
         };
         action();

@@ -35,6 +35,15 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     [ObservableProperty]
     public partial bool IsLoadingContent { get; set; }
 
+    [ObservableProperty]
+    public partial bool IsBoldActive { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsItalicActive { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsStrikethroughActive { get; set; }
+
     private bool _lastDirtyState = false;
 
     /// <summary>
