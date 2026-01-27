@@ -37,12 +37,9 @@ public sealed partial class MainMenu : UserControl
 
     private void HandleFormattingStateChanged(object recipient, FormattingStateMessage message)
     {
-        if (BoldButton != null)
-            BoldButton.IsChecked = message.IsBoldActive;
-        if (ItalicButton != null)
-            ItalicButton.IsChecked = message.IsItalicActive;
-        if (StrikethroughButton != null)
-            StrikethroughButton.IsChecked = message.IsStrikethroughActive;
+        BoldButton?.IsChecked = message.IsBoldActive;
+        ItalicButton?.IsChecked = message.IsItalicActive;
+        StrikethroughButton?.IsChecked = message.IsStrikethroughActive;
     }
 
     public void SetVisibility(bool isVisible)
