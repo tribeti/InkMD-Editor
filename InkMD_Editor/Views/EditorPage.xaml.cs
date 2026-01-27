@@ -85,6 +85,9 @@ public sealed partial class EditorPage : Page
             EditCommandType.Cut => editable.Cut,
             EditCommandType.Copy => editable.Copy,
             EditCommandType.Paste => editable.Paste,
+            EditCommandType.Bold => editable.ApplyBold,
+            EditCommandType.Italic => editable.ApplyItalic,
+            EditCommandType.Strikethrough => editable.ApplyStrikethrough,
             _ => () => { }
         };
         action();
@@ -236,7 +239,7 @@ public sealed partial class EditorPage : Page
     private async Task HandleSaveFile()
     {
         var (tab, content) = GetSelectedTabContent();
-        if (tab is null || content is null)
+        if (tab is null or { } && content is null)
         {
             await _viewModel.ShowErrorAsync("There is no open document");
             return;

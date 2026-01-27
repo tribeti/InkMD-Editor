@@ -139,9 +139,21 @@
                         KeyboardAcceleratorTextOverride="Ctrl+V"
                         Label="Paste" />
                     <AppBarSeparator />
-                    <AppBarToggleButton Icon="{ui:FontIcon Glyph=&#xE8DD;}" Label="Bold" />
-                    <AppBarToggleButton Icon="{ui:FontIcon Glyph=&#xE8DB;}" Label="Italic" />
-                    <AppBarToggleButton Icon="{ui:FontIcon Glyph=&#xE8DC;}" Label="Underline" />
+                    <AppBarToggleButton
+                        x:Name="BoldButton"
+                        Command="{x:Bind ViewModel.BoldCommand}"
+                        Icon="{ui:FontIcon Glyph=&#xE8DD;}"
+                        Label="Bold" />
+                    <AppBarToggleButton
+                        x:Name="ItalicButton"
+                        Command="{x:Bind ViewModel.ItalicCommand}"
+                        Icon="{ui:FontIcon Glyph=&#xE8DB;}"
+                        Label="Italic" />
+                    <AppBarToggleButton
+                        x:Name="StrikethroughButton"
+                        Command="{x:Bind ViewModel.StrikethroughCommand}"
+                        Icon="{ui:FontIcon Glyph=&#xE8DC;}"
+                        Label="Strikethrough" />
                 </controls:TabbedCommandBarItem>
                 <!--  insert menu items  -->
                 <controls:TabbedCommandBarItem Header="Insert">

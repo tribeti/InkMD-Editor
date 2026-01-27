@@ -6,7 +6,10 @@ public enum EditCommandType
     Redo,
     Cut,
     Copy,
-    Paste
+    Paste,
+    Bold,
+    Italic,
+    Strikethrough
 }
 
 public record EditCommandMessage(EditCommandType Command);

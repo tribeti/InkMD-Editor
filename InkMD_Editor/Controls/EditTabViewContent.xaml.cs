@@ -1,8 +1,10 @@
-﻿using InkMD_Editor.Services;
+﻿using InkMD_Editor.Messages;
+using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
 using TextControlBoxNS;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace InkMD_Editor.Controls;
 
@@ -46,6 +48,137 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
     public void Paste() => EditBox?.Paste();
 
+    public void ApplyBold()
+    {
+        if (EditBox is null)
+            return;
+
+        string text = GetTextToFormat();
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        if (IsFormattedWith(text, "**"))
+        {
+            RemoveFormatting(text, "**");
+        }
+        else
+        {
+            ApplyFormatting("**");
+        }
+        UpdateFormattingState(EditBox);
+    }
+
+    public void ApplyItalic()
+    {
+        if (EditBox is null)
+            return;
+
+        string text = GetTextToFormat();
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        if (IsFormattedWith(text, "*"))
+        {
+            RemoveFormatting(text, "*");
+        }
+        else
+        {
+            ApplyFormatting("*");
+        }
+        UpdateFormattingState(EditBox);
+    }
+
+    public void ApplyStrikethrough()
+    {
+        if (EditBox is null)
+            return;
+
+        string text = GetTextToFormat();
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        if (IsFormattedWith(text, "~~"))
+        {
+            RemoveFormatting(text, "~~");
+        }
+        else
+        {
+            ApplyFormatting("~~");
+        }
+        UpdateFormattingState(EditBox);
+    }
+
+    private string GetTextToFormat()
+    {
+        if (EditBox is null)
+            return string.Empty;
+
+        if (EditBox.HasSelection)
+        {
+            return EditBox.SelectedText ?? string.Empty;
+        }
+
+        int currentLine = EditBox.CurrentLineIndex;
+        return EditBox.GetLineText(currentLine) ?? string.Empty;
+    }
+
+    private void ApplyFormatting(string marker)
+    {
+        if (EditBox is null)
+            return;
+
+        if (EditBox.HasSelection)
+        {
+            EditBox.SurroundSelectionWith(marker);
+        }
+        else
+        {
+            int lineIndex = EditBox.CurrentLineIndex;
+            string lineText = EditBox.GetLineText(lineIndex) ?? string.Empty;
+            string formattedLine = $"{marker}{lineText}{marker}";
+            EditBox.SetLineText(lineIndex, formattedLine);
+        }
+    }
+
+    private void RemoveFormatting(string text, string marker)
+    {
+        if (EditBox is null)
+            return;
+
+        string unformatted = text.StartsWith(marker) && text.EndsWith(marker)
+            ? text.Substring(marker.Length, text.Length - 2 * marker.Length)
+            : text;
+
+        int lineIndex = EditBox.CurrentLineIndex;
+        EditBox.SetLineText(lineIndex, unformatted);
+    }
+
+    private bool IsFormattedWith(string text, string marker)
+    {
+        return !string.IsNullOrEmpty(text) && 
+               text.StartsWith(marker) && 
+               text.EndsWith(marker) && 
+               text.Length > 2 * marker.Length;
+    }
+
+    private void UpdateFormattingState(TextControlBox sender)
+    {
+        if (sender is null)
+            return;
+
+        string text = GetTextToFormat();
+        
+        ViewModel.IsBoldActive = IsFormattedWith(text, "**");
+        ViewModel.IsItalicActive = IsFormattedWith(text, "*") && !IsFormattedWith(text, "**");
+        ViewModel.IsStrikethroughActive = IsFormattedWith(text, "~~");
+
+        WeakReferenceMessenger.Default.Send(new FormattingStateMessage(
+            ViewModel.IsBoldActive,
+            ViewModel.IsItalicActive,
+            ViewModel.IsStrikethroughActive
+        ));
+    }
+
     public bool IsDirty() => ViewModel.IsDirty;
 
     public void MarkAsClean() => ViewModel.MarkAsClean();
@@ -61,6 +194,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     private void EditBox_TextChanged(TextControlBox sender)
     {
         ViewModel.CurrentContent = sender.GetText();
+        UpdateFormattingState(sender);
     }
 
     public void Dispose()

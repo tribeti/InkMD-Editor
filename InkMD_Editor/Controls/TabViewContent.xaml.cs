@@ -1,4 +1,5 @@
 ﻿using InkMD_Editor.Helpers;
+using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Markdig;
@@ -6,6 +7,8 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using TextControlBoxNS;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace InkMD_Editor.Controls;
 
@@ -84,6 +87,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         string text = sender.GetText();
         UpdateMarkdownPreview(text);
         ViewModel.CurrentContent = text;
+        UpdateFormattingState(sender);
     }
 
     private TextControlBox? CurrentEditBox => ViewModel.Tag switch
@@ -135,6 +139,137 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public void Copy() => CurrentEditBox?.Copy();
 
     public void Paste() => CurrentEditBox?.Paste();
+
+    public void ApplyBold()
+    {
+        if (CurrentEditBox is null)
+            return;
+
+        string text = GetTextToFormat();
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        if (IsFormattedWith(text, "**"))
+        {
+            RemoveFormatting(text, "**");
+        }
+        else
+        {
+            ApplyFormatting("**");
+        }
+        UpdateFormattingState(CurrentEditBox);
+    }
+
+    public void ApplyItalic()
+    {
+        if (CurrentEditBox is null)
+            return;
+
+        string text = GetTextToFormat();
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        if (IsFormattedWith(text, "*"))
+        {
+            RemoveFormatting(text, "*");
+        }
+        else
+        {
+            ApplyFormatting("*");
+        }
+        UpdateFormattingState(CurrentEditBox);
+    }
+
+    public void ApplyStrikethrough()
+    {
+        if (CurrentEditBox is null)
+            return;
+
+        string text = GetTextToFormat();
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        if (IsFormattedWith(text, "~~"))
+        {
+            RemoveFormatting(text, "~~");
+        }
+        else
+        {
+            ApplyFormatting("~~");
+        }
+        UpdateFormattingState(CurrentEditBox);
+    }
+
+    private string GetTextToFormat()
+    {
+        if (CurrentEditBox is null)
+            return string.Empty;
+
+        if (CurrentEditBox.HasSelection)
+        {
+            return CurrentEditBox.SelectedText ?? string.Empty;
+        }
+
+        int currentLine = CurrentEditBox.CurrentLineIndex;
+        return CurrentEditBox.GetLineText(currentLine) ?? string.Empty;
+    }
+
+    private void ApplyFormatting(string marker)
+    {
+        if (CurrentEditBox is null)
+            return;
+
+        if (CurrentEditBox.HasSelection)
+        {
+            CurrentEditBox.SurroundSelectionWith(marker);
+        }
+        else
+        {
+            int lineIndex = CurrentEditBox.CurrentLineIndex;
+            string lineText = CurrentEditBox.GetLineText(lineIndex) ?? string.Empty;
+            string formattedLine = $"{marker}{lineText}{marker}";
+            CurrentEditBox.SetLineText(lineIndex, formattedLine);
+        }
+    }
+
+    private void RemoveFormatting(string text, string marker)
+    {
+        if (CurrentEditBox is null)
+            return;
+
+        string unformatted = text.StartsWith(marker) && text.EndsWith(marker)
+            ? text.Substring(marker.Length, text.Length - 2 * marker.Length)
+            : text;
+
+        int lineIndex = CurrentEditBox.CurrentLineIndex;
+        CurrentEditBox.SetLineText(lineIndex, unformatted);
+    }
+
+    private bool IsFormattedWith(string text, string marker)
+    {
+        return !string.IsNullOrEmpty(text) && 
+               text.StartsWith(marker) && 
+               text.EndsWith(marker) && 
+               text.Length > 2 * marker.Length;
+    }
+
+    private void UpdateFormattingState(TextControlBox sender)
+    {
+        if (sender is null)
+            return;
+
+        string text = GetTextToFormat();
+        
+        ViewModel.IsBoldActive = IsFormattedWith(text, "**");
+        ViewModel.IsItalicActive = IsFormattedWith(text, "*") && !IsFormattedWith(text, "**");
+        ViewModel.IsStrikethroughActive = IsFormattedWith(text, "~~");
+
+        WeakReferenceMessenger.Default.Send(new FormattingStateMessage(
+            ViewModel.IsBoldActive,
+            ViewModel.IsItalicActive,
+            ViewModel.IsStrikethroughActive
+        ));
+    }
 
     public void MarkAsClean() => ViewModel.MarkAsClean();
 

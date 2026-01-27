@@ -14,6 +14,9 @@ public interface IEditableContent
     void Cut();
     void Copy();
     void Paste();
+    void ApplyBold();
+    void ApplyItalic();
+    void ApplyStrikethrough();
     bool IsDirty();
     void MarkAsClean();
     IEnumerable<string> GetContentToSaveFile();
