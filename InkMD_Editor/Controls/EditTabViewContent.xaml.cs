@@ -55,8 +55,6 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
             return;
 
         string text = GetTextToFormat();
-        if (string.IsNullOrEmpty(text))
-            return;
 
         if (IsFormattedWith(text, "***"))
         {
@@ -85,8 +83,6 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
             return;
 
         string text = GetTextToFormat();
-        if (string.IsNullOrEmpty(text))
-            return;
 
         if (IsFormattedWith(text, "***"))
         {
@@ -115,10 +111,8 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
             return;
 
         string text = GetTextToFormat();
-        if (string.IsNullOrEmpty(text))
-            return;
 
-        if (HasStrikethrough(text))
+        if (IsFormattedWith(text, "~~"))
         {
             RemoveStrikethrough(text);
         }
@@ -127,11 +121,6 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
             AddStrikethrough(text);
         }
         UpdateFormattingState(EditBox);
-    }
-
-    private bool HasStrikethrough(string text)
-    {
-        return !string.IsNullOrEmpty(text) && text.StartsWith("~~") && text.EndsWith("~~");
     }
 
     private void AddStrikethrough(string _)
@@ -260,7 +249,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         return !string.IsNullOrEmpty(text) &&
                text.StartsWith(marker) &&
                text.EndsWith(marker) &&
-               text.Length > 2 * marker.Length;
+               text.Length >= 2 * marker.Length;
     }
 
     private void UpdateFormattingState(TextControlBox sender)

@@ -146,28 +146,15 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         if (CurrentEditBox is null)
             return;
 
-        string text = GetTextToFormat();
-        if (string.IsNullOrEmpty(text))
-            return;
-
-        if (IsFormattedWith(text, "***"))
+        if (ViewModel.IsBoldActive)
         {
-            RemoveFormatting(text, "***");
-            ApplyFormatting("*");
-        }
-        else if (IsFormattedWith(text, "**"))
-        {
-            RemoveFormatting(text, "**");
-        }
-        else if (IsFormattedWith(text, "*") && !IsFormattedWith(text, "**"))
-        {
-            RemoveFormatting(text, "*");
-            ApplyFormatting("***");
+            RemoveBoldFormatting();
         }
         else
         {
-            ApplyFormatting("**");
+            AddBoldFormatting();
         }
+
         UpdateFormattingState(CurrentEditBox);
     }
 
@@ -176,28 +163,15 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         if (CurrentEditBox is null)
             return;
 
-        string text = GetTextToFormat();
-        if (string.IsNullOrEmpty(text))
-            return;
-
-        if (IsFormattedWith(text, "***"))
+        if (ViewModel.IsItalicActive)
         {
-            RemoveFormatting(text, "***");
-            ApplyFormatting("**");
-        }
-        else if (IsFormattedWith(text, "*") && !IsFormattedWith(text, "**"))
-        {
-            RemoveFormatting(text, "*");
-        }
-        else if (IsFormattedWith(text, "**"))
-        {
-            RemoveFormatting(text, "**");
-            ApplyFormatting("***");
+            RemoveItalicFormatting();
         }
         else
         {
-            ApplyFormatting("*");
+            AddItalicFormatting();
         }
+
         UpdateFormattingState(CurrentEditBox);
     }
 
@@ -206,69 +180,148 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         if (CurrentEditBox is null)
             return;
 
+        if (ViewModel.IsStrikethroughActive)
+        {
+            RemoveStrikethroughFormatting();
+        }
+        else
+        {
+            AddStrikethroughFormatting();
+        }
+
+        UpdateFormattingState(CurrentEditBox);
+    }
+
+    private void RemoveBoldFormatting()
+    {
         string text = GetTextToFormat();
         if (string.IsNullOrEmpty(text))
             return;
 
-        if (HasStrikethrough(text))
+        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
+        string coreText = hasStrikethrough ? text[2..^2] : text;
+
+        string newText;
+
+        if (IsFormattedWith(coreText, "***"))
         {
-            RemoveStrikethrough(text);
+            newText = coreText[2..^2];
+        }
+        else if (IsFormattedWith(coreText, "**"))
+        {
+            newText = coreText[2..^2];
         }
         else
         {
-            AddStrikethrough(text);
+            return;
         }
-        UpdateFormattingState(CurrentEditBox);
+
+        if (hasStrikethrough)
+        {
+            newText = $"~~{newText}~~";
+        }
+
+        ApplyTextChange(newText);
     }
 
-    private bool HasStrikethrough(string text)
+    private void AddBoldFormatting()
     {
-        return !string.IsNullOrEmpty(text) && text.StartsWith("~~") && text.EndsWith("~~");
+        string text = GetTextToFormat();
+        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
+        string coreText = hasStrikethrough ? text[2..^2] : text;
+
+        string newText;
+
+        if (IsFormattedWith(coreText, "*") && !IsFormattedWith(coreText, "**"))
+        {
+            newText = $"*{coreText}*";
+        }
+
+        else
+        {
+            newText = $"**{coreText}**";
+        }
+
+        if (hasStrikethrough)
+        {
+            newText = $"~~{newText}~~";
+        }
+
+        ApplyTextChange(newText);
     }
 
-    private void AddStrikethrough(string _)
+    private void RemoveItalicFormatting()
     {
-        if (CurrentEditBox is null)
+        string text = GetTextToFormat();
+        if (string.IsNullOrEmpty(text))
             return;
 
-        try
-        {
-            if (CurrentEditBox.HasSelection)
-            {
-                CurrentEditBox.SurroundSelectionWith("~~");
-            }
-            else
-            {
-                int lineIndex = CurrentEditBox.CurrentLineIndex;
-                if (lineIndex < 0 || lineIndex >= CurrentEditBox.NumberOfLines)
-                    return;
+        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
+        string coreText = hasStrikethrough ? text[2..^2] : text;
+        string newText;
 
-                string lineText = CurrentEditBox.GetLineText(lineIndex) ?? string.Empty;
-                string strikeThroughLine = $"~~{lineText}~~";
-                CurrentEditBox.SetLineText(lineIndex, strikeThroughLine);
-            }
+        if (IsFormattedWith(coreText, "***"))
+        {
+            newText = coreText[1..^1];
         }
-        catch { }
+
+        else if (IsFormattedWith(coreText, "*") && !IsFormattedWith(coreText, "**"))
+        {
+            newText = coreText[1..^1];
+        }
+        else
+        {
+            return;
+        }
+
+        if (hasStrikethrough)
+        {
+            newText = $"~~{newText}~~";
+        }
+
+        ApplyTextChange(newText);
     }
 
-    private void RemoveStrikethrough(string text)
+    private void AddItalicFormatting()
     {
-        if (CurrentEditBox is null)
+        string text = GetTextToFormat();
+        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
+        string coreText = hasStrikethrough ? text[2..^2] : text;
+        string newText;
+
+        if (IsFormattedWith(coreText, "**") && !IsFormattedWith(coreText, "***"))
+        {
+            newText = $"*{coreText}*";
+        }
+        else
+        {
+            newText = $"*{coreText}*";
+        }
+
+        if (hasStrikethrough)
+        {
+            newText = $"~~{newText}~~";
+        }
+
+        ApplyTextChange(newText);
+    }
+
+    private void RemoveStrikethroughFormatting()
+    {
+        string text = GetTextToFormat();
+
+        if (!IsFormattedWith(text, "~~"))
             return;
 
-        try
-        {
-            string unformatted = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4
-                ? text[2..^2]
-                : text;
+        string newText = text[2..^2];
+        ApplyTextChange(newText);
+    }
 
-            int lineIndex = CurrentEditBox.CurrentLineIndex;
-            if (lineIndex >= 0 && lineIndex < CurrentEditBox.NumberOfLines)
-            {
-                CurrentEditBox.SetLineText(lineIndex, unformatted);
-            }
-        }
-        catch { }
+    private void AddStrikethroughFormatting()
+    {
+        string text = GetTextToFormat();
+        string newText = $"~~{text}~~";
+        ApplyTextChange(newText);
     }
 
     private string GetTextToFormat()
@@ -295,7 +348,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
     }
 
-    private void ApplyFormatting(string marker)
+    private void ApplyTextChange(string newText)
     {
         if (CurrentEditBox is null)
             return;
@@ -304,37 +357,15 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         {
             if (CurrentEditBox.HasSelection)
             {
-                CurrentEditBox.SurroundSelectionWith(marker);
+                CurrentEditBox.SelectedText = newText;
             }
             else
             {
                 int lineIndex = CurrentEditBox.CurrentLineIndex;
-                if (lineIndex < 0 || lineIndex >= CurrentEditBox.NumberOfLines)
-                    return;
-
-                string lineText = CurrentEditBox.GetLineText(lineIndex) ?? string.Empty;
-                string formattedLine = $"{marker}{lineText}{marker}";
-                CurrentEditBox.SetLineText(lineIndex, formattedLine);
-            }
-        }
-        catch { }
-    }
-
-    private void RemoveFormatting(string text, string marker)
-    {
-        if (CurrentEditBox is null)
-            return;
-
-        try
-        {
-            string unformatted = text.StartsWith(marker) && text.EndsWith(marker)
-                ? text.Substring(marker.Length, text.Length - 2 * marker.Length)
-                : text;
-
-            int lineIndex = CurrentEditBox.CurrentLineIndex;
-            if (lineIndex >= 0 && lineIndex < CurrentEditBox.NumberOfLines)
-            {
-                CurrentEditBox.SetLineText(lineIndex, unformatted);
+                if (lineIndex >= 0 && lineIndex < CurrentEditBox.NumberOfLines)
+                {
+                    CurrentEditBox.SetLineText(lineIndex, newText);
+                }
             }
         }
         catch { }
@@ -345,7 +376,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         return !string.IsNullOrEmpty(text) &&
                text.StartsWith(marker) &&
                text.EndsWith(marker) &&
-               text.Length > 2 * marker.Length;
+               text.Length >= 2 * marker.Length;
     }
 
     private void UpdateFormattingState(TextControlBox sender)
@@ -355,17 +386,20 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
         string text = GetTextToFormat();
         string textWithoutStrikethrough = text;
+        bool hasStrikethrough = false;
+
         if (text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4)
         {
             textWithoutStrikethrough = text[2..^2];
+            hasStrikethrough = true;
         }
+
         bool hasBoldItalic = IsFormattedWith(textWithoutStrikethrough, "***");
         bool hasBold = IsFormattedWith(textWithoutStrikethrough, "**") || hasBoldItalic;
-        bool hasItalic = IsFormattedWith(textWithoutStrikethrough, "*") && !IsFormattedWith(textWithoutStrikethrough, "**");
-        bool hasStrikethrough = IsFormattedWith(text, "~~");
+        bool hasItalic = (IsFormattedWith(textWithoutStrikethrough, "*") && !IsFormattedWith(textWithoutStrikethrough, "**")) || hasBoldItalic;
 
         ViewModel.IsBoldActive = hasBold;
-        ViewModel.IsItalicActive = hasItalic || hasBoldItalic;
+        ViewModel.IsItalicActive = hasItalic;
         ViewModel.IsStrikethroughActive = hasStrikethrough;
 
         WeakReferenceMessenger.Default.Send(new FormattingStateMessage(
