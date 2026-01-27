@@ -42,8 +42,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
 
         ViewModel.IsLoadingContent = true;
-
         ViewModel.Tag = tag;
+
         string content = ViewModel.CurrentContent ?? String.Empty;
         SetContentToCurrentEditBox(content);
 
@@ -141,187 +141,57 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void Paste() => CurrentEditBox?.Paste();
 
-    public void ApplyBold()
-    {
-        if (CurrentEditBox is null)
-            return;
+    public void ApplyBold() => ToggleFormattingStyle("**");
 
-        if (ViewModel.IsBoldActive)
-        {
-            RemoveBoldFormatting();
-        }
-        else
-        {
-            AddBoldFormatting();
-        }
+    public void ApplyItalic() => ToggleFormattingStyle("*");
 
-        UpdateFormattingState(CurrentEditBox);
-    }
+    public void ApplyStrikethrough() => ToggleStrikethrough();
 
-    public void ApplyItalic()
-    {
-        if (CurrentEditBox is null)
-            return;
-
-        if (ViewModel.IsItalicActive)
-        {
-            RemoveItalicFormatting();
-        }
-        else
-        {
-            AddItalicFormatting();
-        }
-
-        UpdateFormattingState(CurrentEditBox);
-    }
-
-    public void ApplyStrikethrough()
-    {
-        if (CurrentEditBox is null)
-            return;
-
-        if (ViewModel.IsStrikethroughActive)
-        {
-            RemoveStrikethroughFormatting();
-        }
-        else
-        {
-            AddStrikethroughFormatting();
-        }
-
-        UpdateFormattingState(CurrentEditBox);
-    }
-
-    private void RemoveBoldFormatting()
+    private void ToggleFormattingStyle(string marker)
     {
         string text = GetTextToFormat();
         if (string.IsNullOrEmpty(text))
             return;
 
-        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
-        string coreText = hasStrikethrough ? text[2..^2] : text;
-
+        bool hasStrike = IsFormattedWith(text, "~~");
+        string coreText = hasStrike ? text[2..^2] : text;
         string newText;
 
-        if (IsFormattedWith(coreText, "***"))
+        if (IsWrappedWith(coreText, marker))
         {
-            newText = coreText[2..^2];
-        }
-        else if (IsFormattedWith(coreText, "**"))
-        {
-            newText = coreText[2..^2];
+            newText = coreText.Substring(marker.Length, coreText.Length - (marker.Length * 2));
         }
         else
         {
-            return;
+            newText = $"{marker}{coreText}{marker}";
         }
 
-        if (hasStrikethrough)
-        {
+        if (hasStrike)
             newText = $"~~{newText}~~";
-        }
 
         ApplyTextChange(newText);
     }
 
-    private void AddBoldFormatting()
-    {
-        string text = GetTextToFormat();
-        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
-        string coreText = hasStrikethrough ? text[2..^2] : text;
-
-        string newText;
-
-        if (IsFormattedWith(coreText, "*") && !IsFormattedWith(coreText, "**"))
-        {
-            newText = $"*{coreText}*";
-        }
-
-        else
-        {
-            newText = $"**{coreText}**";
-        }
-
-        if (hasStrikethrough)
-        {
-            newText = $"~~{newText}~~";
-        }
-
-        ApplyTextChange(newText);
-    }
-
-    private void RemoveItalicFormatting()
+    private void ToggleStrikethrough()
     {
         string text = GetTextToFormat();
         if (string.IsNullOrEmpty(text))
             return;
 
-        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
-        string coreText = hasStrikethrough ? text[2..^2] : text;
-        string newText;
-
-        if (IsFormattedWith(coreText, "***"))
-        {
-            newText = coreText[1..^1];
-        }
-
-        else if (IsFormattedWith(coreText, "*") && !IsFormattedWith(coreText, "**"))
-        {
-            newText = coreText[1..^1];
-        }
-        else
-        {
-            return;
-        }
-
-        if (hasStrikethrough)
-        {
-            newText = $"~~{newText}~~";
-        }
-
+        string newText = IsFormattedWith(text, "~~")
+            ? text[2..^2] : $"~~{text}~~";
         ApplyTextChange(newText);
     }
 
-    private void AddItalicFormatting()
+    private bool IsWrappedWith(string text, string marker)
     {
-        string text = GetTextToFormat();
-        bool hasStrikethrough = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4;
-        string coreText = hasStrikethrough ? text[2..^2] : text;
-        string newText;
+        if (text.Length < marker.Length * 2)
+            return false;
 
-        if (IsFormattedWith(coreText, "**") && !IsFormattedWith(coreText, "***"))
-        {
-            newText = $"*{coreText}*";
-        }
-        else
-        {
-            newText = $"*{coreText}*";
-        }
+        if (marker == "*" && text.StartsWith("**") && text.EndsWith("**") && !text.StartsWith("***"))
+            return false;
 
-        if (hasStrikethrough)
-        {
-            newText = $"~~{newText}~~";
-        }
-
-        ApplyTextChange(newText);
-    }
-
-    private void RemoveStrikethroughFormatting()
-    {
-        string text = GetTextToFormat();
-
-        if (!IsFormattedWith(text, "~~"))
-            return;
-
-        string newText = text[2..^2];
-        ApplyTextChange(newText);
-    }
-
-    private void AddStrikethroughFormatting()
-    {
-        string text = GetTextToFormat();
-        string newText = $"~~{text}~~";
-        ApplyTextChange(newText);
+        return text.StartsWith(marker) && text.EndsWith(marker);
     }
 
     private string GetTextToFormat()
@@ -352,21 +222,14 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     {
         if (CurrentEditBox is null)
             return;
-
         try
         {
             if (CurrentEditBox.HasSelection)
-            {
                 CurrentEditBox.SelectedText = newText;
-            }
             else
-            {
-                int lineIndex = CurrentEditBox.CurrentLineIndex;
-                if (lineIndex >= 0 && lineIndex < CurrentEditBox.NumberOfLines)
-                {
-                    CurrentEditBox.SetLineText(lineIndex, newText);
-                }
-            }
+                CurrentEditBox.SetLineText(CurrentEditBox.CurrentLineIndex, newText);
+
+            UpdateFormattingState(CurrentEditBox);
         }
         catch { }
     }

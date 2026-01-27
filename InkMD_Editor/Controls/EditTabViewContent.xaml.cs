@@ -16,8 +16,8 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     {
         InitializeComponent();
         EditBox.EnableSyntaxHighlighting = true;
-        EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.Markdown);
-        EditBox.SelectionChanged += (s, e) => UpdateFormattingState(EditBox);
+        EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.None);
+        WeakReferenceMessenger.Default.Send(new FormattingStateMessage(false, false, false));
     }
 
     public void SetContent(string text, string? fileName)
@@ -49,237 +49,9 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
     public void Paste() => EditBox?.Paste();
 
-    public void ApplyBold()
-    {
-        if (EditBox is null)
-            return;
-
-        string text = GetTextToFormat();
-
-        if (IsFormattedWith(text, "***"))
-        {
-            RemoveFormatting(text, "***");
-            ApplyFormatting("*");
-        }
-        else if (IsFormattedWith(text, "**"))
-        {
-            RemoveFormatting(text, "**");
-        }
-        else if (IsFormattedWith(text, "*") && !IsFormattedWith(text, "**"))
-        {
-            RemoveFormatting(text, "*");
-            ApplyFormatting("***");
-        }
-        else
-        {
-            ApplyFormatting("**");
-        }
-        UpdateFormattingState(EditBox);
-    }
-
-    public void ApplyItalic()
-    {
-        if (EditBox is null)
-            return;
-
-        string text = GetTextToFormat();
-
-        if (IsFormattedWith(text, "***"))
-        {
-            RemoveFormatting(text, "***");
-            ApplyFormatting("**");
-        }
-        else if (IsFormattedWith(text, "*") && !IsFormattedWith(text, "**"))
-        {
-            RemoveFormatting(text, "*");
-        }
-        else if (IsFormattedWith(text, "**"))
-        {
-            RemoveFormatting(text, "**");
-            ApplyFormatting("***");
-        }
-        else
-        {
-            ApplyFormatting("*");
-        }
-        UpdateFormattingState(EditBox);
-    }
-
-    public void ApplyStrikethrough()
-    {
-        if (EditBox is null)
-            return;
-
-        string text = GetTextToFormat();
-
-        if (IsFormattedWith(text, "~~"))
-        {
-            RemoveStrikethrough(text);
-        }
-        else
-        {
-            AddStrikethrough(text);
-        }
-        UpdateFormattingState(EditBox);
-    }
-
-    private void AddStrikethrough(string _)
-    {
-        if (EditBox is null)
-            return;
-
-        try
-        {
-            if (EditBox.HasSelection)
-            {
-                EditBox.SurroundSelectionWith("~~");
-            }
-            else
-            {
-                int lineIndex = EditBox.CurrentLineIndex;
-                if (lineIndex < 0 || lineIndex >= EditBox.NumberOfLines)
-                    return;
-
-                string lineText = EditBox.GetLineText(lineIndex) ?? string.Empty;
-                string strikeThroughLine = $"~~{lineText}~~";
-                EditBox.SetLineText(lineIndex, strikeThroughLine);
-            }
-        }
-        catch { }
-    }
-
-    private void RemoveStrikethrough(string text)
-    {
-        if (EditBox is null)
-            return;
-
-        try
-        {
-            string unformatted = text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4
-                ? text[2..^2]
-                : text;
-
-            int lineIndex = EditBox.CurrentLineIndex;
-            if (lineIndex >= 0 && lineIndex < EditBox.NumberOfLines)
-            {
-                EditBox.SetLineText(lineIndex, unformatted);
-            }
-        }
-        catch { }
-    }
-
-    private string GetTextToFormat()
-    {
-        if (EditBox is null)
-            return string.Empty;
-
-        if (EditBox.HasSelection)
-        {
-            return EditBox.SelectedText ?? string.Empty;
-        }
-
-        try
-        {
-            int currentLine = EditBox.CurrentLineIndex;
-            if (currentLine < 0 || currentLine >= EditBox.NumberOfLines)
-                return string.Empty;
-
-            return EditBox.GetLineText(currentLine) ?? string.Empty;
-        }
-        catch
-        {
-            return string.Empty;
-        }
-    }
-
-    private void ApplyFormatting(string marker)
-    {
-        if (EditBox is null)
-            return;
-
-        try
-        {
-            if (EditBox.HasSelection)
-            {
-                EditBox.SurroundSelectionWith(marker);
-            }
-            else
-            {
-                int lineIndex = EditBox.CurrentLineIndex;
-                if (lineIndex < 0 || lineIndex >= EditBox.NumberOfLines)
-                    return;
-
-                string lineText = EditBox.GetLineText(lineIndex) ?? string.Empty;
-                string formattedLine = $"{marker}{lineText}{marker}";
-                EditBox.SetLineText(lineIndex, formattedLine);
-            }
-        }
-        catch { }
-    }
-
-    private void RemoveFormatting(string text, string marker)
-    {
-        if (EditBox is null)
-            return;
-
-        try
-        {
-            string unformatted = text.StartsWith(marker) && text.EndsWith(marker)
-                ? text.Substring(marker.Length, text.Length - 2 * marker.Length)
-                : text;
-
-            if (EditBox.HasSelection)
-            {
-                EditBox.SelectedText = unformatted;
-            }
-            else
-            {
-                int lineIndex = EditBox.CurrentLineIndex;
-                if (lineIndex >= 0 && lineIndex < EditBox.NumberOfLines)
-                {
-                    EditBox.SetLineText(lineIndex, unformatted);
-                }
-            }
-        }
-        catch { }
-    }
-
-    private bool IsFormattedWith(string text, string marker)
-    {
-        return !string.IsNullOrEmpty(text) &&
-               text.StartsWith(marker) &&
-               text.EndsWith(marker) &&
-               text.Length >= 2 * marker.Length;
-    }
-
-    private void UpdateFormattingState(TextControlBox sender)
-    {
-        if (sender is null)
-            return;
-
-        string text = GetTextToFormat();
-        string textWithoutStrikethrough = text;
-
-        if (text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4)
-        {
-            textWithoutStrikethrough = text[2..^2];
-        }
-
-        bool hasBoldItalic = IsFormattedWith(textWithoutStrikethrough, "***");
-        bool hasBold = IsFormattedWith(textWithoutStrikethrough, "**") || hasBoldItalic;
-        bool hasItalic = IsFormattedWith(textWithoutStrikethrough, "*") && !IsFormattedWith(textWithoutStrikethrough, "**");
-        bool hasStrikethrough = IsFormattedWith(text, "~~");
-
-        ViewModel.IsBoldActive = hasBold;
-        ViewModel.IsItalicActive = hasItalic || hasBoldItalic;
-        ViewModel.IsStrikethroughActive = hasStrikethrough;
-
-        WeakReferenceMessenger.Default.Send(new FormattingStateMessage(
-            ViewModel.IsBoldActive,
-            ViewModel.IsItalicActive,
-            ViewModel.IsStrikethroughActive
-        ));
-    }
+    public void ApplyBold() { }
+    public void ApplyItalic() { }
+    public void ApplyStrikethrough() { }
 
     public bool IsDirty() => ViewModel.IsDirty;
 
@@ -296,7 +68,6 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
     private void EditBox_TextChanged(TextControlBox sender)
     {
         ViewModel.CurrentContent = sender.GetText();
-        UpdateFormattingState(sender);
     }
 
     public void Dispose()
