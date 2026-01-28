@@ -264,7 +264,6 @@
                 <GridView
                     x:Name="IconGridView"
                     Grid.Row="0"
-                    Width="1450"
                     IsItemClickEnabled="False"
                     ItemsSource="{x:Bind ViewModel.IconItems, Mode=OneWay}"
                     SelectionChanged="IconGridView_SelectionChanged"
@@ -272,8 +271,8 @@
                     <GridView.ItemTemplate>
                         <DataTemplate x:DataType="models:IconItem">
                             <StackPanel
-                                Width="120"
-                                Height="140"
+                                Width="100"
+                                Height="100"
                                 Margin="8"
                                 Padding="8"
                                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
