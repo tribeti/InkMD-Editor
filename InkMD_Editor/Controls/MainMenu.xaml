@@ -36,20 +36,156 @@
     </UserControl.KeyboardAccelerators>
 
     <RelativePanel>
-        <controls:TabbedCommandBar
-            Margin="12,0,12,12"
-            HorizontalAlignment="Stretch"
-            RelativePanel.AlignLeftWithPanel="True"
-            RelativePanel.AlignRightWithPanel="True">
-            <controls:TabbedCommandBar.AutoSuggestBox>
-                <AutoSuggestBox AutomationProperties.Name="Search" QueryIcon="Find" />
-            </controls:TabbedCommandBar.AutoSuggestBox>
-            <controls:TabbedCommandBar.PaneFooter>
+        <MenuBar x:Name="MainMenuBar" Margin="12,0,12,0">
+            <MenuBarItem Title="File">
+                <MenuFlyoutItem
+                    Click="NewMDFile_Click"
+                    Icon="{ui:FontIcon Glyph=&#xE729;}"
+                    KeyboardAcceleratorTextOverride="Ctrl+N"
+                    Text="Markdown Document" />
+                <MenuFlyoutItem
+                    Click="NewFile_Click"
+                    Icon="{ui:FontIcon Glyph=&#xE7C3;}"
+                    Text="Text Document" />
+
+                <MenuFlyoutItem
+                    Command="{x:Bind ViewModel.OpenFileCommand}"
+                    Icon="{ui:FontIcon Glyph=&#xE8E5;}"
+                    KeyboardAcceleratorTextOverride="Ctrl+O"
+                    Text="Open a file" />
+                <MenuFlyoutItem
+                    Command="{x:Bind ViewModel.OpenFolderCommand}"
+                    Icon="{ui:FontIcon Glyph=&#xE8DA;}"
+                    KeyboardAcceleratorTextOverride="Ctrl+Shift+O"
+                    Text="Open a folder" />
+
+                <MenuFlyoutItem
+                    Command="{x:Bind ViewModel.SaveCommand}"
+                    Icon="{ui:FontIcon Glyph=&#xE74E;}"
+                    KeyboardAcceleratorTextOverride="Ctrl+S"
+                    Text="Save" />
+                <MenuFlyoutItem
+                    Command="{x:Bind ViewModel.SaveAsCommand}"
+                    Icon="{ui:FontIcon Glyph=&#xE792;}"
+                    KeyboardAcceleratorTextOverride="Ctrl+Shift+S"
+                    Text="Save As" />
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem
+                    Command="{x:Bind ViewModel.ExitApplicationCommand}"
+                    Icon="{ui:FontIcon Glyph=&#xF3B1;}"
+                    Text="Exit" />
+            </MenuBarItem>
+
+            <MenuBarItem Title="Help">
+                <MenuFlyoutItem
+                    x:Name="Help"
+                    Click="About_Click"
+                    Icon="{ui:FontIcon Glyph=&#xE946;}"
+                    Text="About" />
+            </MenuBarItem>
+        </MenuBar>
+
+        <CommandBar
+            HorizontalAlignment="Center"
+            DefaultLabelPosition="Collapsed"
+            OverflowButtonVisibility="Collapsed"
+            RelativePanel.AlignHorizontalCenterWithPanel="True"
+            RelativePanel.Below="MainMenuBar">
+
+            <AppBarButton
+                Command="{x:Bind ViewModel.UndoCommand}"
+                Icon="{ui:FontIcon Glyph=&#xE7A7;}"
+                KeyboardAcceleratorTextOverride="Ctrl+Z" />
+            <AppBarButton
+                Command="{x:Bind ViewModel.RedoCommand}"
+                Icon="{ui:FontIcon Glyph=&#xE7A6;}"
+                KeyboardAcceleratorTextOverride="Ctrl+Y" />
+            <AppBarButton
+                Command="{x:Bind ViewModel.CutCommand}"
+                Icon="{ui:FontIcon Glyph=&#xE8C6;}"
+                KeyboardAcceleratorTextOverride="Ctrl+X" />
+            <AppBarButton
+                Command="{x:Bind ViewModel.CopyCommand}"
+                Icon="{ui:FontIcon Glyph=&#xE8C8;}"
+                KeyboardAcceleratorTextOverride="Ctrl+C" />
+            <AppBarButton
+                Command="{x:Bind ViewModel.PasteCommand}"
+                Icon="{ui:FontIcon Glyph=&#xE77F;}"
+                KeyboardAcceleratorTextOverride="Ctrl+V" />
+            <AppBarToggleButton
+                x:Name="BoldButton"
+                Command="{x:Bind ViewModel.BoldCommand}"
+                Icon="{ui:FontIcon Glyph=&#xE8DD;}" />
+            <AppBarToggleButton
+                x:Name="ItalicButton"
+                Command="{x:Bind ViewModel.ItalicCommand}"
+                Icon="{ui:FontIcon Glyph=&#xE8DB;}" />
+            <AppBarToggleButton
+                x:Name="StrikethroughButton"
+                Command="{x:Bind ViewModel.StrikethroughCommand}"
+                Icon="{ui:FontIcon Glyph=&#xEDE0;}" />
+
+            <AppBarButton Icon="Pictures" Label="Pictures">
+                <AppBarButton.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                        <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xEC4E;}" Text="This device" />
+                        <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE721;}" Text="Stock images" />
+                        <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE774;}" Text="Online pictures" />
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarButton Icon="{ui:FontIcon Glyph=&#xF156;}" Label="Shapes" />
+            <AppBarButton
+                Click="AppBarButton_Click"
+                Icon="{ui:FontIcon Glyph=&#xED58;}"
+                Label="Icons" />
+            <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" Label="Templates">
+                <AppBarButton.Flyout>
+                    <Flyout x:Name="TemplateFlyout" Opening="TemplateFlyout_Opening">
+                        <GridView
+                            x:Name="TemplateGridView"
+                            IsItemClickEnabled="False"
+                            ItemsSource="{x:Bind ViewModel.Templates, Mode=OneWay}"
+                            SelectionChanged="TemplateGridView_SelectionChanged"
+                            SelectionMode="Single">
+                            <GridView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border
+                                        Width="100"
+                                        Height="50"
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontWeight="SemiBold"
+                                            HorizontalTextAlignment="Center"
+                                            MaxLines="2"
+                                            Text="{Binding DisplayName}"
+                                            TextWrapping="Wrap" />
+                                    </Border>
+                                </DataTemplate>
+                            </GridView.ItemTemplate>
+                            <GridView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <ItemsWrapGrid MaximumRowsOrColumns="3" Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </GridView.ItemsPanel>
+                        </GridView>
+                    </Flyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarButton
+                Click="HyperLink_Click"
+                Icon="{ui:FontIcon Glyph=&#xE71B;}"
+                Label="Hyperlink" />
+
+            <AppBarElementContainer VerticalAlignment="Center">
                 <controls:Segmented
                     x:Name="DisplayMode"
                     Margin="8,0,8,0"
-                    HorizontalAlignment="Right"
-                    RelativePanel.AlignRightWithPanel="True"
+                    VerticalAlignment="Center"
                     SelectionChanged="DisplayMode_SelectionChanged"
                     SelectionMode="Single"
                     Visibility="Collapsed">
@@ -66,163 +202,8 @@
                         Tag="preview"
                         ToolTipService.ToolTip="Preview" />
                 </controls:Segmented>
-            </controls:TabbedCommandBar.PaneFooter>
-
-            <controls:TabbedCommandBar.MenuItems>
-                <!--  file menu items  -->
-                <controls:TabbedCommandBarItem Header="File">
-                    <AppBarButton
-                        Click="NewMDFile_Click"
-                        Icon="{ui:FontIcon Glyph=&#xE729;}"
-                        KeyboardAcceleratorTextOverride="Ctrl+N"
-                        Label="New .md File" />
-                    <AppBarButton
-                        Click="NewFile_Click"
-                        Icon="{ui:FontIcon Glyph=&#xE7C3;}"
-                        Label="New File" />
-                    <AppBarSeparator />
-                    <AppBarButton
-                        Command="{x:Bind ViewModel.OpenFileCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE8E5;}"
-                        KeyboardAcceleratorTextOverride="Ctrl+O"
-                        Label="Open file" />
-                    <AppBarButton
-                        Command="{x:Bind ViewModel.OpenFolderCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE8DA;}"
-                        KeyboardAcceleratorTextOverride="Ctrl+Shift+O"
-                        Label="Open folder" />
-                    <AppBarSeparator />
-                    <AppBarButton
-                        Command="{x:Bind ViewModel.SaveCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE74E;}"
-                        KeyboardAcceleratorTextOverride="Ctrl+S"
-                        Label="Save" />
-                    <AppBarButton
-                        Command="{x:Bind ViewModel.SaveAsCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE792;}"
-                        KeyboardAcceleratorTextOverride="Ctrl+Shift+S"
-                        Label="Save As" />
-                    <AppBarSeparator />
-                    <AppBarButton
-                        Command="{x:Bind ViewModel.ExitApplicationCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xF3B1;}"
-                        KeyboardAcceleratorTextOverride="Alt+F4"
-                        Label="Exit" />
-                </controls:TabbedCommandBarItem>
-                <!--  edit menu items  -->
-                <controls:TabbedCommandBarItem Header="Edit">
-                    <AppBarButton
-                        Command="{x:Bind ViewModel.UndoCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE7A7;}"
-                        KeyboardAcceleratorTextOverride="Ctrl+Z"
-                        Label="Undo" />
-                    <AppBarButton
-                        Command="{x:Bind ViewModel.RedoCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE7A6;}"
-                        KeyboardAcceleratorTextOverride="Ctrl+Y"
-                        Label="Redo" />
-                    <AppBarSeparator />
-                    <AppBarButton
-                        Command="{x:Bind ViewModel.CutCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE8C6;}"
-                        KeyboardAcceleratorTextOverride="Ctrl+X"
-                        Label="Cut" />
-                    <AppBarButton
-                        Command="{x:Bind ViewModel.CopyCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE8C8;}"
-                        KeyboardAcceleratorTextOverride="Ctrl+C"
-                        Label="Copy" />
-                    <AppBarSeparator />
-                    <AppBarButton
-                        Command="{x:Bind ViewModel.PasteCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE77F;}"
-                        KeyboardAcceleratorTextOverride="Ctrl+V"
-                        Label="Paste" />
-                    <AppBarSeparator />
-                    <AppBarToggleButton
-                        x:Name="BoldButton"
-                        Command="{x:Bind ViewModel.BoldCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE8DD;}"
-                        Label="Bold" />
-                    <AppBarToggleButton
-                        x:Name="ItalicButton"
-                        Command="{x:Bind ViewModel.ItalicCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE8DB;}"
-                        Label="Italic" />
-                    <AppBarToggleButton
-                        x:Name="StrikethroughButton"
-                        Command="{x:Bind ViewModel.StrikethroughCommand}"
-                        Icon="{ui:FontIcon Glyph=&#xE8DC;}"
-                        Label="Strikethrough" />
-                </controls:TabbedCommandBarItem>
-                <!--  insert menu items  -->
-                <controls:TabbedCommandBarItem Header="Insert">
-                    <AppBarButton Icon="Pictures" Label="Pictures">
-                        <AppBarButton.Flyout>
-                            <MenuFlyout Placement="BottomEdgeAlignedLeft">
-                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xEC4E;}" Text="This device" />
-                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE721;}" Text="Stock images" />
-                                <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xE774;}" Text="Online pictures" />
-                            </MenuFlyout>
-                        </AppBarButton.Flyout>
-                    </AppBarButton>
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xF156;}" Label="Shapes" />
-                    <AppBarButton
-                        Click="AppBarButton_Click"
-                        Icon="{ui:FontIcon Glyph=&#xED58;}"
-                        Label="Icons" />
-                    <AppBarSeparator />
-                    <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" Label="Templates">
-                        <AppBarButton.Flyout>
-                            <Flyout x:Name="TemplateFlyout" Opening="TemplateFlyout_Opening">
-                                <GridView
-                                    x:Name="TemplateGridView"
-                                    IsItemClickEnabled="False"
-                                    ItemsSource="{x:Bind ViewModel.Templates, Mode=OneWay}"
-                                    SelectionChanged="TemplateGridView_SelectionChanged"
-                                    SelectionMode="Single">
-                                    <GridView.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border
-                                                Width="100"
-                                                Height="50"
-                                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="4">
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    FontWeight="SemiBold"
-                                                    HorizontalTextAlignment="Center"
-                                                    MaxLines="2"
-                                                    Text="{Binding DisplayName}"
-                                                    TextWrapping="Wrap" />
-                                            </Border>
-                                        </DataTemplate>
-                                    </GridView.ItemTemplate>
-                                    <GridView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <ItemsWrapGrid MaximumRowsOrColumns="3" Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </GridView.ItemsPanel>
-                                </GridView>
-                            </Flyout>
-                        </AppBarButton.Flyout>
-                    </AppBarButton>
-                    <AppBarButton
-                        Click="HyperLink_Click"
-                        Icon="{ui:FontIcon Glyph=&#xE71B;}"
-                        Label="Hyperlink" />
-                </controls:TabbedCommandBarItem>
-                <!--  help  -->
-                <controls:TabbedCommandBarItem x:Name="Help" Header="Help">
-                    <AppBarButton
-                        Click="About_Click"
-                        Icon="{ui:FontIcon Glyph=&#xE946;}"
-                        Label="About" />
-                </controls:TabbedCommandBarItem>
-            </controls:TabbedCommandBar.MenuItems>
-        </controls:TabbedCommandBar>
+            </AppBarElementContainer>
+        </CommandBar>
 
         <ContentDialog
             x:Name="TemplateDialog"
