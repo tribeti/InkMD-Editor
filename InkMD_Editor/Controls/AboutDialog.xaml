@@ -2,6 +2,7 @@
     x:Class="InkMD_Editor.Controls.AboutDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:InkMD_Editor.Controls"
     CloseButtonText="OK"
     CornerRadius="8"
     DefaultButton="Close">
@@ -58,7 +59,7 @@
                         VerticalAlignment="Bottom"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Style="{ThemeResource CaptionTextBlockStyle}"
-                        Text="ver 0.1.0" />
+                        Text="{x:Bind AppVersionString}" />
                 </StackPanel>
                 <TextBlock
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
