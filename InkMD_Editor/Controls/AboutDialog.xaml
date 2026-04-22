@@ -36,10 +36,11 @@
                 BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 CornerRadius="8">
-                <FontIcon
-                    FontSize="40"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Glyph="&#xE7F4;" />
+                <Image
+                    Width="100"
+                    Height="100"
+                    Source="/Assets/Square400x400Logo.png"
+                    Stretch="Fill" />
             </Border>
 
             <StackPanel
