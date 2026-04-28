@@ -43,7 +43,7 @@ public static class DocumentService
 
         try
         {
-            return Encoding.UTF8.GetString(bytes);
+            return new UTF8Encoding(false, true).GetString(bytes);
         }
         catch
         {
