@@ -20,6 +20,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     private bool _splitPreviewReady = false;
     private bool _previewReady = false;
     private string? _pendingPreviewContent = null;
+    private bool _isUpdatingFromWebView = false;
 
     private WebView2? CurrentPreviewView => ViewModel.Tag switch
     {
@@ -89,6 +90,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             if (MilkdownPreview_Split is not null && !_splitPreviewReady)
             {
                 await MilkdownPreview_Split.EnsureCoreWebView2Async();
+                MilkdownPreview_Split.WebMessageReceived += WebView_WebMessageReceived;
                 await LoadMilkdownIntoWebView(MilkdownPreview_Split);
                 _splitPreviewReady = true;
             }
@@ -96,6 +98,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             if (MilkdownPreview is not null && !_previewReady)
             {
                 await MilkdownPreview.EnsureCoreWebView2Async();
+                MilkdownPreview.WebMessageReceived += WebView_WebMessageReceived;
                 await LoadMilkdownIntoWebView(MilkdownPreview);
                 _previewReady = true;
             }
@@ -167,10 +170,45 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
     }
 
+    private void WebView_WebMessageReceived(WebView2 sender, CoreWebView2WebMessageReceivedEventArgs args)
+    {
+        try
+        {
+            var json = args.WebMessageAsJson;
+            if (string.IsNullOrEmpty(json)) return;
+
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            if (root.TryGetProperty("type", out var typeProp) && typeProp.GetString() == "contentChanged")
+            {
+                if (root.TryGetProperty("content", out var contentProp))
+                {
+                    var newContent = contentProp.GetString();
+                    
+                    if (newContent != ViewModel.CurrentContent)
+                    {
+                        _isUpdatingFromWebView = true;
+                        
+                        ViewModel.CurrentContent = newContent;
+                        SetContentToCurrentEditBox(newContent ?? string.Empty);
+                        
+                        _isUpdatingFromWebView = false;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"WebMessageReceived error: {ex.Message}");
+        }
+    }
+
     // ─── TextControlBox handlers ─────────────────────────────────────
 
     private void EditBox_TextChanged(TextControlBox sender)
     {
+        if (_isUpdatingFromWebView) return;
+
         var text = sender.GetText();
         ViewModel.CurrentContent = text;
         UpdateFormattingState(sender);
