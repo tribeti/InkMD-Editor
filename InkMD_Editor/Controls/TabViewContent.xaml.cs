@@ -1,79 +1,67 @@
-using InkMD.Core.Helpers;
 using InkMD.Core.Messages;
 using InkMD.Core.Services;
 using InkMD_Editor.ViewModels;
-using Markdig;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
 using TextControlBoxNS;
+using Windows.ApplicationModel;
 
 namespace InkMD_Editor.Controls;
 
 public sealed partial class TabViewContent : UserControl, IEditableContent
 {
     public TabViewContentViewModel ViewModel { get; } = new();
-    private readonly MarkdownPipeline _markdownPipeline;
 
-    // Track whether each WebView2 has been initialized
-    private bool _splitWebViewReady = false;
-    private bool _previewWebViewReady = false;
-
-    // Pending content to render once WebView is ready
+    private bool _splitPreviewReady = false;
+    private bool _previewReady = false;
     private string? _pendingPreviewContent = null;
+
+    private WebView2? CurrentPreviewView => ViewModel.Tag switch
+    {
+        "split" => MilkdownPreview_Split,
+        "preview" => MilkdownPreview,
+        _ => null
+    };
+
+    private bool IsPreviewReady => ViewModel.Tag switch
+    {
+        "split" => _splitPreviewReady,
+        "preview" => _previewReady,
+        _ => false
+    };
+
+    private TextControlBox? CurrentEditBox => ViewModel.Tag switch
+    {
+        "md" => EditBox,
+        "split" => EditBox_Split,
+        _ => null
+    };
 
     public TabViewContent()
     {
         InitializeComponent();
-        this.DataContext = ViewModel;
-
-        _markdownPipeline = new MarkdownPipelineBuilder()
-            .UseAdvancedExtensions()
-            .UseEmojiAndSmiley()
-            .Build();
-
-        InitializeEditBoxes();
-        SetViewMode("split");
-
-        // Initialize WebViews after the control is loaded so that
-        // SwitchPresenter has already rendered the correct case
-        this.Loaded += TabViewContent_Loaded;
-    }
-
-    public void SetViewMode(string tag)
-    {
-        string currentText = GetCurrentEditBoxText();
-        if (!string.IsNullOrEmpty(currentText))
-        {
-            ViewModel.CurrentContent = currentText;
-        }
-
-        ViewModel.IsLoadingContent = true;
-        ViewModel.Tag = tag;
-
-        string content = ViewModel.CurrentContent ?? string.Empty;
-        SetContentToCurrentEditBox(content);
-
-        if (ViewModel.Tag is "split" or "preview")
-        {
-            UpdateMarkdownPreview(content);
-        }
-
-        ViewModel.IsLoadingContent = false;
+        DataContext = ViewModel;
+        Loaded += TabViewContent_Loaded;
     }
 
     private async void TabViewContent_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // Initialize WebViews now that the visual tree is ready
+        InitializeEditBoxes();
         await InitializeWebViewsAsync();
 
-        // Render any content that was set before WebViews were ready
         if (!string.IsNullOrEmpty(ViewModel.CurrentContent))
         {
             SetContentToCurrentEditBox(ViewModel.CurrentContent);
             RenderPreviewIfReady(ViewModel.CurrentContent);
         }
     }
+
+    // ─── Init ────────────────────────────────────────────────────────
 
     private void InitializeEditBoxes()
     {
@@ -94,36 +82,107 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
     }
 
-    private void EditBox_TextChanged(TextControlBox sender)
+    private async Task InitializeWebViewsAsync()
     {
-        string text = sender.GetText();
-        UpdateMarkdownPreview(text);
-        ViewModel.CurrentContent = text;
-        UpdateFormattingState(sender);
+        try
+        {
+            if (MilkdownPreview_Split is not null && !_splitPreviewReady)
+            {
+                await MilkdownPreview_Split.EnsureCoreWebView2Async();
+                await LoadMilkdownIntoWebView(MilkdownPreview_Split);
+                _splitPreviewReady = true;
+            }
+
+            if (MilkdownPreview is not null && !_previewReady)
+            {
+                await MilkdownPreview.EnsureCoreWebView2Async();
+                await LoadMilkdownIntoWebView(MilkdownPreview);
+                _previewReady = true;
+            }
+
+            if (_pendingPreviewContent is not null && IsPreviewReady)
+            {
+                await RenderInMilkdown(_pendingPreviewContent);
+                _pendingPreviewContent = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"WebView init error: {ex.Message}");
+        }
     }
 
-    private TextControlBox? CurrentEditBox => ViewModel.Tag switch
-    {
-        "md" => EditBox,
-        "split" => EditBox_Split,
-        _ => null
-    };
+    // ─── Load Milkdown vào WebView2 ──────────────────────────────────
 
-    private WebView2? CurrentMarkdownPreview => ViewModel.Tag switch
+    private async Task LoadMilkdownIntoWebView(WebView2 webView)
     {
-        "split" => MarkdownPreview_Split,
-        "preview" => MarkdownPreview,
-        _ => null
-    };
+        var distPath = Path.Combine(
+            Package.Current.InstalledLocation.Path,
+            "dist"
+        );
 
-    private bool IsCurrentWebViewReady => ViewModel.Tag switch
+        webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+            "editor.local",
+            distPath,
+            CoreWebView2HostResourceAccessKind.Allow
+        );
+
+        webView.Source = new Uri("https://editor.local/index.html");
+
+        // Đợi Milkdown sẵn sàng
+        for (int i = 0; i < 30; i++)
+        {
+            await Task.Delay(100);
+            try
+            {
+                var result = await webView.CoreWebView2.ExecuteScriptAsync(
+                    "typeof window.editorBridge !== 'undefined' && window.editorBridge.isReady ? 'ready' : 'not_ready'"
+                );
+                if (result == "\"ready\"")
+                    return;
+            }
+            catch { }
+        }
+    }
+
+    // ─── Render markdown vào Milkdown preview ────────────────────────
+
+    private async Task RenderInMilkdown(string markdown)
     {
-        "split" => _splitWebViewReady,
-        "preview" => _previewWebViewReady,
-        _ => false
-    };
+        if (CurrentPreviewView is null || !IsPreviewReady)
+        {
+            _pendingPreviewContent = markdown;
+            return;
+        }
 
-    private string GetCurrentEditBoxText() => CurrentEditBox?.GetText() ?? string.Empty;
+        try
+        {
+            var escaped = JsonSerializer.Serialize(markdown);
+            await CurrentPreviewView.CoreWebView2.ExecuteScriptAsync($"window.editorBridge?.setContent({escaped})"
+            );
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"RenderInMilkdown error: {ex.Message}");
+        }
+    }
+
+    // ─── TextControlBox handlers ─────────────────────────────────────
+
+    private void EditBox_TextChanged(TextControlBox sender)
+    {
+        var text = sender.GetText();
+        ViewModel.CurrentContent = text;
+        UpdateFormattingState(sender);
+
+        // Cập nhật Milkdown preview nếu split mode
+        if (ViewModel.Tag == "split" && _splitPreviewReady)
+        {
+            _ = RenderInMilkdown(text);
+        }
+    }
+
+    // ─── IEditableContent ────────────────────────────────────────────
 
     public void SetContent(string text, string? fileName)
     {
@@ -132,7 +191,6 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         ViewModel.SetOriginalContent(text);
         SetContentToCurrentEditBox(text);
 
-        // Always cache pending content; render immediately if WebView is ready
         _pendingPreviewContent = text;
         RenderPreviewIfReady(text);
 
@@ -141,50 +199,69 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     private void SetContentToCurrentEditBox(string text) => CurrentEditBox?.LoadText(text);
 
-    /// <summary>
-    /// Renders preview only if WebView2 is already initialized.
-    /// Otherwise defers to TabViewContent_Loaded -> InitializeWebViewsAsync.
-    /// </summary>
     private void RenderPreviewIfReady(string content)
     {
         if (ViewModel.Tag is not ("split" or "preview"))
             return;
 
-        if (IsCurrentWebViewReady)
+        if (IsPreviewReady)
         {
             _pendingPreviewContent = null;
-            UpdateMarkdownPreview(content);
+            _ = RenderInMilkdown(content);
         }
-        // else: TabViewContent_Loaded will handle it after init
     }
 
-    public string GetContent() => GetCurrentEditBoxText();
+    public string GetContent() => CurrentEditBox?.GetText() ?? ViewModel.CurrentContent ?? string.Empty;
 
     public IEnumerable<string> GetContentToSaveFile() => CurrentEditBox?.Lines ?? [];
 
     public string GetFilePath() => ViewModel.FilePath ?? string.Empty;
-
     public string GetFileName() => ViewModel.FileName ?? string.Empty;
-
     public void SetFilePath(string filePath, string fileName) => ViewModel.SetFilePath(filePath, fileName);
-
     public bool IsDirty() => ViewModel.IsDirty;
-
+    public void MarkAsClean() => ViewModel.MarkAsClean();
     public void Undo() => CurrentEditBox?.Undo();
-
     public void Redo() => CurrentEditBox?.Redo();
-
     public void Cut() => CurrentEditBox?.Cut();
-
     public void Copy() => CurrentEditBox?.Copy();
-
     public void Paste() => CurrentEditBox?.Paste();
-
     public void ApplyBold() => ToggleFormattingStyle("**");
-
     public void ApplyItalic() => ToggleFormattingStyle("*");
-
     public void ApplyStrikethrough() => ToggleStrikethrough();
+
+    public void InsertText(string text)
+    {
+        if (CurrentEditBox is null)
+            return;
+        CurrentEditBox.AddLine(CurrentEditBox.CurrentLineIndex, text);
+    }
+
+    // ─── View mode ───────────────────────────────────────────────────
+
+    public void SetViewMode(string tag)
+    {
+        var currentText = GetContent();
+        if (!string.IsNullOrEmpty(currentText))
+            ViewModel.CurrentContent = currentText;
+
+        ViewModel.Tag = tag;
+        SetContentToCurrentEditBox(ViewModel.CurrentContent ?? string.Empty);
+
+        if (tag is "split" or "preview")
+        {
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(150);
+                DispatcherQueue.TryEnqueue(async () =>
+                {
+                    await InitializeWebViewsAsync();
+                    RenderPreviewIfReady(ViewModel.CurrentContent ?? string.Empty);
+                });
+            });
+        }
+    }
+
+    // ─── Formatting ──────────────────────────────────────────────────
 
     private void ToggleFormattingStyle(string marker)
     {
@@ -194,20 +271,12 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
         bool hasStrike = IsFormattedWith(text, "~~");
         string coreText = hasStrike ? text[2..^2] : text;
-        string newText;
-
-        if (IsWrappedWith(coreText, marker))
-        {
-            newText = coreText.Substring(marker.Length, coreText.Length - (marker.Length * 2));
-        }
-        else
-        {
-            newText = $"{marker}{coreText}{marker}";
-        }
+        string newText = IsWrappedWith(coreText, marker)
+            ? coreText.Substring(marker.Length, coreText.Length - marker.Length * 2)
+            : $"{marker}{coreText}{marker}";
 
         if (hasStrike)
             newText = $"~~{newText}~~";
-
         ApplyTextChange(newText);
     }
 
@@ -216,45 +285,23 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         string text = GetTextToFormat();
         if (string.IsNullOrEmpty(text))
             return;
-
-        string newText = IsFormattedWith(text, "~~")
-            ? text[2..^2] : $"~~{text}~~";
-        ApplyTextChange(newText);
-    }
-
-    private bool IsWrappedWith(string text, string marker)
-    {
-        if (text.Length < marker.Length * 2)
-            return false;
-
-        if (marker == "*" && text.StartsWith("**") && text.EndsWith("**") && !text.StartsWith("***"))
-            return false;
-
-        return text.StartsWith(marker) && text.EndsWith(marker);
+        ApplyTextChange(IsFormattedWith(text, "~~") ? text[2..^2] : $"~~{text}~~");
     }
 
     private string GetTextToFormat()
     {
         if (CurrentEditBox is null)
             return string.Empty;
-
         if (CurrentEditBox.HasSelection)
-        {
             return CurrentEditBox.SelectedText ?? string.Empty;
-        }
-
         try
         {
-            int currentLine = CurrentEditBox.CurrentLineIndex;
-            if (currentLine < 0 || currentLine >= CurrentEditBox.NumberOfLines)
+            int line = CurrentEditBox.CurrentLineIndex;
+            if (line < 0 || line >= CurrentEditBox.NumberOfLines)
                 return string.Empty;
-
-            return CurrentEditBox.GetLineText(currentLine) ?? string.Empty;
+            return CurrentEditBox.GetLineText(line) ?? string.Empty;
         }
-        catch
-        {
-            return string.Empty;
-        }
+        catch { return string.Empty; }
     }
 
     private void ApplyTextChange(string newText)
@@ -267,115 +314,54 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
                 CurrentEditBox.SelectedText = newText;
             else
                 CurrentEditBox.SetLineText(CurrentEditBox.CurrentLineIndex, newText);
-
             UpdateFormattingState(CurrentEditBox);
         }
         catch { }
     }
 
-    private bool IsFormattedWith(string text, string marker)
+    private bool IsWrappedWith(string text, string marker)
     {
-        return !string.IsNullOrEmpty(text) &&
-               text.StartsWith(marker) &&
-               text.EndsWith(marker) &&
-               text.Length >= 2 * marker.Length;
+        if (text.Length < marker.Length * 2)
+            return false;
+        if (marker == "*" && text.StartsWith("**") && text.EndsWith("**") && !text.StartsWith("***"))
+            return false;
+        return text.StartsWith(marker) && text.EndsWith(marker);
     }
+
+    private bool IsFormattedWith(string text, string marker) =>
+        !string.IsNullOrEmpty(text) && text.StartsWith(marker) && text.EndsWith(marker) && text.Length >= 2 * marker.Length;
 
     private void UpdateFormattingState(TextControlBox sender)
     {
         if (sender is null)
             return;
-
         string text = GetTextToFormat();
-        string textWithoutStrikethrough = text;
-        bool hasStrikethrough = false;
+        string textWithoutStrike = text;
+        bool hasStrike = false;
 
         if (text.StartsWith("~~") && text.EndsWith("~~") && text.Length > 4)
         {
-            textWithoutStrikethrough = text[2..^2];
-            hasStrikethrough = true;
+            textWithoutStrike = text[2..^2];
+            hasStrike = true;
         }
 
-        bool hasBoldItalic = IsFormattedWith(textWithoutStrikethrough, "***");
-        bool hasBold = IsFormattedWith(textWithoutStrikethrough, "**") || hasBoldItalic;
-        bool hasItalic = (IsFormattedWith(textWithoutStrikethrough, "*") && !IsFormattedWith(textWithoutStrikethrough, "**")) || hasBoldItalic;
+        bool hasBoldItalic = IsFormattedWith(textWithoutStrike, "***");
+        bool hasBold = IsFormattedWith(textWithoutStrike, "**") || hasBoldItalic;
+        bool hasItalic = (IsFormattedWith(textWithoutStrike, "*") && !IsFormattedWith(textWithoutStrike, "**")) || hasBoldItalic;
 
         ViewModel.IsBoldActive = hasBold;
         ViewModel.IsItalicActive = hasItalic;
-        ViewModel.IsStrikethroughActive = hasStrikethrough;
+        ViewModel.IsStrikethroughActive = hasStrike;
 
-        RxMessageBus.Default.Publish(new FormattingStateMessage(
-            ViewModel.IsBoldActive,
-            ViewModel.IsItalicActive,
-            ViewModel.IsStrikethroughActive
-        ));
+        RxMessageBus.Default.Publish(new FormattingStateMessage(hasBold, hasItalic, hasStrike));
     }
 
-    public void MarkAsClean() => ViewModel.MarkAsClean();
-
-    public void InsertText(string text)
-    {
-        if (CurrentEditBox is null)
-            return;
-
-        CurrentEditBox.AddLine(CurrentEditBox.CurrentLineIndex, text);
-    }
-
-    private async System.Threading.Tasks.Task InitializeWebViewsAsync()
-    {
-        try
-        {
-            if (MarkdownPreview_Split is not null)
-            {
-                await MarkdownPreview_Split.EnsureCoreWebView2Async();
-                _splitWebViewReady = true;
-                MarkdownPreview_Split.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
-            }
-
-            if (MarkdownPreview is not null)
-            {
-                await MarkdownPreview.EnsureCoreWebView2Async();
-                _previewWebViewReady = true;
-                MarkdownPreview.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
-            }
-
-            // Flush any pending content that was set before WebView was ready
-            if (_pendingPreviewContent is not null && IsCurrentWebViewReady)
-            {
-                UpdateMarkdownPreview(_pendingPreviewContent);
-                _pendingPreviewContent = null;
-            }
-        }
-        catch { }
-    }
-
-    private void UpdateMarkdownPreview(string markdownText)
-    {
-        try
-        {
-            if (!IsCurrentWebViewReady)
-                return;
-
-            string html = ConvertMarkdownToHtml(markdownText);
-            CurrentMarkdownPreview?.NavigateToString(html);
-        }
-        catch { }
-    }
-
-    private string ConvertMarkdownToHtml(string markdown)
-    {
-        if (string.IsNullOrWhiteSpace(markdown))
-            return GitHubPreview.GetEmptyPreviewHtml();
-
-        string htmlBody = Markdown.ToHtml(markdown, _markdownPipeline);
-
-        return GitHubPreview.WrapWithGitHubStyle(htmlBody);
-    }
+    // ─── Dispose ─────────────────────────────────────────────────────
 
     public void DisposeWebView()
     {
-        MarkdownPreview_Split?.Close();
-        MarkdownPreview?.Close();
+        MilkdownPreview_Split?.Close();
+        MilkdownPreview?.Close();
     }
 
     public void Dispose()

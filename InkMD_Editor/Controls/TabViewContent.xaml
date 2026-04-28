@@ -6,7 +6,6 @@
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:converters="using:InkMD_Editor.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:InkMD_Editor.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tcb="using:TextControlBoxNS"
     mc:Ignorable="d">
@@ -16,6 +15,8 @@
     </UserControl.Resources>
 
     <controls:SwitchPresenter Value="{x:Bind ViewModel.Tag, Mode=OneWay}">
+
+        <!--  Mode md: chỉ có editor thuần  -->
         <controls:Case Value="md">
             <Grid>
                 <tcb:TextControlBox
@@ -27,6 +28,7 @@
             </Grid>
         </controls:Case>
 
+        <!--  Mode split: editor trái + Milkdown phải  -->
         <controls:Case Value="split">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -48,14 +50,17 @@
                     </controls:GridSplitter.RenderTransform>
                 </controls:GridSplitter>
 
-                <WebView2 x:Name="MarkdownPreview_Split" Grid.Column="1" />
+                <!--  Milkdown thay thế WebView2 preview  -->
+                <WebView2 x:Name="MilkdownPreview_Split" Grid.Column="1" />
             </Grid>
         </controls:Case>
 
+        <!--  Mode preview: chỉ có Milkdown  -->
         <controls:Case Value="preview">
             <Grid>
-                <WebView2 x:Name="MarkdownPreview" />
+                <WebView2 x:Name="MilkdownPreview" />
             </Grid>
         </controls:Case>
+
     </controls:SwitchPresenter>
 </UserControl>
