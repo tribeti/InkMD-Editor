@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace InkMD_Editor.Services;
+namespace InkMD.Core.Services;
 
 public interface IFileService
 {

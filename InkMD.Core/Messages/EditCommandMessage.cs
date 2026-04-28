@@ -1,4 +1,4 @@
-﻿namespace InkMD_Editor.Messages;
+namespace InkMD.Core.Messages;
 
 public enum EditCommandType
 {

@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace InkMD_Editor.Helpers;
+namespace InkMD.Core.Helpers;
 
 public class State<T>(T initialState)
 {

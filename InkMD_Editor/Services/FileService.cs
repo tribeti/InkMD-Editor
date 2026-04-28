@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+using InkMD.Core.Messages;
+using InkMD.Core.Services;
 using InkMD_Editor.Helpers;
-using InkMD_Editor.Messages;
 using Microsoft.UI;
 using Microsoft.Windows.Storage.Pickers;
 using System;
@@ -51,7 +51,7 @@ public class FileService : IFileService
             }
             catch (Exception ex)
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Can not open file: {ex.Message}"));
+                RxMessageBus.Default.Publish(new ErrorMessage($"Can not open file: {ex.Message}"));
                 return null;
             }
         }
@@ -81,7 +81,7 @@ public class FileService : IFileService
             }
             catch (Exception ex)
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Cannot open folder: {ex.Message}"));
+                RxMessageBus.Default.Publish(new ErrorMessage($"Cannot open folder: {ex.Message}"));
                 return null;
             }
         }
@@ -112,7 +112,7 @@ public class FileService : IFileService
             }
             catch (Exception ex)
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Cannot save file: {ex.Message}"));
+                RxMessageBus.Default.Publish(new ErrorMessage($"Cannot save file: {ex.Message}"));
                 return null;
             }
         }
@@ -138,7 +138,7 @@ public class FileService : IFileService
 
         if (finalFileName.IndexOfAny(invalidChars) >= 0)
         {
-            WeakReferenceMessenger.Default.Send(new ErrorMessage($"File name contains invalid characters. Avoid using: {string.Join(" ", invalidChars)}"));
+            RxMessageBus.Default.Publish(new ErrorMessage($"File name contains invalid characters. Avoid using: {string.Join(" ", invalidChars)}"));
             return null;
         }
         StorageFolder? currentFolder = null;
@@ -164,7 +164,7 @@ public class FileService : IFileService
         }
         catch (Exception ex)
         {
-            WeakReferenceMessenger.Default.Send(new ErrorMessage($"Cannot create file: {ex.Message}"));
+            RxMessageBus.Default.Publish(new ErrorMessage($"Cannot create file: {ex.Message}"));
             return null;
         }
     }
@@ -206,7 +206,7 @@ public class FileService : IFileService
             }
             catch (Exception ex)
             {
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"File creation error: {ex.Message}"));
+                RxMessageBus.Default.Publish(new ErrorMessage($"File creation error: {ex.Message}"));
                 return null;
             }
         }

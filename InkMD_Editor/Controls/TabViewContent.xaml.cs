@@ -1,7 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using InkMD_Editor.Helpers;
-using InkMD_Editor.Messages;
-using InkMD_Editor.Services;
+using InkMD.Core.Helpers;
+using InkMD.Core.Messages;
+using InkMD.Core.Services;
 using InkMD_Editor.ViewModels;
 using Markdig;
 using Microsoft.UI.Xaml.Controls;
@@ -16,6 +15,13 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public TabViewContentViewModel ViewModel { get; } = new();
     private readonly MarkdownPipeline _markdownPipeline;
 
+    // Track whether each WebView2 has been initialized
+    private bool _splitWebViewReady = false;
+    private bool _previewWebViewReady = false;
+
+    // Pending content to render once WebView is ready
+    private string? _pendingPreviewContent = null;
+
     public TabViewContent()
     {
         InitializeComponent();
@@ -26,10 +32,11 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             .UseEmojiAndSmiley()
             .Build();
 
-        InitializeWebViews();
         InitializeEditBoxes();
-
         SetViewMode("split");
+
+        // Initialize WebViews after the control is loaded so that
+        // SwitchPresenter has already rendered the correct case
         this.Loaded += TabViewContent_Loaded;
     }
 
@@ -44,7 +51,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         ViewModel.IsLoadingContent = true;
         ViewModel.Tag = tag;
 
-        string content = ViewModel.CurrentContent ?? String.Empty;
+        string content = ViewModel.CurrentContent ?? string.Empty;
         SetContentToCurrentEditBox(content);
 
         if (ViewModel.Tag is "split" or "preview")
@@ -55,12 +62,16 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         ViewModel.IsLoadingContent = false;
     }
 
-    private void TabViewContent_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void TabViewContent_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
+        // Initialize WebViews now that the visual tree is ready
+        await InitializeWebViewsAsync();
+
+        // Render any content that was set before WebViews were ready
         if (!string.IsNullOrEmpty(ViewModel.CurrentContent))
         {
             SetContentToCurrentEditBox(ViewModel.CurrentContent);
-            UpdateMarkdownPreview(ViewModel.CurrentContent);
+            RenderPreviewIfReady(ViewModel.CurrentContent);
         }
     }
 
@@ -105,6 +116,13 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         _ => null
     };
 
+    private bool IsCurrentWebViewReady => ViewModel.Tag switch
+    {
+        "split" => _splitWebViewReady,
+        "preview" => _previewWebViewReady,
+        _ => false
+    };
+
     private string GetCurrentEditBoxText() => CurrentEditBox?.GetText() ?? string.Empty;
 
     public void SetContent(string text, string? fileName)
@@ -113,11 +131,32 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         ViewModel.FileName = fileName;
         ViewModel.SetOriginalContent(text);
         SetContentToCurrentEditBox(text);
-        UpdateMarkdownPreview(text);
+
+        // Always cache pending content; render immediately if WebView is ready
+        _pendingPreviewContent = text;
+        RenderPreviewIfReady(text);
+
         ViewModel.IsLoadingContent = false;
     }
 
     private void SetContentToCurrentEditBox(string text) => CurrentEditBox?.LoadText(text);
+
+    /// <summary>
+    /// Renders preview only if WebView2 is already initialized.
+    /// Otherwise defers to TabViewContent_Loaded -> InitializeWebViewsAsync.
+    /// </summary>
+    private void RenderPreviewIfReady(string content)
+    {
+        if (ViewModel.Tag is not ("split" or "preview"))
+            return;
+
+        if (IsCurrentWebViewReady)
+        {
+            _pendingPreviewContent = null;
+            UpdateMarkdownPreview(content);
+        }
+        // else: TabViewContent_Loaded will handle it after init
+    }
 
     public string GetContent() => GetCurrentEditBoxText();
 
@@ -265,7 +304,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         ViewModel.IsItalicActive = hasItalic;
         ViewModel.IsStrikethroughActive = hasStrikethrough;
 
-        WeakReferenceMessenger.Default.Send(new FormattingStateMessage(
+        RxMessageBus.Default.Publish(new FormattingStateMessage(
             ViewModel.IsBoldActive,
             ViewModel.IsItalicActive,
             ViewModel.IsStrikethroughActive
@@ -282,20 +321,29 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         CurrentEditBox.AddLine(CurrentEditBox.CurrentLineIndex, text);
     }
 
-    private async void InitializeWebViews()
+    private async System.Threading.Tasks.Task InitializeWebViewsAsync()
     {
         try
         {
             if (MarkdownPreview_Split is not null)
             {
                 await MarkdownPreview_Split.EnsureCoreWebView2Async();
+                _splitWebViewReady = true;
                 MarkdownPreview_Split.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
             }
 
             if (MarkdownPreview is not null)
             {
                 await MarkdownPreview.EnsureCoreWebView2Async();
+                _previewWebViewReady = true;
                 MarkdownPreview.NavigateToString(GitHubPreview.GetEmptyPreviewHtml());
+            }
+
+            // Flush any pending content that was set before WebView was ready
+            if (_pendingPreviewContent is not null && IsCurrentWebViewReady)
+            {
+                UpdateMarkdownPreview(_pendingPreviewContent);
+                _pendingPreviewContent = null;
             }
         }
         catch { }
@@ -305,6 +353,9 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     {
         try
         {
+            if (!IsCurrentWebViewReady)
+                return;
+
             string html = ConvertMarkdownToHtml(markdownText);
             CurrentMarkdownPreview?.NavigateToString(html);
         }

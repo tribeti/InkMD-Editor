@@ -1,13 +1,15 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.ComponentModel;
+using InkMD.Core.Messages;
+using InkMD.Core.Services;
 using InkMD_Editor.Helpers;
-using InkMD_Editor.Messages;
 using System;
 
 namespace InkMD_Editor.ViewModels;
 
-public partial class TabViewContentViewModel : ObservableObject, IRecipient<FontChangedMessage>, IDisposable
+public partial class TabViewContentViewModel : ObservableObject, IDisposable
 {
+    private readonly IDisposable _subscription;
+
     [ObservableProperty]
     public partial string? FileName { get; set; }
 
@@ -59,7 +61,7 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
     public TabViewContentViewModel()
     {
         FileName = "Untitled";
-        WeakReferenceMessenger.Default.Register(this);
+        _subscription = RxMessageBus.Default.Subscribe<FontChangedMessage>().Subscribe(Receive);
     }
 
     /// <summary>
@@ -79,7 +81,7 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
         OriginalContent = CurrentContent;
         _lastDirtyState = false;
 
-        WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty, false));
+        RxMessageBus.Default.Publish(new ContentChangedMessage(FilePath ?? string.Empty, false));
     }
 
     /// <summary>
@@ -106,7 +108,7 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
         if (currentDirtyState != _lastDirtyState)
         {
             _lastDirtyState = currentDirtyState;
-            WeakReferenceMessenger.Default.Send(new ContentChangedMessage(FilePath ?? string.Empty, currentDirtyState));
+            RxMessageBus.Default.Publish(new ContentChangedMessage(FilePath ?? string.Empty, currentDirtyState));
         }
     }
 
@@ -118,7 +120,7 @@ public partial class TabViewContentViewModel : ObservableObject, IRecipient<Font
 
     public void Dispose()
     {
-        WeakReferenceMessenger.Default.UnregisterAll(this);
+        _subscription?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

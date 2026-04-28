@@ -1,7 +1,7 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Controls;
-using InkMD_Editor.Messages;
-using InkMD_Editor.Models;
+using InkMD.Core.Messages;
+using InkMD.Core.Models;
+using InkMD.Core.Services;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +21,7 @@ public sealed partial class MainMenu : UserControl
     private readonly IDialogService _dialogService;
     private MainMenuViewModel ViewModel { get; }
     private bool _isInternalUpdate = false;
+    private readonly IDisposable _subscription;
 
     public MainMenu()
     {
@@ -32,10 +33,10 @@ public sealed partial class MainMenu : UserControl
         DataContext = ViewModel;
         Unloaded += (s, e) => Dispose();
 
-        WeakReferenceMessenger.Default.Register<FormattingStateMessage>(this, HandleFormattingStateChanged);
+        _subscription = RxMessageBus.Default.Subscribe<FormattingStateMessage>().Subscribe(HandleFormattingStateChanged);
     }
 
-    private void HandleFormattingStateChanged(object recipient, FormattingStateMessage message)
+    private void HandleFormattingStateChanged(FormattingStateMessage message)
     {
         BoldButton?.IsChecked = message.IsBoldActive;
         ItalicButton?.IsChecked = message.IsItalicActive;
@@ -338,7 +339,7 @@ public sealed partial class MainMenu : UserControl
 
         if (DisplayMode.SelectedItem is SegmentedItem selectedItem && selectedItem.Tag is string newMode)
         {
-            WeakReferenceMessenger.Default.Send(new ViewModeChangedMessage(newMode));
+            RxMessageBus.Default.Publish(new ViewModeChangedMessage(newMode));
         }
     }
 
@@ -369,6 +370,7 @@ public sealed partial class MainMenu : UserControl
     {
         try
         {
+            _subscription?.Dispose();
             CleanupWebView();
             ViewModel.Cleanup();
         }

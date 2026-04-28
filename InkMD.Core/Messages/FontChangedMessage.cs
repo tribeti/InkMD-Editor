@@ -1,3 +1,3 @@
-namespace InkMD_Editor.Messages;
+namespace InkMD.Core.Messages;
 
 public record FontChangedMessage(string FontFamily, double FontSize);

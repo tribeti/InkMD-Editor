@@ -6,7 +6,7 @@ namespace InkMD.Core.Models;
 // this is for document representation in the editor
 public class Document
 {
-    public string FilePath { get; set; }
+    public string? FilePath { get; set; }
     public string FileName => string.IsNullOrEmpty(FilePath) ? "Untitled" : System.IO.Path.GetFileName(FilePath);
     public string Content { get; set; } = string.Empty;
     public bool IsDirty { get; set; } = false;

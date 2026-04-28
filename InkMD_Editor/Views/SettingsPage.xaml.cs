@@ -1,6 +1,6 @@
-using CommunityToolkit.Mvvm.Messaging;
+using InkMD.Core.Messages;
+using InkMD.Core.Services;
 using InkMD_Editor.Helpers;
-using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -76,7 +76,7 @@ public sealed partial class SettingsPage : Page
         var fontFamily = AppSettings.GetFontFamily();
         var fontSize = AppSettings.GetFontSize();
 
-        WeakReferenceMessenger.Default.Send(new FontChangedMessage(fontFamily, fontSize));
+        RxMessageBus.Default.Publish(new FontChangedMessage(fontFamily, fontSize));
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)

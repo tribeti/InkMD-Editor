@@ -1,6 +1,6 @@
-﻿namespace InkMD_Editor.Helpers;
+namespace InkMD.Core.Helpers;
 
-public class GitHubPreview
+public static class GitHubPreview
 {
     public static string GetEmptyPreviewHtml()
     {

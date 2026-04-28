@@ -1,4 +1,4 @@
-﻿using InkMD_Editor.Helpers;
+using InkMD.Core.Helpers;
 using System;
 
 namespace InkMD_Editor.Services;

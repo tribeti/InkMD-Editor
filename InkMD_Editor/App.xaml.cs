@@ -1,4 +1,5 @@
-﻿using InkMD_Editor.Services;
+﻿using InkMD.Core.Services;
+using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;

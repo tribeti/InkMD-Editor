@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+using InkMD.Core.Messages;
+using InkMD.Core.Services;
 using InkMD_Editor.Controls;
-using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -22,6 +23,7 @@ public sealed partial class EditorPage : Page
     private bool _isInitialized = false;
     private TreeViewNode? _originalRootNode;
     private CancellationTokenSource? _searchCancellationTokenSource;
+    private readonly System.Collections.Generic.List<IDisposable> _subscriptions = [];
 
     public EditorPage()
     {
@@ -44,33 +46,55 @@ public sealed partial class EditorPage : Page
 
         Unloaded += (s, e) =>
         {
-            // Clean up cancellation token when page is unloaded
             _searchCancellationTokenSource?.Cancel();
             _searchCancellationTokenSource?.Dispose();
             _searchCancellationTokenSource = null;
+
+            foreach (var sub in _subscriptions)
+                sub.Dispose();
+            _subscriptions.Clear();
         };
     }
 
     private void SetupMessengers()
     {
-        var messenger = WeakReferenceMessenger.Default;
+        var bus = RxMessageBus.Default;
 
-        messenger.Register<FileOpenedMessage>(this, async (r, msg) => await OpenFile(msg.File));
-        messenger.Register<FolderOpenedMessage>(this, async (r, msg) => await RefreshTreeViewWithFolder(msg.Folder));
-        messenger.Register<SaveFileRequestMessage>(this, (r, msg) => SaveCurrentTabContent(msg.FilePath));
-        messenger.Register<SaveFileMessage>(this, async (r, msg) => await HandleSaveFile());
-        messenger.Register<ErrorMessage>(this, async (r, msg) => await _viewModel.ShowErrorAsync(msg.Message));
-        messenger.Register<TemplateSelectedMessage>(this, async (r, msg) => await HandleTemplateSelected(msg.Content, msg.CreateNewFile));
-        messenger.Register<HyperlinkCreationMessage>(this, async (r, msg) => await HandleHyperlinkSelected(msg.Markdown));
-        messenger.Register<ContentChangedMessage>(this, (r, msg) => UpdateTabHeaderForDirtyState());
+        _subscriptions.Add(bus.Subscribe<FileOpenedMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await OpenFile(msg.File)))
+                                .Subscribe());
 
-        messenger.Register<ViewModeChangedMessage>(this, (r, msg) =>
+        _subscriptions.Add(bus.Subscribe<FolderOpenedMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await RefreshTreeViewWithFolder(msg.Folder)))
+                                .Subscribe());
+
+        _subscriptions.Add(bus.Subscribe<SaveFileRequestMessage>().Subscribe(msg => SaveCurrentTabContent(msg.FilePath)));
+
+        _subscriptions.Add(bus.Subscribe<SaveFileMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await HandleSaveFile()))
+                                .Subscribe());
+
+        _subscriptions.Add(bus.Subscribe<ErrorMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await _viewModel.ShowErrorAsync(msg.Message)))
+                                .Subscribe());
+
+        _subscriptions.Add(bus.Subscribe<TemplateSelectedMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await HandleTemplateSelected(msg.Content, msg.CreateNewFile)))
+                                .Subscribe());
+
+        _subscriptions.Add(bus.Subscribe<HyperlinkCreationMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await HandleHyperlinkSelected(msg.Markdown)))
+                                .Subscribe());
+
+        _subscriptions.Add(bus.Subscribe<ContentChangedMessage>().Subscribe(msg => UpdateTabHeaderForDirtyState()));
+
+        _subscriptions.Add(bus.Subscribe<ViewModeChangedMessage>().Subscribe(msg =>
         {
             if (GetSelectedTabContent().content is TabViewContent tabContent)
                 tabContent.SetViewMode(msg.NewMode);
-        });
+        }));
 
-        messenger.Register<EditCommandMessage>(this, (r, msg) => HandleEditCommand(msg.Command));
+        _subscriptions.Add(bus.Subscribe<EditCommandMessage>().Subscribe(msg => HandleEditCommand(msg.Command)));
     }
 
     private void HandleEditCommand(EditCommandType command)
