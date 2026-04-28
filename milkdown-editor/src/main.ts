@@ -3,6 +3,7 @@ import "@milkdown/crepe/theme/common/style.css";
 import "@milkdown/crepe/theme/frame-dark.css";
 import { gfm } from "@milkdown/preset-gfm";
 import { replaceAll } from "@milkdown/kit/utils";
+import "./style.css";
 
 declare global {
   interface Window {
@@ -44,6 +45,6 @@ window.editorBridge = {
     // Allow the event loop to clear before unsetting the flag
     setTimeout(() => {
       window.editorBridge.isUpdating = false;
-    }, 50);
+    }, 100);
   },
 };

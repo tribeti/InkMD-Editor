@@ -21,8 +21,9 @@
 		<Content Include="Assets\**\*.*" Exclude="Assets\.git,Assets\.github,Assets\README.md">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<!--web editor-->
-		<Content Include="dist\**\*">
+		<!--link web editor (tinh nang vip vcl)-->
+		<Content Include="..\milkdown-editor\dist\**\*">
+			<Link>dist\%(RecursiveDir)%(Filename)%(Extension)</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using TextControlBoxNS;
 using Windows.ApplicationModel;
@@ -21,6 +22,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     private bool _previewReady = false;
     private string? _pendingPreviewContent = null;
     private bool _isUpdatingFromWebView = false;
+    private CancellationTokenSource? _viewModeCts = null;
 
     private WebView2? CurrentPreviewView => ViewModel.Tag switch
     {
@@ -83,28 +85,31 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
     }
 
-    private async Task InitializeWebViewsAsync()
+    private async Task InitializeWebViewsAsync(CancellationToken cancellationToken = default)
     {
         try
         {
             if (MilkdownPreview_Split is not null && !_splitPreviewReady)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 await MilkdownPreview_Split.EnsureCoreWebView2Async();
                 MilkdownPreview_Split.WebMessageReceived += WebView_WebMessageReceived;
-                await LoadMilkdownIntoWebView(MilkdownPreview_Split);
+                await LoadMilkdownIntoWebView(MilkdownPreview_Split, cancellationToken);
                 _splitPreviewReady = true;
             }
 
             if (MilkdownPreview is not null && !_previewReady)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 await MilkdownPreview.EnsureCoreWebView2Async();
                 MilkdownPreview.WebMessageReceived += WebView_WebMessageReceived;
-                await LoadMilkdownIntoWebView(MilkdownPreview);
+                await LoadMilkdownIntoWebView(MilkdownPreview, cancellationToken);
                 _previewReady = true;
             }
 
             if (_pendingPreviewContent is not null && IsPreviewReady)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 await RenderInMilkdown(_pendingPreviewContent);
                 _pendingPreviewContent = null;
             }
@@ -117,7 +122,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     // ─── Load Milkdown vào WebView2 ──────────────────────────────────
 
-    private async Task LoadMilkdownIntoWebView(WebView2 webView)
+    private async Task LoadMilkdownIntoWebView(WebView2 webView, CancellationToken cancellationToken = default)
     {
         var distPath = Path.Combine(
             Package.Current.InstalledLocation.Path,
@@ -135,7 +140,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         // Đợi Milkdown sẵn sàng
         for (int i = 0; i < 30; i++)
         {
-            await Task.Delay(100);
+            cancellationToken.ThrowIfCancellationRequested();
+            await Task.Delay(100, cancellationToken);
             try
             {
                 var result = await webView.CoreWebView2.ExecuteScriptAsync(
@@ -287,12 +293,25 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
         if (tag is "split" or "preview")
         {
+            // Cancel previous pending view mode initialization task
+            if (_viewModeCts is not null)
+            {
+                _viewModeCts.Cancel();
+                _viewModeCts.Dispose();
+            }
+
+            _viewModeCts = new CancellationTokenSource();
+            var token = _viewModeCts.Token;
+
             _ = Task.Run(async () =>
             {
-                await Task.Delay(150);
+                await Task.Delay(150, token);
                 DispatcherQueue.TryEnqueue(async () =>
                 {
-                    await InitializeWebViewsAsync();
+                    if (token.IsCancellationRequested)
+                        return;
+
+                    await InitializeWebViewsAsync(token);
                     RenderPreviewIfReady(ViewModel.CurrentContent ?? string.Empty);
                 });
             });
@@ -398,12 +417,35 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void DisposeWebView()
     {
-        MilkdownPreview_Split?.Close();
-        MilkdownPreview?.Close();
+        // Unsubscribe from WebMessageReceived handlers to prevent memory leaks
+        if (MilkdownPreview_Split is not null)
+        {
+            MilkdownPreview_Split.WebMessageReceived -= WebView_WebMessageReceived;
+            MilkdownPreview_Split.Close();
+        }
+
+        if (MilkdownPreview is not null)
+        {
+            MilkdownPreview.WebMessageReceived -= WebView_WebMessageReceived;
+            MilkdownPreview.Close();
+        }
+
+        // Clear related flags and pending content
+        _splitPreviewReady = false;
+        _previewReady = false;
+        _pendingPreviewContent = null;
     }
 
     public void Dispose()
     {
+        // Cancel any pending view mode initialization task
+        if (_viewModeCts is not null)
+        {
+            _viewModeCts.Cancel();
+            _viewModeCts.Dispose();
+            _viewModeCts = null;
+        }
+
         ViewModel.Dispose();
         DisposeWebView();
     }
