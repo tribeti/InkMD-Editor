@@ -124,5 +124,6 @@
 		<Title>InkMD Editor</Title>
 		<Description>InkMD Editor is a powerful yet lightweight desktop application designed for developers and writers who demand a seamless Markdown experience.</Description>
 		<RepositoryUrl>https://github.com/tribeti/InkMD-Editor</RepositoryUrl>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 </Project>

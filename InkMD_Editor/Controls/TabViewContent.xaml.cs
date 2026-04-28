@@ -1,7 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using InkMD_Editor.Helpers;
-using InkMD_Editor.Messages;
-using InkMD_Editor.Services;
+using InkMD.Core.Helpers;
+using InkMD.Core.Messages;
+using InkMD.Core.Services;
 using InkMD_Editor.ViewModels;
 using Markdig;
 using Microsoft.UI.Xaml.Controls;
@@ -265,7 +264,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         ViewModel.IsItalicActive = hasItalic;
         ViewModel.IsStrikethroughActive = hasStrikethrough;
 
-        WeakReferenceMessenger.Default.Send(new FormattingStateMessage(
+        RxMessageBus.Default.Publish(new FormattingStateMessage(
             ViewModel.IsBoldActive,
             ViewModel.IsItalicActive,
             ViewModel.IsStrikethroughActive

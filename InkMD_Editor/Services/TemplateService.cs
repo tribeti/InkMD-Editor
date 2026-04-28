@@ -1,4 +1,4 @@
-﻿using InkMD_Editor.Models;
+using InkMD.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;

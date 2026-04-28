@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
-namespace InkMD_Editor.Services;
+namespace InkMD.Core.Services;
 
 public interface IEditableContent
 {

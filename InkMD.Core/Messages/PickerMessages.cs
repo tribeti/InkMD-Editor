@@ -1,6 +1,6 @@
-﻿using Windows.Storage;
+using Windows.Storage;
 
-namespace InkMD_Editor.Messages;
+namespace InkMD.Core.Messages;
 
 public record FileOpenedMessage(StorageFile File);
 

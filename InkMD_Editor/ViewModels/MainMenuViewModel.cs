@@ -1,9 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
+using InkMD.Core.Helpers;
+using InkMD.Core.Messages;
+using InkMD.Core.Models;
+using InkMD.Core.Services;
 using InkMD_Editor.Helpers;
-using InkMD_Editor.Messages;
-using InkMD_Editor.Models;
 using InkMD_Editor.Services;
 using Markdig;
 using System;
@@ -45,7 +46,7 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
         var storageFile = await _fileService.OpenFileAsync();
         if (storageFile is not null)
         {
-            WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
+            RxMessageBus.Default.Publish(new FileOpenedMessage(storageFile));
         }
     }
 
@@ -55,14 +56,14 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
         var storageFolder = await _fileService.OpenFolderAsync();
         if (storageFolder is not null)
         {
-            WeakReferenceMessenger.Default.Send(new FolderOpenedMessage(storageFolder));
+            RxMessageBus.Default.Publish(new FolderOpenedMessage(storageFolder));
         }
     }
 
     [RelayCommand]
     private static void Save()
     {
-        WeakReferenceMessenger.Default.Send(new SaveFileMessage(IsNewFile: false));
+        RxMessageBus.Default.Publish(new SaveFileMessage(IsNewFile: false));
     }
 
     [RelayCommand]
@@ -71,7 +72,7 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
         var filePath = await _fileService.SaveFileAsync();
         if (filePath is not null)
         {
-            WeakReferenceMessenger.Default.Send(new SaveFileRequestMessage(filePath));
+            RxMessageBus.Default.Publish(new SaveFileRequestMessage(filePath));
         }
     }
 
@@ -89,7 +90,7 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
 
         if (storageFile is not null)
         {
-            WeakReferenceMessenger.Default.Send(new FileOpenedMessage(storageFile));
+            RxMessageBus.Default.Publish(new FileOpenedMessage(storageFile));
             return true;
         }
 
@@ -122,7 +123,7 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
 
     public void SendTemplateSelectedMessage(string content, bool createNewFile)
     {
-        WeakReferenceMessenger.Default.Send(new TemplateSelectedMessage(content, createNewFile));
+        RxMessageBus.Default.Publish(new TemplateSelectedMessage(content, createNewFile));
     }
 
     public bool CreateHyperlink(string displayText, string url, out string hyperlinkMarkdown)
@@ -133,7 +134,7 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
 
     public void SendHyperlinkMessage(string markdown)
     {
-        WeakReferenceMessenger.Default.Send(new HyperlinkCreationMessage(markdown));
+        RxMessageBus.Default.Publish(new HyperlinkCreationMessage(markdown));
     }
 
     [RelayCommand]
@@ -187,7 +188,7 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
         return GitHubPreview.WrapWithGitHubStyle(htmlBody);
     }
 
-    private void SendEditCommand(EditCommandType commandType) => WeakReferenceMessenger.Default.Send(new EditCommandMessage(commandType));
+    private void SendEditCommand(EditCommandType commandType) => RxMessageBus.Default.Publish(new EditCommandMessage(commandType));
 
     [RelayCommand]
     private void Undo() => SendEditCommand(EditCommandType.Undo);

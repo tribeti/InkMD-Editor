@@ -1,6 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using InkMD_Editor.Messages;
-using InkMD_Editor.Services;
+using InkMD.Core.Messages;
+using InkMD.Core.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
@@ -17,7 +16,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
         InitializeComponent();
         EditBox.EnableSyntaxHighlighting = true;
         EditBox.SelectSyntaxHighlightingById(SyntaxHighlightID.None);
-        WeakReferenceMessenger.Default.Send(new FormattingStateMessage(false, false, false));
+        RxMessageBus.Default.Publish(new FormattingStateMessage(false, false, false));
     }
 
     public void SetContent(string text, string? fileName)

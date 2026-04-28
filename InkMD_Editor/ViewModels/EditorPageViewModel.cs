@@ -1,12 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.ComponentModel;
+using InkMD.Core.Messages;
+using InkMD.Core.Services;
 using InkMD_Editor.Helpers;
-using InkMD_Editor.Messages;
 using InkMD_Editor.Services;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -157,7 +156,7 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
             var fileName = Path.GetFileName(filePath);
 
             content.SetFilePath(filePath, fileName);
-            WeakReferenceMessenger.Default.Send(new FileSavedMessage(filePath, fileName));
+            RxMessageBus.Default.Publish(new FileSavedMessage(filePath, fileName));
         }
         catch (Exception ex)
         {
@@ -195,36 +194,11 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
             using var dataReader = DataReader.FromBuffer(buffer);
             var bytes = new byte[buffer.Length];
             dataReader.ReadBytes(bytes);
-            return DetectAndDecodeBytes(bytes);
+            return DocumentService.DetectAndDecode(bytes);
         }
         catch
         {
             return string.Empty;
-        }
-    }
-
-    private static string DetectAndDecodeBytes(ReadOnlySpan<byte> bytes)
-    {
-        ReadOnlySpan<byte> utf8Bom = [0xEF, 0xBB, 0xBF];
-        ReadOnlySpan<byte> utf16LeBom = [0xFF, 0xFE];
-        ReadOnlySpan<byte> utf16BeBom = [0xFE, 0xFF];
-
-        if (bytes.Length >= 3 && bytes[..3].SequenceEqual(utf8Bom))
-            return Encoding.UTF8.GetString(bytes[3..]);
-
-        if (bytes.Length >= 2 && bytes[..2].SequenceEqual(utf16LeBom))
-            return Encoding.Unicode.GetString(bytes[2..]);
-
-        if (bytes.Length >= 2 && bytes[..2].SequenceEqual(utf16BeBom))
-            return Encoding.BigEndianUnicode.GetString(bytes[2..]);
-
-        try
-        {
-            return Encoding.UTF8.GetString(bytes);
-        }
-        catch
-        {
-            return Encoding.Default.GetString(bytes);
         }
     }
 
