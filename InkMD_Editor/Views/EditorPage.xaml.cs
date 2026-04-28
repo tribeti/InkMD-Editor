@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -22,7 +23,7 @@ public sealed partial class EditorPage : Page
     private bool _isInitialized = false;
     private TreeViewNode? _originalRootNode;
     private CancellationTokenSource? _searchCancellationTokenSource;
-    private readonly System.Collections.Generic.List<IDisposable> _subscriptions = new();
+    private readonly System.Collections.Generic.List<IDisposable> _subscriptions = [];
 
     public EditorPage()
     {
@@ -45,7 +46,6 @@ public sealed partial class EditorPage : Page
 
         Unloaded += (s, e) =>
         {
-            // Clean up cancellation token when page is unloaded
             _searchCancellationTokenSource?.Cancel();
             _searchCancellationTokenSource?.Dispose();
             _searchCancellationTokenSource = null;
@@ -60,13 +60,32 @@ public sealed partial class EditorPage : Page
     {
         var bus = RxMessageBus.Default;
 
-        _subscriptions.Add(bus.Subscribe<FileOpenedMessage>().Subscribe(async msg => await OpenFile(msg.File)));
-        _subscriptions.Add(bus.Subscribe<FolderOpenedMessage>().Subscribe(async msg => await RefreshTreeViewWithFolder(msg.Folder)));
+        _subscriptions.Add(bus.Subscribe<FileOpenedMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await OpenFile(msg.File)))
+                                .Subscribe());
+
+        _subscriptions.Add(bus.Subscribe<FolderOpenedMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await RefreshTreeViewWithFolder(msg.Folder)))
+                                .Subscribe());
+
         _subscriptions.Add(bus.Subscribe<SaveFileRequestMessage>().Subscribe(msg => SaveCurrentTabContent(msg.FilePath)));
-        _subscriptions.Add(bus.Subscribe<SaveFileMessage>().Subscribe(async msg => await HandleSaveFile()));
-        _subscriptions.Add(bus.Subscribe<ErrorMessage>().Subscribe(async msg => await _viewModel.ShowErrorAsync(msg.Message)));
-        _subscriptions.Add(bus.Subscribe<TemplateSelectedMessage>().Subscribe(async msg => await HandleTemplateSelected(msg.Content, msg.CreateNewFile)));
-        _subscriptions.Add(bus.Subscribe<HyperlinkCreationMessage>().Subscribe(async msg => await HandleHyperlinkSelected(msg.Markdown)));
+
+        _subscriptions.Add(bus.Subscribe<SaveFileMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await HandleSaveFile()))
+                                .Subscribe());
+
+        _subscriptions.Add(bus.Subscribe<ErrorMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await _viewModel.ShowErrorAsync(msg.Message)))
+                                .Subscribe());
+
+        _subscriptions.Add(bus.Subscribe<TemplateSelectedMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await HandleTemplateSelected(msg.Content, msg.CreateNewFile)))
+                                .Subscribe());
+
+        _subscriptions.Add(bus.Subscribe<HyperlinkCreationMessage>()
+                                .SelectMany(msg => Observable.FromAsync(async () => await HandleHyperlinkSelected(msg.Markdown)))
+                                .Subscribe());
+
         _subscriptions.Add(bus.Subscribe<ContentChangedMessage>().Subscribe(msg => UpdateTabHeaderForDirtyState()));
 
         _subscriptions.Add(bus.Subscribe<ViewModeChangedMessage>().Subscribe(msg =>
