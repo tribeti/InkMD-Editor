@@ -50,6 +50,8 @@ public sealed partial class SettingsPage : Page
         if (App.MainWindow is Window window)
         {
             _themeService.SetTheme(window, selectedTheme);
+            var effectiveTheme = _themeService.GetEffectiveTheme(window, selectedTheme);
+            RxMessageBus.Default.Publish(new ThemeChangedMessage(effectiveTheme));
         }
     }
 

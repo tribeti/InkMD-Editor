@@ -50,7 +50,6 @@
                     </controls:GridSplitter.RenderTransform>
                 </controls:GridSplitter>
 
-                <!--  Milkdown thay thế WebView2 preview  -->
                 <WebView2 x:Name="MilkdownPreview_Split" Grid.Column="1" />
             </Grid>
         </controls:Case>

@@ -1,7 +1,5 @@
 import { Crepe } from "@milkdown/crepe";
 import "@milkdown/crepe/theme/common/style.css";
-import "@milkdown/crepe/theme/frame-dark.css";
-import "@milkdown/crepe/theme/frame.css";
 import { gfm } from "@milkdown/preset-gfm";
 import { replaceAll } from "@milkdown/kit/utils";
 import "./style.css";

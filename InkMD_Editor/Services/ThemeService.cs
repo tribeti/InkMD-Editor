@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using System;
 using Windows.Storage;
 
@@ -50,6 +50,17 @@ public class ThemeService
             var savedTheme = GetSavedTheme();
             rootElement.RequestedTheme = ToElementTheme(savedTheme);
         }
+    }
+
+    public string GetEffectiveTheme(Window window, AppTheme theme)
+    {
+        if (theme != AppTheme.Default)
+            return theme == AppTheme.Dark ? "dark" : "light";
+
+        if (window?.Content is FrameworkElement rootElement)
+            return rootElement.ActualTheme == ElementTheme.Dark ? "dark" : "light";
+
+        return "light";
     }
 
     public void SetTheme(Window window, AppTheme theme)

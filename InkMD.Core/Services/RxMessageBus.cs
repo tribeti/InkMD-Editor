@@ -10,7 +10,7 @@ public sealed class RxMessageBus
     private readonly Subject<object> _subject = new();
     private readonly ReplaySubject<FormattingStateMessage> _formattingStateSubject = new(1);
     private readonly ReplaySubject<FontChangedMessage> _fontChangedSubject = new(1);
-
+    private readonly ReplaySubject<ThemeChangedMessage> _themeChangedSubject = new(1);
     public static RxMessageBus Default { get; } = new();
 
     private RxMessageBus() { }
@@ -24,6 +24,10 @@ public sealed class RxMessageBus
         else if (message is FontChangedMessage fcm)
         {
             _fontChangedSubject.OnNext(fcm);
+        }
+        else if (message is ThemeChangedMessage tcm)
+        {
+            _themeChangedSubject.OnNext(tcm);
         }
         else
         {
@@ -41,6 +45,11 @@ public sealed class RxMessageBus
         if (typeof(TMessage) == typeof(FontChangedMessage))
         {
             return (IObservable<TMessage>) (object) _fontChangedSubject.AsObservable();
+        }
+
+        if (typeof(TMessage) == typeof(ThemeChangedMessage))
+        {
+            return (IObservable<TMessage>) (object) _themeChangedSubject.AsObservable();
         }
 
         return _subject.OfType<TMessage>();

@@ -6,6 +6,7 @@ using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     private string? _pendingPreviewContent = null;
     private bool _isUpdatingFromWebView = false;
     private CancellationTokenSource? _viewModeCts = null;
+    private IDisposable? _themeSubscription = null;
 
     private WebView2? CurrentPreviewView => ViewModel.Tag switch
     {
@@ -49,14 +51,19 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     {
         InitializeComponent();
         DataContext = ViewModel;
-        ActualThemeChanged += async (s, e) =>
-        {
-            if (MilkdownPreview_Split is not null && _splitPreviewReady)
-                await SyncTheme(MilkdownPreview_Split);
+        _themeSubscription = RxMessageBus.Default
+            .Subscribe<ThemeChangedMessage>()
+            .Subscribe(msg =>
+            {
+                DispatcherQueue.TryEnqueue(async () =>
+                {
+                    if (MilkdownPreview_Split is not null && _splitPreviewReady)
+                        await SyncTheme(MilkdownPreview_Split, msg.Theme);
 
-            if (MilkdownPreview is not null && _previewReady)
-                await SyncTheme(MilkdownPreview);
-        };
+                    if (MilkdownPreview is not null && _previewReady)
+                        await SyncTheme(MilkdownPreview, msg.Theme);
+                });
+            });
 
         Loaded += TabViewContent_Loaded;
     }
@@ -165,12 +172,11 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
     }
 
-    private async Task SyncTheme(WebView2 webView)
+    private async Task SyncTheme(WebView2 webView, string? theme = null)
     {
         try
         {
-            var theme = ActualTheme == Microsoft.UI.Xaml.ElementTheme.Dark
-                ? "dark" : "light";
+            theme ??= ActualTheme == Microsoft.UI.Xaml.ElementTheme.Dark ? "dark" : "light";
 
             await webView.CoreWebView2.ExecuteScriptAsync(
                 $"window.editorBridge?.setTheme('{theme}')"
@@ -474,6 +480,9 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             _viewModeCts.Dispose();
             _viewModeCts = null;
         }
+
+        _themeSubscription?.Dispose();
+        _themeSubscription = null;
 
         ViewModel.Dispose();
         DisposeWebView();
