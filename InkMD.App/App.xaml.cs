@@ -39,12 +39,10 @@ public partial class App : Application
         return services.BuildServiceProvider();
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
-        Services.GetRequiredService<WebView2EnvironmentService>()
-                .InitializeAsync()
-                .GetAwaiter()
-                .GetResult();
+        await Services.GetRequiredService<WebView2EnvironmentService>()
+                .InitializeAsync();
 
         MainWindow = Services.GetRequiredService<MainWindow>();
         Services.GetRequiredService<ThemeService>().ApplyTheme(MainWindow);

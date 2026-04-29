@@ -375,9 +375,6 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     }
 
     public string GetContent() => CurrentEditBox?.GetText() ?? ViewModel.CurrentContent ?? string.Empty;
-
-    public IEnumerable<string> GetContentToSaveFile() => CurrentEditBox?.Lines ?? [];
-
     public string GetFilePath() => ViewModel.FilePath ?? string.Empty;
     public string GetFileName() => ViewModel.FileName ?? string.Empty;
     public void SetFilePath(string filePath, string fileName) => ViewModel.SetFilePath(filePath, fileName);
@@ -391,6 +388,15 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public void ApplyBold() => ToggleFormattingStyle("**");
     public void ApplyItalic() => ToggleFormattingStyle("*");
     public void ApplyStrikethrough() => ToggleStrikethrough();
+
+    public IEnumerable<string> GetContentToSaveFile()
+    {
+        if (CurrentEditBox is not null)
+            return CurrentEditBox.Lines;
+
+        return (ViewModel.CurrentContent ?? string.Empty)
+           .Split(["\r\n", "\n"], StringSplitOptions.None);
+    }
 
     public void InsertText(string text)
     {
