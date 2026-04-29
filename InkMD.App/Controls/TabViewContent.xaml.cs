@@ -441,15 +441,19 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
             _ = Task.Run(async () =>
             {
-                await Task.Delay(150, token);
-                DispatcherQueue.TryEnqueue(async () =>
+                try
                 {
-                    if (token.IsCancellationRequested)
-                        return;
+                    await Task.Delay(150, token);
+                    DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        if (token.IsCancellationRequested)
+                            return;
 
-                    await InitializeWebViewsAsync(token);
-                    RenderPreviewIfReady(ViewModel.CurrentContent ?? string.Empty);
-                });
+                        await InitializeWebViewsAsync(token);
+                        RenderPreviewIfReady(ViewModel.CurrentContent ?? string.Empty);
+                    });
+                }
+                catch (OperationCanceledException) { }
             });
         }
     }
