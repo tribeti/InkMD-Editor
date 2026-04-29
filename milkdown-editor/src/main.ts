@@ -56,3 +56,9 @@ window.editorBridge = {
     }
   },
 };
+
+// Notify the host app that the editor bridge is fully ready.
+// This replaces the polling loop on the C# side with an event-driven signal.
+if (window.chrome?.webview) {
+  window.chrome.webview.postMessage({ type: "ready" });
+}

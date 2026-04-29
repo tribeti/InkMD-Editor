@@ -1,5 +1,6 @@
 using InkMD.Core.Messages;
 using InkMD.Core.Services;
+using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
@@ -25,6 +26,15 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     private bool _isUpdatingFromWebView = false;
     private CancellationTokenSource? _viewModeCts = null;
     private IDisposable? _themeSubscription = null;
+
+    // Guard flags: SetVirtualHostNameToFolderMapping must only be called once per WebView.
+    // Calling it again on the same host name is a no-op but wastes time.
+    private bool _splitHostMapped = false;
+    private bool _previewHostMapped = false;
+
+    // TaskCompletionSources used to await NavigationCompleted events without polling
+    private TaskCompletionSource<bool>? _splitNavTcs = null;
+    private TaskCompletionSource<bool>? _previewNavTcs = null;
 
     private WebView2? CurrentPreviewView => ViewModel.Tag switch
     {
@@ -101,44 +111,101 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
     }
 
+    /// <summary>
+    /// Initializes only the WebView2 that corresponds to the current view mode.
+    /// Avoids creating two renderer processes when only one WebView is ever visible.
+    /// </summary>
     private async Task InitializeWebViewsAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            if (MilkdownPreview_Split is not null && !_splitPreviewReady)
+            if (MilkdownPreview_Split is not null && !_splitPreviewReady
+                && ViewModel.Tag == "split")
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await MilkdownPreview_Split.EnsureCoreWebView2Async();
-                MilkdownPreview_Split.WebMessageReceived += WebView_WebMessageReceived;
-                await LoadMilkdownIntoWebView(MilkdownPreview_Split, cancellationToken);
-                _splitPreviewReady = true;
+                await EnsureWebViewReadyAsync(MilkdownPreview_Split, cancellationToken);
             }
 
-            if (MilkdownPreview is not null && !_previewReady)
+            if (MilkdownPreview is not null && !_previewReady
+                && ViewModel.Tag == "preview")
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await MilkdownPreview.EnsureCoreWebView2Async();
-                MilkdownPreview.WebMessageReceived += WebView_WebMessageReceived;
-                await LoadMilkdownIntoWebView(MilkdownPreview, cancellationToken);
-                _previewReady = true;
-            }
-
-            if (_pendingPreviewContent is not null && IsPreviewReady)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                await RenderInMilkdown(_pendingPreviewContent);
-                _pendingPreviewContent = null;
+                await EnsureWebViewReadyAsync(MilkdownPreview, cancellationToken);
             }
         }
+        catch (OperationCanceledException) { /* expected on mode switch */ }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"WebView init error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[TabViewContent] WebView init error: {ex.Message}");
         }
     }
 
-    // ─── Load Milkdown vào WebView2 ──────────────────────────────────
+    // ─── Load Milkdown ──────────────────────────────────
+    private async Task EnsureWebViewReadyAsync(WebView2 webView, CancellationToken cancellationToken = default)
+    {
+        var envService = (App.Current as App)?.Services
+            .GetService(typeof(WebView2EnvironmentService)) as WebView2EnvironmentService;
 
-    private async Task LoadMilkdownIntoWebView(WebView2 webView, CancellationToken cancellationToken = default)
+        var sharedEnv = envService?.Environment;
+
+        if (sharedEnv is not null)
+            await webView.EnsureCoreWebView2Async(sharedEnv);
+        else
+            await webView.EnsureCoreWebView2Async();
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        webView.WebMessageReceived -= WebView_WebMessageReceived;
+        webView.WebMessageReceived += WebView_WebMessageReceived;
+
+        // Map the virtual host only once per WebView instance — repeated calls are wasteful
+        bool isSplit = ReferenceEquals(webView, MilkdownPreview_Split);
+        if (isSplit && !_splitHostMapped)
+        {
+            MapVirtualHost(webView);
+            _splitHostMapped = true;
+        }
+        else if (!isSplit && !_previewHostMapped)
+        {
+            MapVirtualHost(webView);
+            _previewHostMapped = true;
+        }
+
+        // Set memory level to Normal before active use
+        webView.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+        var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        if (isSplit)
+            _splitNavTcs = tcs;
+        else
+            _previewNavTcs = tcs;
+
+        void OnNavigationCompleted(CoreWebView2 sender, CoreWebView2NavigationCompletedEventArgs args)
+        {
+            sender.NavigationCompleted -= OnNavigationCompleted;
+            tcs.TrySetResult(args.IsSuccess);
+        }
+
+        webView.CoreWebView2.NavigationCompleted += OnNavigationCompleted;
+
+        // Navigate to the Milkdown page
+        webView.Source = new Uri("https://editor.local/index.html");
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cts.CancelAfter(TimeSpan.FromSeconds(10));
+
+        try
+        {
+            await tcs.Task.WaitAsync(cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            webView.CoreWebView2.NavigationCompleted -= OnNavigationCompleted;
+            cancellationToken.ThrowIfCancellationRequested();
+            System.Diagnostics.Debug.WriteLine($"[TabViewContent] Navigation timed out for {(isSplit ? "split" : "preview")} WebView.");
+        }
+    }
+
+    private void MapVirtualHost(WebView2 webView)
     {
         var distPath = Path.Combine(
             Package.Current.InstalledLocation.Path,
@@ -150,26 +217,6 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             distPath,
             CoreWebView2HostResourceAccessKind.Allow
         );
-
-        webView.Source = new Uri("https://editor.local/index.html");
-
-        for (int i = 0; i < 30; i++)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            await Task.Delay(100, cancellationToken);
-            try
-            {
-                var result = await webView.CoreWebView2.ExecuteScriptAsync(
-                    "typeof window.editorBridge !== 'undefined' && window.editorBridge.isReady ? 'ready' : 'not_ready'"
-                );
-                if (result == "\"ready\"")
-                {
-                    await SyncTheme(webView);
-                    return;
-                }
-            }
-            catch { }
-        }
     }
 
     private async Task SyncTheme(WebView2 webView, string? theme = null)
@@ -184,7 +231,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"SyncTheme error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[TabViewContent] SyncTheme error: {ex.Message}");
         }
     }
 
@@ -206,7 +253,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"RenderInMilkdown error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[TabViewContent] RenderInMilkdown error: {ex.Message}");
         }
     }
 
@@ -220,7 +267,36 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-            if (root.TryGetProperty("type", out var typeProp) && typeProp.GetString() == "contentChanged")
+            if (!root.TryGetProperty("type", out var typeProp))
+                return;
+
+            var messageType = typeProp.GetString();
+            if (messageType == "ready")
+            {
+                bool isSplit = ReferenceEquals(sender, MilkdownPreview_Split);
+                DispatcherQueue.TryEnqueue(async () =>
+                {
+                    if (isSplit)
+                        _splitPreviewReady = true;
+                    else
+                        _previewReady = true;
+
+                    System.Diagnostics.Debug.WriteLine($"[TabViewContent] Editor bridge ready ({(isSplit ? "split" : "preview")})");
+
+                    await SyncTheme(sender);
+
+                    if (_pendingPreviewContent is not null && IsPreviewReady)
+                    {
+                        var pending = _pendingPreviewContent;
+                        _pendingPreviewContent = null;
+                        await RenderInMilkdown(pending);
+                    }
+                });
+                return;
+            }
+
+            // ── Content changed ──────────────────────────────────────────────────
+            if (messageType == "contentChanged")
             {
                 if (root.TryGetProperty("content", out var contentProp))
                 {
@@ -232,7 +308,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
                         try
                         {
                             ViewModel.CurrentContent = newContent;
-                            SetContentToCurrentEditBox(newContent ?? string.Empty);
+                            DispatcherQueue.TryEnqueue(() =>
+                                SetContentToCurrentEditBox(newContent ?? string.Empty));
                         }
                         finally
                         {
@@ -244,7 +321,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"WebMessageReceived error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[TabViewContent] WebMessageReceived error: {ex.Message}");
         }
     }
 
@@ -328,12 +405,14 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         if (!string.IsNullOrEmpty(currentText))
             ViewModel.CurrentContent = currentText;
 
+        // Suspend the WebView that is being hidden to reduce memory usage
+        SuspendInactiveWebViews(tag);
+
         ViewModel.Tag = tag;
         SetContentToCurrentEditBox(ViewModel.CurrentContent ?? string.Empty);
 
         if (tag is "split" or "preview")
         {
-            // Cancel previous pending view mode initialization task
             if (_viewModeCts is not null)
             {
                 _viewModeCts.Cancel();
@@ -355,6 +434,35 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
                     RenderPreviewIfReady(ViewModel.CurrentContent ?? string.Empty);
                 });
             });
+        }
+    }
+
+    /// <summary>
+    /// Sets inactive WebViews to Low memory level and restores Normal for the active one.
+    /// See: https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/performance#use-memory-management-apis
+    /// </summary>
+    private void SuspendInactiveWebViews(string newTag)
+    {
+        try
+        {
+            // Suspend the split WebView when switching away from it
+            if (newTag != "split" && MilkdownPreview_Split?.CoreWebView2 is { } splitCore && _splitPreviewReady)
+                splitCore.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
+
+            // Suspend the preview WebView when switching away from it
+            if (newTag != "preview" && MilkdownPreview?.CoreWebView2 is { } previewCore && _previewReady)
+                previewCore.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Low;
+
+            // Restore Normal for the one that's becoming active
+            if (newTag == "split" && MilkdownPreview_Split?.CoreWebView2 is { } activeSplitCore && _splitPreviewReady)
+                activeSplitCore.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+
+            if (newTag == "preview" && MilkdownPreview?.CoreWebView2 is { } activePreviewCore && _previewReady)
+                activePreviewCore.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[TabViewContent] SuspendInactiveWebViews error: {ex.Message}");
         }
     }
 
@@ -472,7 +580,11 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         // Clear related flags and pending content
         _splitPreviewReady = false;
         _previewReady = false;
+        _splitHostMapped = false;
+        _previewHostMapped = false;
         _pendingPreviewContent = null;
+        _splitNavTcs = null;
+        _previewNavTcs = null;
     }
 
     public void Dispose()

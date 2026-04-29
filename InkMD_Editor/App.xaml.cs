@@ -1,4 +1,4 @@
-﻿using InkMD.Core.Services;
+using InkMD.Core.Services;
 using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +26,7 @@ public partial class App : Application
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<ThemeService>();
+        services.AddSingleton<WebView2EnvironmentService>();
 
         // Register ViewModels & Views
         services.AddTransient<EditorPageViewModel>();
@@ -40,6 +41,8 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        _ = Services.GetRequiredService<WebView2EnvironmentService>().InitializeAsync();
+
         MainWindow = Services.GetRequiredService<MainWindow>();
         Services.GetRequiredService<ThemeService>().ApplyTheme(MainWindow);
         MainWindow.Activate();
