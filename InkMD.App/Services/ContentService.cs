@@ -1,7 +1,7 @@
 using InkMD.Core.Helpers;
 using System;
 
-namespace InkMD_Editor.Services;
+namespace InkMD.App.Services;
 
 public class ContentService
 {

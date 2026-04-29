@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Page
-    x:Class="InkMD_Editor.Views.EditorPage"
+    x:Class="InkMD.App.Views.EditorPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
-    xmlns:customcontrols="using:InkMD_Editor.Controls"
+    xmlns:customcontrols="using:InkMD.App.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:InkMD_Editor.Views"
+    xmlns:local="using:InkMD.App.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:storage="using:Windows.Storage"
     xmlns:ui="using:CommunityToolkit.WinUI"
-    xmlns:vm="using:InkMD_Editor.ViewModels"
+    xmlns:vm="using:InkMD.App.ViewModels"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
@@ -110,10 +110,10 @@
                     Margin="12,8"
                     PlaceholderText="Search files..."
                     QueryIcon="Find"
-                    TextChanged="Box_TextChanged"
                     RelativePanel.AlignLeftWithPanel="True"
                     RelativePanel.AlignRightWithPanel="True"
-                    RelativePanel.Below="dir" />
+                    RelativePanel.Below="dir"
+                    TextChanged="Box_TextChanged" />
 
                 <ScrollViewer
                     ContextFlyout="{StaticResource MyContextMenu}"

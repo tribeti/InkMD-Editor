@@ -1,16 +1,15 @@
+using InkMD.App.Helpers;
 using InkMD.Core.Messages;
 using InkMD.Core.Services;
-using InkMD_Editor.Helpers;
 using Microsoft.UI;
 using Microsoft.Windows.Storage.Pickers;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 
-namespace InkMD_Editor.Services;
+namespace InkMD.App.Services;
 
 public class FileService : IFileService
 {
@@ -35,7 +34,7 @@ public class FileService : IFileService
         var startLocation = PickerLocationId.ComputerFolder;
         var picker = new FileOpenPicker(GetWindowsId())
         {
-            FileTypeFilter = { ".txt", ".md", "*" },
+            FileTypeFilter = { ".md", "*" },
             SuggestedStartLocation = startLocation,
         };
 
@@ -185,7 +184,7 @@ public class FileService : IFileService
             picker.SuggestedFileName = suggestedName + extension;
             picker.DefaultFileExtension = extension;
             string fileTypeName = extension.TrimStart('.').ToUpper() + " File";
-            picker.FileTypeChoices.Add(fileTypeName, new List<string> { extension });
+            picker.FileTypeChoices.Add(fileTypeName, [extension]);
         }
         else
         {
@@ -193,7 +192,7 @@ public class FileService : IFileService
             picker.DefaultFileExtension = string.Empty;
         }
 
-        picker.FileTypeChoices.Add("All Files", new List<string> { "*" });
+        picker.FileTypeChoices.Add("All Files", ["*"]);
 
         var result = await picker.PickSaveFileAsync();
         if (result is not null)

@@ -1,6 +1,6 @@
 ﻿using Windows.Storage;
 
-namespace InkMD_Editor.Helpers;
+namespace InkMD.App.Helpers;
 
 public static class AppSettings
 {

@@ -1,7 +1,7 @@
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 
-namespace InkMD_Editor;
+namespace InkMD.App;
 
 public sealed partial class MainWindow : Window
 {

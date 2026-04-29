@@ -2,9 +2,9 @@
 using Microsoft.UI.Xaml.Data;
 using System;
 
-namespace InkMD_Editor.Converters;
+namespace InkMD.App.Converters;
 
-public class DoubleToIntConverter : IValueConverter
+public partial class DoubleToIntConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {

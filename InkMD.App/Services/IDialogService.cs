@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace InkMD_Editor.Services;
+namespace InkMD.App.Services;
 
 public interface IDialogService
 {

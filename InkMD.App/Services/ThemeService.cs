@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml;
 using System;
 using Windows.Storage;
 
-namespace InkMD_Editor.Services;
+namespace InkMD.App.Services;
 
 public class ThemeService
 {

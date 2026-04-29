@@ -1,4 +1,4 @@
-﻿namespace InkMD_Editor.ViewModels;
+﻿namespace InkMD.App.ViewModels;
 
 public partial class SettingPageViewModel
 {

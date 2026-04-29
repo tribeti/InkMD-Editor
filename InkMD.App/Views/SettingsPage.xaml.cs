@@ -1,14 +1,14 @@
+using InkMD.App.Helpers;
+using InkMD.App.Services;
 using InkMD.Core.Messages;
 using InkMD.Core.Services;
-using InkMD_Editor.Helpers;
-using InkMD_Editor.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Linq;
 
-namespace InkMD_Editor.Views;
+namespace InkMD.App.Views;
 
 public sealed partial class SettingsPage : Page
 {

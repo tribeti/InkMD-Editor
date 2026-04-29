@@ -1,8 +1,8 @@
+using InkMD.App.Controls;
+using InkMD.App.Services;
+using InkMD.App.ViewModels;
 using InkMD.Core.Messages;
 using InkMD.Core.Services;
-using InkMD_Editor.Controls;
-using InkMD_Editor.Services;
-using InkMD_Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -14,7 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace InkMD_Editor.Views;
+namespace InkMD.App.Views;
 
 public sealed partial class EditorPage : Page
 {

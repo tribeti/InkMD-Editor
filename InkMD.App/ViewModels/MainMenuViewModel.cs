@@ -1,13 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using InkMD.App;
+using InkMD.App.Services;
 using InkMD.Core.Helpers;
 using InkMD.Core.Messages;
 using InkMD.Core.Models;
 using InkMD.Core.Services;
-using InkMD_Editor.Helpers;
-using InkMD_Editor.Services;
 using Markdig;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;

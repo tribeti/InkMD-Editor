@@ -1,8 +1,8 @@
 using CommunityToolkit.WinUI.Controls;
+using InkMD.App.Services;
 using InkMD.Core.Messages;
 using InkMD.Core.Models;
 using InkMD.Core.Services;
-using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -14,7 +14,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 
-namespace InkMD_Editor.Controls;
+namespace InkMD.App.Controls;
 
 public sealed partial class MainMenu : UserControl
 {

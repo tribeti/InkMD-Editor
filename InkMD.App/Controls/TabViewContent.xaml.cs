@@ -1,6 +1,6 @@
+using InkMD.App.Services;
 using InkMD.Core.Messages;
 using InkMD.Core.Services;
-using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using TextControlBoxNS;
 using Windows.ApplicationModel;
 
-namespace InkMD_Editor.Controls;
+namespace InkMD.App.Controls;
 
 public sealed partial class TabViewContent : UserControl, IEditableContent
 {

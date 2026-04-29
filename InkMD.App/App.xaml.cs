@@ -1,11 +1,12 @@
+using InkMD.App.Services;
+using InkMD.App.ViewModels;
 using InkMD.Core.Services;
-using InkMD_Editor.Services;
 using InkMD_Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using System;
 
-namespace InkMD_Editor;
+namespace InkMD.App;
 
 public partial class App : Application
 {

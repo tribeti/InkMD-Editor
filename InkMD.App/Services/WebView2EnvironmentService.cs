@@ -2,7 +2,7 @@ using Microsoft.Web.WebView2.Core;
 using System;
 using System.Threading.Tasks;
 
-namespace InkMD_Editor.Services;
+namespace InkMD.App.Services;
 
 /// <summary>
 /// Singleton service that pre-creates and caches a shared <see cref="CoreWebView2Environment"/>

@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Threading.Tasks;
 
-namespace InkMD_Editor.Services;
+namespace InkMD.App.Services;
 
 public class DialogService : IDialogService
 {

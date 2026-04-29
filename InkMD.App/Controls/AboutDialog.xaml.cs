@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel;
 
-namespace InkMD_Editor.Controls;
+namespace InkMD.App.Controls;
 
 public sealed partial class AboutDialog : ContentDialog
 {

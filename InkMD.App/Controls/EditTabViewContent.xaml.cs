@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
 using TextControlBoxNS;
 
-namespace InkMD_Editor.Controls;
+namespace InkMD.App.Controls;
 
 public sealed partial class EditTabViewContent : UserControl, IEditableContent
 {

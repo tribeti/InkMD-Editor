@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
 
-namespace InkMD_Editor.Services;
+namespace InkMD.App.Services;
 
 public static class TemplateService
 {

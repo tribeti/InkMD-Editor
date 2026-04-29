@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using InkMD.App.Helpers;
 using InkMD.Core.Messages;
 using InkMD.Core.Services;
-using InkMD_Editor.Helpers;
 using System;
 
 namespace InkMD_Editor.ViewModels;

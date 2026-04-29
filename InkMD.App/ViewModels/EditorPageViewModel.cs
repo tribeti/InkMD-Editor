@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using InkMD.App.Helpers;
+using InkMD.App.Services;
 using InkMD.Core.Messages;
 using InkMD.Core.Services;
-using InkMD_Editor.Helpers;
-using InkMD_Editor.Services;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.IO;
@@ -13,7 +13,7 @@ using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.Storage.Streams;
 
-namespace InkMD_Editor.ViewModels;
+namespace InkMD.App.ViewModels;
 
 public partial class EditorPageViewModel(IFileService fileService, IDialogService dialogService) : ObservableObject
 {
