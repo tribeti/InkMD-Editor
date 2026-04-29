@@ -35,12 +35,17 @@ public sealed partial class EditorPage : Page
 
         Loaded += async (s, e) =>
         {
+            foreach (var sub in _subscriptions)
+                sub.Dispose();
+            _subscriptions.Clear();
+            SetupMessengers();
+            _dialogService.SetXamlRoot(XamlRoot);
+
             if (_isInitialized)
                 return;
-            _dialogService.SetXamlRoot(XamlRoot);
+
             _viewModel.Initialize();
             await InitTreeViewAsync();
-            SetupMessengers();
             _isInitialized = true;
         };
 
@@ -194,13 +199,17 @@ public sealed partial class EditorPage : Page
 
     private async Task RefreshTreeViewWithFolder(StorageFolder folder)
     {
-        if (await _viewModel.RefreshTreeViewWithFolderAsync(folder) is { } node)
+        var node = await _viewModel.RefreshTreeViewWithFolderAsync(folder);
+        if (node is null)
+            return;
+
+        DispatcherQueue.TryEnqueue(() =>
         {
             _originalRootNode = node;
             Box.Text = string.Empty;
             treeview.RootNodes.Clear();
             treeview.RootNodes.Add(node);
-        }
+        });
     }
 
     private void TreeView_Expanding(TreeView sender, TreeViewExpandingEventArgs args)
@@ -231,28 +240,31 @@ public sealed partial class EditorPage : Page
     {
         try
         {
-            if (FindTabByFilePath(file.Path) is { } existingTab)
-            {
-                Tabs.SelectedItem = existingTab;
-                return;
-            }
-
             var result = await _viewModel.OpenFileAsync(file);
             if (result is null)
                 return;
 
             var (contentStr, fileName, filePath) = result.Value;
             var isMarkdown = _viewModel.IsMarkdownFile(file);
-            var newTab = CreateNewTab(Tabs.TabItems.Count, isMarkdown);
-
-            if (newTab.Content is IEditableContent content)
+            DispatcherQueue.TryEnqueue(() =>
             {
-                content.SetFilePath(filePath, fileName);
-                content.SetContent(contentStr, fileName);
-            }
+                if (FindTabByFilePath(file.Path) is { } existingTab)
+                {
+                    Tabs.SelectedItem = existingTab;
+                    return;
+                }
 
-            newTab.Header = fileName;
-            AddAndSelectTab(newTab);
+                var newTab = CreateNewTab(Tabs.TabItems.Count, isMarkdown);
+
+                if (newTab.Content is IEditableContent content)
+                {
+                    content.SetFilePath(filePath, fileName);
+                    content.SetContent(contentStr, fileName);
+                }
+
+                newTab.Header = fileName;
+                AddAndSelectTab(newTab);
+            });
         }
         catch (Exception ex)
         {
