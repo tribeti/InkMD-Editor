@@ -160,6 +160,7 @@ This project stands on the shoulders of giants. A huge shoutout to these amazing
 - [**Advanced Installer**](https://www.advancedinstaller.com/) for providing professional packaging tools that help deliver InkMD to users smoothly.
 
 And most importantly, heartfelt thanks to every contributor, maintainer, and open-source creator whose work inspires and supports projects like this every day.
+
 ---
 
 ## License
