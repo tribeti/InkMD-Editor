@@ -41,7 +41,10 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        _ = Services.GetRequiredService<WebView2EnvironmentService>().InitializeAsync();
+        Services.GetRequiredService<WebView2EnvironmentService>()
+                .InitializeAsync()
+                .GetAwaiter()
+                .GetResult();
 
         MainWindow = Services.GetRequiredService<MainWindow>();
         Services.GetRequiredService<ThemeService>().ApplyTheme(MainWindow);

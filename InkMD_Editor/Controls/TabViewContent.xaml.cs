@@ -304,17 +304,19 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
                     if (newContent != ViewModel.CurrentContent)
                     {
-                        _isUpdatingFromWebView = true;
-                        try
+                        ViewModel.CurrentContent = newContent;
+                        DispatcherQueue.TryEnqueue(() =>
                         {
-                            ViewModel.CurrentContent = newContent;
-                            DispatcherQueue.TryEnqueue(() =>
-                                SetContentToCurrentEditBox(newContent ?? string.Empty));
-                        }
-                        finally
-                        {
-                            _isUpdatingFromWebView = false;
-                        }
+                            _isUpdatingFromWebView = true;
+                            try
+                            {
+                                SetContentToCurrentEditBox(newContent ?? string.Empty);
+                            }
+                            finally
+                            {
+                                _isUpdatingFromWebView = false;
+                            }
+                        });
                     }
                 }
             }
