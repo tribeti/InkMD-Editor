@@ -281,9 +281,11 @@ public sealed partial class EditorPage : Page
             return;
         }
 
-        await _viewModel.HandleSaveFile(content, saveAs);
-        content.MarkAsClean();
-        tab.Header = content.GetFileName();
+        if (await _viewModel.HandleSaveFile(content, saveAs))
+        {
+            content.MarkAsClean();
+            tab.Header = content.GetFileName();
+        }
     }
 
     private async void SaveCurrentTabContent(string filePath)

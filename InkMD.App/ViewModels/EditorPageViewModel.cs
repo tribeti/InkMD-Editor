@@ -128,12 +128,12 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
         }
     }
 
-    public async Task HandleSaveFile(IEditableContent? content, bool saveAs = false)
+    public async Task<bool> HandleSaveFile(IEditableContent? content, bool saveAs = false)
     {
         if (content is null)
         {
             await ShowErrorAsync("Cannot get tab content");
-            return;
+            return false;
         }
 
         var filePath = content.GetFilePath();
@@ -144,11 +144,13 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
 
         if (filePath is not null)
         {
-            await SaveFileToPath(filePath, content);
+            return await SaveFileToPath(filePath, content);
         }
+
+        return false;
     }
 
-    public async Task SaveFileToPath(string filePath, IEditableContent content)
+    public async Task<bool> SaveFileToPath(string filePath, IEditableContent content)
     {
         try
         {
@@ -157,10 +159,12 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
 
             content.SetFilePath(filePath, fileName);
             RxMessageBus.Default.Publish(new FileSavedMessage(filePath, fileName));
+            return true;
         }
         catch (Exception ex)
         {
             await ShowErrorAsync($"Save file error: {ex.Message}");
+            return false;
         }
     }
 
