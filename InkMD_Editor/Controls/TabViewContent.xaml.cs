@@ -49,6 +49,15 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     {
         InitializeComponent();
         DataContext = ViewModel;
+        ActualThemeChanged += async (s, e) =>
+        {
+            if (MilkdownPreview_Split is not null && _splitPreviewReady)
+                await SyncTheme(MilkdownPreview_Split);
+
+            if (MilkdownPreview is not null && _previewReady)
+                await SyncTheme(MilkdownPreview);
+        };
+
         Loaded += TabViewContent_Loaded;
     }
 
@@ -137,7 +146,6 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
         webView.Source = new Uri("https://editor.local/index.html");
 
-        // Đợi Milkdown sẵn sàng
         for (int i = 0; i < 30; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -148,9 +156,29 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
                     "typeof window.editorBridge !== 'undefined' && window.editorBridge.isReady ? 'ready' : 'not_ready'"
                 );
                 if (result == "\"ready\"")
+                {
+                    await SyncTheme(webView);
                     return;
+                }
             }
             catch { }
+        }
+    }
+
+    private async Task SyncTheme(WebView2 webView)
+    {
+        try
+        {
+            var theme = ActualTheme == Microsoft.UI.Xaml.ElementTheme.Dark
+                ? "dark" : "light";
+
+            await webView.CoreWebView2.ExecuteScriptAsync(
+                $"window.editorBridge?.setTheme('{theme}')"
+            );
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"SyncTheme error: {ex.Message}");
         }
     }
 
@@ -181,7 +209,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         try
         {
             var json = args.WebMessageAsJson;
-            if (string.IsNullOrEmpty(json)) return;
+            if (string.IsNullOrEmpty(json))
+                return;
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
@@ -190,14 +219,14 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
                 if (root.TryGetProperty("content", out var contentProp))
                 {
                     var newContent = contentProp.GetString();
-                    
+
                     if (newContent != ViewModel.CurrentContent)
                     {
                         _isUpdatingFromWebView = true;
-                        
+
                         ViewModel.CurrentContent = newContent;
                         SetContentToCurrentEditBox(newContent ?? string.Empty);
-                        
+
                         _isUpdatingFromWebView = false;
                     }
                 }
@@ -213,7 +242,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     private void EditBox_TextChanged(TextControlBox sender)
     {
-        if (_isUpdatingFromWebView) return;
+        if (_isUpdatingFromWebView)
+            return;
 
         var text = sender.GetText();
         ViewModel.CurrentContent = text;
@@ -417,7 +447,6 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void DisposeWebView()
     {
-        // Unsubscribe from WebMessageReceived handlers to prevent memory leaks
         if (MilkdownPreview_Split is not null)
         {
             MilkdownPreview_Split.WebMessageReceived -= WebView_WebMessageReceived;

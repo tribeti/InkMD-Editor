@@ -1,13 +1,11 @@
-/* Xóa margin mặc định của trình duyệt và cho body/html full height */
 html,
 body {
     margin: 0;
     padding: 0;
     height: 100%;
-    background-color: #1a1a1a; /* Thêm màu nền tối cho đồng bộ với giao diện frame-dark.css */
+    background-color: #1a1a1a;
 }
 
-/* Cho container chính tràn hết chiều cao và chiều rộng màn hình (Viewport Height / Viewport Width) */
 #app {
     min-height: 100vh;
     width: 100%;
@@ -15,14 +13,26 @@ body {
     flex-direction: column;
 }
 
-/* Đảm bảo các component bên trong của Crepe/Milkdown cũng giãn ra theo */
 #app .crepe-root,
 #app .milkdown {
     flex-grow: 1;
     min-height: 100%;
 }
 
-/* Bắt buộc khung soạn thảo văn bản (ProseMirror) dãn ra toàn bộ phần còn lại */
 .ProseMirror {
     min-height: 100vh;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+html.dark {
+  color-scheme: dark;
+  background: #1e1e1e;
+}
+
+html.light {
+  color-scheme: light;
+  background: #ffffff;
 }

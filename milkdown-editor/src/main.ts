@@ -1,6 +1,7 @@
 import { Crepe } from "@milkdown/crepe";
 import "@milkdown/crepe/theme/common/style.css";
 import "@milkdown/crepe/theme/frame-dark.css";
+import "@milkdown/crepe/theme/frame.css";
 import { gfm } from "@milkdown/preset-gfm";
 import { replaceAll } from "@milkdown/kit/utils";
 import "./style.css";
@@ -46,5 +47,14 @@ window.editorBridge = {
     setTimeout(() => {
       window.editorBridge.isUpdating = false;
     }, 100);
+  },
+  setTheme: (theme: string) => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+    }
   },
 };
