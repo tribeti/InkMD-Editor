@@ -5,3 +5,6 @@ dotnet_diagnostic.CA1822.severity = none
 
 # CA1866: Use char overload
 dotnet_diagnostic.CA1866.severity = none
+
+# CA1416: Validate platform compatibility
+dotnet_diagnostic.CA1416.severity = none

@@ -76,7 +76,7 @@ public sealed partial class EditorPage : Page
         _subscriptions.Add(bus.Subscribe<SaveFileRequestMessage>().Subscribe(msg => SaveCurrentTabContent(msg.FilePath)));
 
         _subscriptions.Add(bus.Subscribe<SaveFileMessage>()
-                                .SelectMany(msg => Observable.FromAsync(async () => await HandleSaveFile()))
+                                .SelectMany(msg => Observable.FromAsync(async () => await HandleSaveFile(msg.IsNewFile)))
                                 .Subscribe());
 
         _subscriptions.Add(bus.Subscribe<ErrorMessage>()
@@ -272,7 +272,7 @@ public sealed partial class EditorPage : Page
         }
     }
 
-    private async Task HandleSaveFile()
+    private async Task HandleSaveFile(bool saveAs = false)
     {
         var (tab, content) = GetSelectedTabContent();
         if (tab is null || content is null)
@@ -281,7 +281,7 @@ public sealed partial class EditorPage : Page
             return;
         }
 
-        await _viewModel.HandleSaveFile(content);
+        await _viewModel.HandleSaveFile(content, saveAs);
         content.MarkAsClean();
         tab.Header = content.GetFileName();
     }

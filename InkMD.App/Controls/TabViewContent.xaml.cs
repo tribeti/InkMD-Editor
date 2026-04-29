@@ -19,7 +19,6 @@ namespace InkMD_Editor.Controls;
 public sealed partial class TabViewContent : UserControl, IEditableContent
 {
     public TabViewContentViewModel ViewModel { get; } = new();
-
     private bool _splitPreviewReady = false;
     private bool _previewReady = false;
     private string? _pendingPreviewContent = null;
@@ -158,7 +157,9 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         webView.WebMessageReceived -= WebView_WebMessageReceived;
         webView.WebMessageReceived += WebView_WebMessageReceived;
 
-        // Map the virtual host only once per WebView instance — repeated calls are wasteful
+        await webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
+            """document.addEventListener('keydown',function(e){if (e.ctrlKey && (e.key === 's' || e.key === 'S')){ e.preventDefault();window.chrome?.webview?.postMessage({ type: 'saveRequest',saveAs: e.shiftKey});}},true);""");
+
         bool isSplit = ReferenceEquals(webView, MilkdownPreview_Split);
         if (isSplit && !_splitHostMapped)
         {
@@ -171,7 +172,6 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             _previewHostMapped = true;
         }
 
-        // Set memory level to Normal before active use
         webView.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
         var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         if (isSplit)
@@ -271,6 +271,15 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
                 return;
 
             var messageType = typeProp.GetString();
+
+            if (messageType == "saveRequest")
+            {
+                bool saveAs = root.TryGetProperty("saveAs", out var saProp) && saProp.GetBoolean();
+                DispatcherQueue.TryEnqueue(() =>
+                    RxMessageBus.Default.Publish(new SaveFileMessage(IsNewFile: saveAs)));
+                return;
+            }
+
             if (messageType == "ready")
             {
                 bool isSplit = ReferenceEquals(sender, MilkdownPreview_Split);

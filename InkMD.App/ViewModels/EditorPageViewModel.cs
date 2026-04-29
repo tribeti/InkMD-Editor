@@ -128,7 +128,7 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
         }
     }
 
-    public async Task HandleSaveFile(IEditableContent? content)
+    public async Task HandleSaveFile(IEditableContent? content, bool saveAs = false)
     {
         if (content is null)
         {
@@ -137,7 +137,7 @@ public partial class EditorPageViewModel(IFileService fileService, IDialogServic
         }
 
         var filePath = content.GetFilePath();
-        if (string.IsNullOrEmpty(filePath))
+        if (saveAs || string.IsNullOrEmpty(filePath))
         {
             filePath = await _fileService.SaveFileAsync();
         }
