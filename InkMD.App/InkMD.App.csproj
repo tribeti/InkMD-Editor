@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<RootNamespace>InkMD.App</RootNamespace>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<Platforms>x64</Platforms>
+		<RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+		<UseWinUI>true</UseWinUI>
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<Nullable>enable</Nullable>
+		<LangVersion>preview</LangVersion>
+	</PropertyGroup>
+	<ItemGroup>
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+	<ItemGroup>
+		<!--assets and icons-->
+		<Content Include="Assets\**\*.*" Exclude="Assets\.git,Assets\.github,Assets\README.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<!--link web editor (tinh nang vip vcl)-->
+		<Content Include="..\milkdown-editor\dist\**\*">
+			<Link>dist\%(RecursiveDir)%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<!--
+	Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+	Tools extension to be activated for this project even if the Windows App SDK Nuget
+	package has not yet been restored.
+  -->
+	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<ProjectCapability Include="Msix" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="Controls\AboutDialog.xaml" />
+	  <None Remove="Controls\EditTabViewContent.xaml" />
+	  <None Remove="Controls\GithubIcon.xaml" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" VersionOverride="8.4.2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" VersionOverride="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" VersionOverride="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" VersionOverride="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" VersionOverride="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Extensions" VersionOverride="8.2.251219" />
+		<PackageReference Include="Markdig" VersionOverride="1.1.3" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" VersionOverride="10.0.2" />
+		<PackageReference Include="Microsoft.Graphics.Win2D" VersionOverride="1.4.0" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" />
+		<PackageReference Include="TextControlBox.WinUI.JuliusKirsch" VersionOverride="1.6.2" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\InkMD.Core\InkMD.Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Controls\GithubIcon.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Controls\EditTabViewContent.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Controls\AboutDialog.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Controls\MainMenu.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Controls\TabViewContent.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Views\SettingsPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Views\EditorPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<!--
+	Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
+	Explorer "Package and Publish" context menu entry to be enabled for this project even if
+	the Windows App SDK Nuget package has not yet been restored.
+  -->
+	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+	</PropertyGroup>
+	<!-- Publish Properties -->
+	<PropertyGroup>
+		<PublishReadyToRun>False</PublishReadyToRun>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<PublishTrimmed>False</PublishTrimmed>
+		<!--<PublishAot>true</PublishAot>-->
+		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<PackageCertificateThumbprint>BC0EB1E314406027A3C8AB6D9E1AC1B45F47F42A</PackageCertificateThumbprint>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<AppxBundle>Never</AppxBundle>
+		<AppInstallerUri>D:\VS\InkMD-Editor\Output</AppInstallerUri>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
+		<AppxPackageDir>D:\VS\InkMD-Editor\Output\</AppxPackageDir>
+		<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+
+		<SelfContained>true</SelfContained>
+		<!-- To embed native binaries of the core runtime that are separate files into the single file. -->
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+		<Authors>tribeti</Authors>
+		<Title>InkMD Editor</Title>
+		<Description>InkMD Editor is a powerful yet lightweight desktop application designed for developers and writers who demand a seamless Markdown experience.</Description>
+		<RepositoryUrl>https://github.com/tribeti/InkMD-Editor</RepositoryUrl>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+</Project>

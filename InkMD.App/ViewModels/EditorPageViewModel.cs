@@ -1,0 +1,269 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using InkMD.App.Helpers;
+using InkMD.App.Services;
+using InkMD.Core.Messages;
+using InkMD.Core.Services;
+using Microsoft.UI.Xaml.Controls;
+using System;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Search;
+using Windows.Storage.Streams;
+
+namespace InkMD.App.ViewModels;
+
+public partial class EditorPageViewModel(IFileService fileService, IDialogService dialogService) : ObservableObject
+{
+    private readonly IFileService _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
+    private readonly IDialogService _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+
+    [ObservableProperty]
+    public partial string? RootPath { get; set; }
+
+    public void Initialize()
+    {
+        RootPath = AppSettings.GetLastFolderPath() is { Length: > 0 } path
+            ? path
+            : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+    }
+
+    public async Task<TreeViewNode?> InitializeTreeViewAsync()
+    {
+        if (string.IsNullOrEmpty(RootPath))
+            Initialize();
+
+        try
+        {
+            var folder = await StorageFolder.GetFolderFromPathAsync(RootPath!);
+            var node = CreateTreeViewNode(folder);
+            await FillTreeNodeAsync(node);
+            return node;
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorAsync($"TreeView Init Error: {ex.Message}");
+            return null;
+        }
+    }
+
+    public async Task<TreeViewNode?> RefreshTreeViewWithFolderAsync(StorageFolder folder)
+    {
+        try
+        {
+            var node = CreateTreeViewNode(folder);
+            await FillTreeNodeAsync(node);
+            RootPath = folder.Path;
+            return node;
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorAsync($"Cannot refresh tree: {ex.Message}");
+            return null;
+        }
+    }
+
+    public async Task<bool> FillTreeNodeAsync(TreeViewNode node)
+    {
+        if (GetStorageFolder(node) is not { } folder)
+            return false;
+
+        try
+        {
+            var itemsList = await folder.GetItemsAsync();
+            if (itemsList.Count == 0)
+            {
+                node.HasUnrealizedChildren = false;
+                return true;
+            }
+
+            foreach (var item in itemsList)
+            {
+                node.Children.Add(new TreeViewNode
+                {
+                    Content = item,
+                    HasUnrealizedChildren = item is StorageFolder
+                });
+            }
+
+            node.HasUnrealizedChildren = false;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorAsync($"Cannot load items: {ex.Message}");
+            return false;
+        }
+    }
+
+    public void CollapseTreeNode(TreeViewNode node)
+    {
+        node.Children.Clear();
+        node.HasUnrealizedChildren = true;
+    }
+
+    private static TreeViewNode CreateTreeViewNode(StorageFolder folder) => new()
+    {
+        Content = folder,
+        IsExpanded = true,
+        HasUnrealizedChildren = true
+    };
+
+    private static StorageFolder? GetStorageFolder(TreeViewNode node) =>
+        node is { Content: StorageFolder folder, HasUnrealizedChildren: true } ? folder : null;
+
+    public async Task<(string content, string fileName, string filePath)?> OpenFileAsync(StorageFile file)
+    {
+        try
+        {
+            var text = await ReadFileTextAsync(file);
+            return (text, file.Name, file.Path);
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorAsync($"Cannot open file: {ex.Message}");
+            return null;
+        }
+    }
+
+    public async Task<bool> HandleSaveFile(IEditableContent? content, bool saveAs = false)
+    {
+        if (content is null)
+        {
+            await ShowErrorAsync("Cannot get tab content");
+            return false;
+        }
+
+        var filePath = content.GetFilePath();
+        if (saveAs || string.IsNullOrEmpty(filePath))
+        {
+            filePath = await _fileService.SaveFileAsync();
+        }
+
+        if (filePath is not null)
+        {
+            return await SaveFileToPath(filePath, content);
+        }
+
+        return false;
+    }
+
+    public async Task<bool> SaveFileToPath(string filePath, IEditableContent content)
+    {
+        try
+        {
+            await File.WriteAllLinesAsync(filePath, content.GetContentToSaveFile(), Encoding.UTF8);
+            var fileName = Path.GetFileName(filePath);
+
+            content.SetFilePath(filePath, fileName);
+            RxMessageBus.Default.Publish(new FileSavedMessage(filePath, fileName));
+            return true;
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorAsync($"Save file error: {ex.Message}");
+            return false;
+        }
+    }
+
+    public (bool success, string? content, string? error) CreateNewTabContent(string templateContent, int tabCount) => (true, templateContent, null);
+
+    public async Task<(bool success, string? newContent, string? error)> InsertIntoDocumentAsync(string templateContent, IEditableContent? tabContent)
+    {
+        if (tabContent is null)
+            return (false, null, "Cannot access current documents.");
+
+        try
+        {
+            var currentContent = tabContent.GetContent();
+            var newContent = string.IsNullOrWhiteSpace(currentContent)
+                ? templateContent
+                : $"{currentContent}\n\n{templateContent}";
+
+            return (true, newContent, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, null, $"Cannot insert template: {ex.Message}");
+        }
+    }
+
+    public async Task<string> ReadFileTextAsync(StorageFile file)
+    {
+        try
+        {
+            var buffer = await FileIO.ReadBufferAsync(file);
+            using var dataReader = DataReader.FromBuffer(buffer);
+            var bytes = new byte[buffer.Length];
+            dataReader.ReadBytes(bytes);
+            return DocumentService.DetectAndDecode(bytes);
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    public bool IsMarkdownFile(StorageFile? file) => file?.FileType.Equals(".md", StringComparison.OrdinalIgnoreCase) ?? false;
+
+    public Task ShowErrorAsync(string message) => _dialogService.ShowErrorAsync(message);
+    public Task ShowSuccessAsync(string message) => _dialogService.ShowSuccessAsync(message);
+    public Task<bool> ShowConfirmationAsync(string message) => _dialogService.ShowConfirmationAsync(message);
+
+    public async Task<TreeViewNode?> FilterTreeNodeByFilenameAsync(
+        TreeViewNode node,
+        string searchTerm,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return node;
+
+        var rootFolder = GetStorageFolder(node) ?? (node.Content as StorageFolder);
+        if (rootFolder is null)
+            return null;
+
+        try
+        {
+            var queryOptions = new QueryOptions(CommonFileQuery.DefaultQuery, ["*"])
+            {
+                UserSearchFilter = $"name:*{searchTerm}*",
+                FolderDepth = FolderDepth.Deep,
+                IndexerOption = IndexerOption.UseIndexerWhenAvailable
+            };
+
+            var query = rootFolder.CreateFileQueryWithOptions(queryOptions);
+            var files = await query.GetFilesAsync().AsTask(cancellationToken);
+
+            if (files.Count == 0)
+                return null;
+
+            var filteredRootNode = CreateTreeViewNode(rootFolder);
+            filteredRootNode.IsExpanded = true;
+            filteredRootNode.HasUnrealizedChildren = false;
+
+            foreach (var file in files)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                filteredRootNode.Children.Add(new TreeViewNode
+                {
+                    Content = file,
+                    HasUnrealizedChildren = false
+                });
+            }
+
+            return filteredRootNode;
+        }
+        catch (OperationCanceledException)
+        {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorAsync($"Search error: {ex.Message}");
+            return null;
+        }
+    }
+}

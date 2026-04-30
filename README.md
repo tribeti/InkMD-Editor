@@ -2,115 +2,188 @@
   <img width="180" src="https://github.com/tribeti/InkMD-Assets/blob/main/Square400x400Logo.png?raw=true" alt="InkMD Logo" />
 </p>
 
+<h1 align="center">InkMD Editor</h1>
+
 <p align="center">
-  <h1 align="center">InkMD Editor 🌟</h1>
+  <i>A modern Markdown editor for Windows with real-time preview, powerful file management, and a distraction-free writing experience.</i>
 </p>
 
 <p align="center">
-  <i>A fast, intuitive, and elegant Markdown editor with real-time preview and robust file management.</i>
+  <img src="https://img.shields.io/github/stars/tribeti/InkMD-Editor?style=for-the-badge&logo=github&color=f1c40f" alt="Stars" />
+  <img src="https://img.shields.io/github/forks/tribeti/InkMD-Editor?style=for-the-badge&logo=github&color=3498db" alt="Forks" />
+  <img src="https://img.shields.io/github/license/tribeti/InkMD-Editor?style=for-the-badge&logo=opensourceinitiative&color=2ecc71" alt="License" />
 </p>
-
-<p align="center">
-  <a>
-    <img src="https://img.shields.io/github/stars/tribeti/InkMD-Editor?style=for-the-badge&logo=github&color=f1c40f" alt="Stars" />
-  </a>
-  <a>
-    <img src="https://img.shields.io/github/forks/tribeti/InkMD-Editor?style=for-the-badge&logo=github&color=3498db" alt="Forks" />
-  </a>
-  <a>
-    <img src="https://img.shields.io/github/license/tribeti/InkMD-Editor?style=for-the-badge&logo=opensourceinitiative&color=2ecc71" alt="License" />
-  </a>
-</p>
-<br/>
-
-**InkMD Editor** is a powerful yet lightweight desktop application designed for developers and writers who demand a seamless Markdown experience. Whether you are documenting code, writing a blog, or taking daily notes, InkMD provides a distraction-free environment with high-performance rendering.
-
-## ✨ Key Features
-- ⚡ **Instant Real-time Preview** – See your changes as you type with zero lag.
-- 🎨 **Syntax Highlighting** – Beautifully highlighted code blocks and Markdown syntax.
-- 📁 **Advanced File Management** – Integrated File Explorer to manage directories, recent files, and auto-save.
-- 🛠️ **Built-in Templates** – Quick start with README, Journals, and Technical Note templates.
-- 🌓 **Themes & Customization** – Switch between Light/Dark modes and customize fonts to suit your eyes.
-- ⌨️ **Power User Shortcuts** – Boost your productivity with a comprehensive set of hotkeys.
 
 ---
- 
-## 📸 Screenshots
+
+## About InkMD
+
+**InkMD Editor** is a lightweight yet feature-rich Markdown editor built for developers, technical writers, and note-takers who need speed and simplicity without sacrificing functionality.
+
+Designed with performance in mind, InkMD combines a smooth writing workflow with live preview rendering, smart file management, and a clean modern interface — making it ideal for documentation, note-taking, blogging, and everyday Markdown editing.
+
+---
+
+## Features
+
+- **Live Preview Rendering**  
+  Instantly preview Markdown as you type with responsive, real-time rendering.
+
+- **Rich Editing Experience**  
+  Syntax highlighting, smooth editing interactions, and a distraction-free writing layout.
+
+- **Integrated File Explorer**  
+  Manage folders, recent files, and auto-save workflows directly inside the app.
+
+- **Built-in Templates**  
+  Quickly create README files, journals, notes, and documentation templates.
+
+- **Customizable Appearance**  
+  Switch between Light/Dark themes and personalize editor fonts.
+
+- **Keyboard Shortcut Support**  
+  Improve productivity with intuitive shortcuts for editing and navigation.
+
+---
+
+## Screenshots
+
 <p align="center">
   <img src="https://github.com/tribeti/InkMD-Assets/blob/main/appscreenshot.png?raw=true" alt="Main Editor View" />
 </p>
 
 ---
 
-## 🛠️ Installation
-You can download the pre-built binaries for Windows from the [Releases](https://github.com/tribeti/InkMD-Editor/releases) page.  
-Or   
-you can download offically from [Microsoft Store](https://apps.microsoft.com/detail/9NNX83392BPP?hl=en-us&gl=US&ocid=pdpshare).
+## Installation
 
-## 🔨 Build from source
-### 1. Set up the environment
+### Download Prebuilt Version
 
-> [!NOTE]
-> InkMD Editor requires [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) or later to build and Windows 10 or later to execute. If you're building an app with WinUI and Windows App SDK for the first time, follow these [installation instructions](https://learn.microsoft.com/windows/apps/get-started/start-here).
+Download the latest release from:
 
-**Required Visual Studio components:**
-- WinUI application development
-- .NET desktop development
-- Windows 10 SDK, version 2004 (10.0.19041.0)
-- Windows 10 21H1 (Build 19043) or greater
-
-### 2. Clone the repository
-
-The [Assets](https://github.com/tribeti/InkMD-Assets) is in a submodule, so you'll need to use `--recurse-submodules` when cloning or pulling for the first time:
-
-```shell
-git clone --recurse-submodules https://github.com/tribeti/InkMD-Editor.git
-```
-
-### 3. Run build scripts
-
-Then open the .slnx file by Visual Studio and then press F5 to build project.
+- [GitHub Releases](https://github.com/tribeti/InkMD-Editor/releases)
+- [Microsoft Store](https://apps.microsoft.com/detail/9NNX83392BPP)
 
 ---
 
-## 📚 How to Use
+## Build From Source
 
-### ✨ Personalization
-Navigate to **Settings** to toggle between Dark/Light themes, adjust font sizes.
+<details>
+<summary><b>Build instructions</b></summary>
 
-### 📦 Markdown Boilerplates
-Don't start from scratch! Use the **Templates** menu to insert pre-formatted structures for:
-*   🎯 Professional READMEs
-*   📝 Meeting Notes
-*   📅 Personal Journals
+### Prerequisites
 
-## 🤝 Contributing
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+InkMD requires:
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
+- **Visual Studio 2022** or later
+- **Windows 10/11**
+- **Node.js + npm**
+
+Install the following Visual Studio workloads:
+
+- **WinUI application development**
+- **.NET desktop development**
+- **Windows 10 SDK** (10.0.19041.0 or later)
+
+---
+
+### 1. Clone the repository
+
+```bash
+git clone --recurse-submodules https://github.com/tribeti/InkMD-Editor.git
+````
+
+---
+
+### 2. Build the preview editor
+
+The Markdown preview pane is powered by **Milkdown**, so build the web editor first:
+
+```bash
+cd milkdown-editor
+npm i
+npm run build
+```
+
+---
+
+### 3. Generate application assets
+
+To generate the required application visual assets:
+
+1. Open **Package.appxmanifest**
+2. Navigate to the **Visual Assets** tab
+3. Under **Source**, select `Square400x400Logo.png`
+4. Click **Generate**
+
+This will generate the required app icons and visual assets for the project.
+
+---
+
+### 4. Run the application
+
+Open the solution in **Visual Studio 2022+**, then press:
+
+```bash
+F5
+```
+
+</details>
+
+---
+
+## Contributing
+
+Contributions are welcome and appreciated.
+
+1. Fork the repository
+2. Create your branch:
+
+```bash
+git checkout -b feature/my-feature
+```
+
+3. Commit your changes:
+
+```bash
+git commit -m "Add my feature"
+```
+
+4. Push to GitHub:
+
+```bash
+git push origin feature/my-feature
+```
+
 5. Open a Pull Request
 
 ---
 
-# 💎 Special Thanks  
+## 💎 Special Thanks
+
 This project stands on the shoulders of giants. A huge shoutout to these amazing projects and libraries that made InkMD Editor possible:
 
-* [**TextControlBox-WinUI**](https://github.com/FrozenAssassine/TextControlBox-WinUI) (by JuliusKirsch) - The core text editor control powering InkMD's editing experience.
-* [**Markdig**](https://github.com/xoofx/markdig) - A fast, powerful, and spec-compliant Markdown processor for .NET.
-* [**Windows Community Toolkit**](https://github.com/CommunityToolkit/Windows) - Essential helpers and extensions for Windows development.
-* [**Advanced Installer**](https://www.advancedinstaller.com/) - Special thanks for providing a Professional license to build our installers.
+- [**TextControlBox-WinUI**](https://github.com/FrozenAssassine/TextControlBox-WinUI) (by JuliusKirsch) for providing the powerful text editing foundation that powers InkMD's core writing experience.
 
-And to all the Contributors who have spent their time improving the code and fixing bugs! ❤️
+- [**Markdig**](https://github.com/xoofx/markdig) for delivering a fast, reliable, and standards-compliant Markdown engine for .NET.
+
+- [**Windows Community Toolkit**](https://github.com/CommunityToolkit/Windows) for offering essential utilities and extensions that simplify Windows application development.
+
+- [**Milkdown**](https://milkdown.dev/) for enabling the rich and modern Markdown preview experience inside InkMD.
+
+- [**Advanced Installer**](https://www.advancedinstaller.com/) for providing professional packaging tools that help deliver InkMD to users smoothly.
+
+And most importantly, heartfelt thanks to every contributor, maintainer, and open-source creator whose work inspires and supports projects like this every day.
 
 ---
 
-📜 License   
+## License
 
-Distributed under the MIT License. See [LICENSE](https://github.com/tribeti/InkMD-Editor/blob/master/LICENSE) for more information.
+Licensed under the **MIT License**.
+
+See the [LICENSE](https://github.com/tribeti/InkMD-Editor/blob/master/LICENSE) file for details.
+
+---
 
 <p align="center">
-  <b>Happy Writing! 🧑‍💻</b> 
+  <b>Happy Writing!</b>
 </p>

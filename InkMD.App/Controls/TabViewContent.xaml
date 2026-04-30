@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="InkMD.App.Controls.TabViewContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:converters="using:InkMD.App.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tcb="using:TextControlBoxNS"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <converters:DoubleToIntConverter x:Key="DoubleToIntConverter" />
+    </UserControl.Resources>
+
+    <controls:SwitchPresenter Value="{x:Bind ViewModel.Tag, Mode=OneWay}">
+
+        <!--  Mode md: chỉ có editor thuần  -->
+        <controls:Case Value="md">
+            <Grid>
+                <tcb:TextControlBox
+                    x:Name="EditBox"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    FontFamily="{x:Bind ViewModel.FontFamily, Mode=OneWay}"
+                    FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
+                    TextChanged="EditBox_TextChanged" />
+            </Grid>
+        </controls:Case>
+
+        <!--  Mode split: editor trái + Milkdown phải  -->
+        <controls:Case Value="split">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <tcb:TextControlBox
+                    x:Name="EditBox_Split"
+                    Grid.Column="0"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    FontFamily="{x:Bind ViewModel.FontFamily, Mode=OneWay}"
+                    FontSize="{x:Bind ViewModel.FontSize, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
+                    TextChanged="EditBox_TextChanged" />
+
+                <controls:GridSplitter Width="8" HorizontalAlignment="Right">
+                    <controls:GridSplitter.RenderTransform>
+                        <TranslateTransform X="-7" />
+                    </controls:GridSplitter.RenderTransform>
+                </controls:GridSplitter>
+
+                <WebView2 x:Name="MilkdownPreview_Split" Grid.Column="1" />
+            </Grid>
+        </controls:Case>
+
+        <!--  Mode preview: chỉ có Milkdown  -->
+        <controls:Case Value="preview">
+            <Grid>
+                <WebView2 x:Name="MilkdownPreview" />
+            </Grid>
+        </controls:Case>
+
+    </controls:SwitchPresenter>
+</UserControl>

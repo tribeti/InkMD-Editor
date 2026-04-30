@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="InkMD.App.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:InkMD.App.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    xmlns:win2d="using:Microsoft.Graphics.Canvas.Text"
+    NavigationCacheMode="Enabled"
+    mc:Ignorable="d">
+
+    <StackPanel Margin="16" Spacing="4">
+        <Button
+            Margin="0,0,0,10"
+            HorizontalAlignment="Left"
+            Background="Transparent"
+            BorderThickness="0"
+            Click="Button_Click">
+            <SymbolIcon Symbol="Back" />
+        </Button>
+
+        <controls:SettingsCard
+            x:Name="settingsCard"
+            Description="Select your preferred app theme."
+            Header="App Theme"
+            HeaderIcon="{ui:FontIcon Glyph=&#xE790;}">
+            <ComboBox x:Name="ThemeComboBox" SelectionChanged="ThemeComboBox_SelectionChanged">
+                <ComboBoxItem Tag="Light">Light</ComboBoxItem>
+                <ComboBoxItem Tag="Dark">Dark</ComboBoxItem>
+                <ComboBoxItem Tag="Default">Use system setting</ComboBoxItem>
+            </ComboBox>
+        </controls:SettingsCard>
+
+        <controls:SettingsCard
+            x:Name="FontFamilyCard"
+            Description="Select your preferred font."
+            Header="Font Family"
+            HeaderIcon="{ui:FontIcon Glyph=&#xE8D2;}">
+            <ComboBox
+                x:Name="FontFamilyComboBox"
+                ItemsSource="{x:Bind win2d:CanvasTextFormat.GetSystemFontFamilies()}"
+                SelectionChanged="FontFamilyComboBox_SelectionChanged" />
+        </controls:SettingsCard>
+        <controls:SettingsCard
+            x:Name="FontSizeCard"
+            Description="Adjust the font size."
+            Header="Font Size"
+            HeaderIcon="{ui:FontIcon Glyph=&#xE71F;}">
+            <NumberBox
+                x:Name="FontSizeBox"
+                LargeChange="5"
+                Maximum="72"
+                Minimum="8"
+                SmallChange="1"
+                SpinButtonPlacementMode="Inline"
+                ValueChanged="FontSizeBox_ValueChanged"
+                Value="14" />
+        </controls:SettingsCard>
+    </StackPanel>
+</Page>
