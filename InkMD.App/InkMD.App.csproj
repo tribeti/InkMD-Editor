@@ -41,18 +41,18 @@
 	  <None Remove="Controls\GithubIcon.xaml" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.251219" />
-		<PackageReference Include="Markdig" Version="1.1.3" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
-		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1721" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260416003" />
-		<PackageReference Include="TextControlBox.WinUI.JuliusKirsch" Version="1.6.2" />
+		<PackageReference Include="CommunityToolkit.Mvvm" VersionOverride="8.4.2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" VersionOverride="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" VersionOverride="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" VersionOverride="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" VersionOverride="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Extensions" VersionOverride="8.2.251219" />
+		<PackageReference Include="Markdig" VersionOverride="1.1.3" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" VersionOverride="10.0.2" />
+		<PackageReference Include="Microsoft.Graphics.Win2D" VersionOverride="1.4.0" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" />
+		<PackageReference Include="TextControlBox.WinUI.JuliusKirsch" VersionOverride="1.6.2" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\InkMD.Core\InkMD.Core.csproj" />

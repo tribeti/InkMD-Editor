@@ -78,15 +78,15 @@ InkMD requires:
 - **Windows 10/11**
 - **Node.js + npm**
 
-Install these Visual Studio workloads:
+Install the following Visual Studio workloads:
 
-- WinUI application development
-- .NET desktop development
-- Windows 10 SDK (10.0.19041.0 or later)
+- **WinUI application development**
+- **.NET desktop development**
+- **Windows 10 SDK** (10.0.19041.0 or later)
 
 ---
 
-### Clone the repository
+### 1. Clone the repository
 
 ```bash
 git clone --recurse-submodules https://github.com/tribeti/InkMD-Editor.git
@@ -94,21 +94,34 @@ git clone --recurse-submodules https://github.com/tribeti/InkMD-Editor.git
 
 ---
 
-### Build the preview editor
+### 2. Build the preview editor
 
-The Markdown preview pane uses **Milkdown**, so build it first:
+The Markdown preview pane is powered by **Milkdown**, so build the web editor first:
 
 ```bash
 cd milkdown-editor
-npm install
+npm i
 npm run build
 ```
 
 ---
 
-### Run the application
+### 3. Generate application assets
 
-Open the solution in **Visual Studio 2022** and press:
+To generate the required application visual assets:
+
+1. Open **Package.appxmanifest**
+2. Navigate to the **Visual Assets** tab
+3. Under **Source**, select `Square400x400Logo.png`
+4. Click **Generate**
+
+This will generate the required app icons and visual assets for the project.
+
+---
+
+### 4. Run the application
+
+Open the solution in **Visual Studio 2022+**, then press:
 
 ```bash
 F5
