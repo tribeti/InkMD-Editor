@@ -42,12 +42,12 @@
                     Click="NewMDFile_Click"
                     Icon="{ui:FontIcon Glyph=&#xE729;}"
                     KeyboardAcceleratorTextOverride="Ctrl+N"
-                    Text="Markdown Document" />
+                    Text="New Markdown Document" />
                 <MenuFlyoutItem
                     Click="NewFile_Click"
                     Icon="{ui:FontIcon Glyph=&#xE7C3;}"
-                    Text="Text Document" />
-
+                    Text="New Document" />
+                <MenuFlyoutSeparator />
                 <MenuFlyoutItem
                     Command="{x:Bind ViewModel.OpenFileCommand}"
                     Icon="{ui:FontIcon Glyph=&#xE8E5;}"
@@ -58,7 +58,7 @@
                     Icon="{ui:FontIcon Glyph=&#xE8DA;}"
                     KeyboardAcceleratorTextOverride="Ctrl+Shift+O"
                     Text="Open a folder" />
-
+                <MenuFlyoutSeparator />
                 <MenuFlyoutItem
                     Command="{x:Bind ViewModel.SaveCommand}"
                     Icon="{ui:FontIcon Glyph=&#xE74E;}"
@@ -74,6 +74,35 @@
                     Command="{x:Bind ViewModel.ExitApplicationCommand}"
                     Icon="{ui:FontIcon Glyph=&#xF3B1;}"
                     Text="Exit" />
+            </MenuBarItem>
+
+            <MenuBarItem Title="Edit">
+                <MenuFlyoutItem
+                    Command="{x:Bind ViewModel.UndoCommand}"
+                    Icon="{ui:FontIcon Glyph=&#xE7A7;}"
+                    KeyboardAcceleratorTextOverride="Ctrl+Z"
+                    Text="Undo" />
+                <MenuFlyoutItem
+                    Command="{x:Bind ViewModel.RedoCommand}"
+                    Icon="{ui:FontIcon Glyph=&#xE7A6;}"
+                    KeyboardAcceleratorTextOverride="Ctrl+Y"
+                    Text="Redo" />
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem
+                    Command="{x:Bind ViewModel.CutCommand}"
+                    Icon="{ui:FontIcon Glyph=&#xE8C6;}"
+                    KeyboardAcceleratorTextOverride="Ctrl+X"
+                    Text="Cut" />
+                <MenuFlyoutItem
+                    Command="{x:Bind ViewModel.CopyCommand}"
+                    Icon="{ui:FontIcon Glyph=&#xE8C8;}"
+                    KeyboardAcceleratorTextOverride="Ctrl+C"
+                    Text="Copy" />
+                <MenuFlyoutItem
+                    Command="{x:Bind ViewModel.PasteCommand}"
+                    Icon="{ui:FontIcon Glyph=&#xE77F;}"
+                    KeyboardAcceleratorTextOverride="Ctrl+V"
+                    Text="Paste" />
             </MenuBarItem>
 
             <MenuBarItem Title="Help">
@@ -92,26 +121,6 @@
             RelativePanel.AlignHorizontalCenterWithPanel="True"
             RelativePanel.Below="MainMenuBar">
 
-            <AppBarButton
-                Command="{x:Bind ViewModel.UndoCommand}"
-                Icon="{ui:FontIcon Glyph=&#xE7A7;}"
-                KeyboardAcceleratorTextOverride="Ctrl+Z" />
-            <AppBarButton
-                Command="{x:Bind ViewModel.RedoCommand}"
-                Icon="{ui:FontIcon Glyph=&#xE7A6;}"
-                KeyboardAcceleratorTextOverride="Ctrl+Y" />
-            <AppBarButton
-                Command="{x:Bind ViewModel.CutCommand}"
-                Icon="{ui:FontIcon Glyph=&#xE8C6;}"
-                KeyboardAcceleratorTextOverride="Ctrl+X" />
-            <AppBarButton
-                Command="{x:Bind ViewModel.CopyCommand}"
-                Icon="{ui:FontIcon Glyph=&#xE8C8;}"
-                KeyboardAcceleratorTextOverride="Ctrl+C" />
-            <AppBarButton
-                Command="{x:Bind ViewModel.PasteCommand}"
-                Icon="{ui:FontIcon Glyph=&#xE77F;}"
-                KeyboardAcceleratorTextOverride="Ctrl+V" />
             <AppBarToggleButton
                 x:Name="BoldButton"
                 Command="{x:Bind ViewModel.BoldCommand}"

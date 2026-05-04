@@ -80,7 +80,7 @@
                     CornerRadius="8,0,0,8">
                     <FontIcon Glyph="&#xE8D5;" />
                 </Button>
-                <Button
+                <!--<Button
                     x:Name="GithubBtn"
                     Margin="0,8,0,0"
                     RelativePanel.AlignHorizontalCenterWith="FileBtn"
@@ -89,7 +89,7 @@
                         Width="20"
                         Height="20"
                         Source="{ThemeResource ImageSource}" />
-                </Button>
+                </Button>-->
             </RelativePanel>
 
             <RelativePanel
