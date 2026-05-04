@@ -7,6 +7,11 @@ import { TableKit } from "@tiptap/extension-table";
 import Link from "@tiptap/extension-link";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import TextAlign from "@tiptap/extension-text-align";
+import {
+  Details,
+  DetailsSummary,
+  DetailsContent,
+} from "@tiptap/extension-details";
 import { common, createLowlight } from "lowlight";
 import "./style.css";
 
@@ -53,7 +58,7 @@ const editor = new Editor({
       inline: true,
       allowBase64: true,
     }),
-    // TaskList + TaskItem: GFM task list syntax (- [ ] / - [x])
+    // TaskList + TaskItem
     // Ref: https://tiptap.dev/docs/editor/extensions/nodes/task-list
     ListKit.configure({
       taskItem: { nested: true },
@@ -70,19 +75,56 @@ const editor = new Editor({
       },
     }),
     // CodeBlockLowlight: syntax-highlighted code blocks via lowlight (highlight.js)
-    // Replaces StarterKit's plain CodeBlock. Language is auto-detected from the fence info.
     // Ref: https://tiptap.dev/docs/editor/extensions/nodes/code-block-lowlight
     CodeBlockLowlight.configure({
       lowlight,
       defaultLanguage: "plaintext",
     }),
     // TextAlign: adds text-align support to headings and paragraphs
-    // Enables <p align="center"> and toolbar alignment commands
     // Ref: https://tiptap.dev/docs/editor/extensions/functionality/text-align
-    TextAlign.configure({
+    TextAlign.extend({
+      addGlobalAttributes() {
+        return [
+          {
+            types: ["heading", "paragraph"],
+            attributes: {
+              textAlign: {
+                default: this.options.defaultAlignment,
+                parseHTML: (element) =>
+                  element.getAttribute("align") ||
+                  element.style.textAlign ||
+                  this.options.defaultAlignment,
+                renderHTML: (attributes) => {
+                  if (
+                    !attributes.textAlign ||
+                    attributes.textAlign === this.options.defaultAlignment
+                  ) {
+                    return {};
+                  }
+                  return { style: `text-align: ${attributes.textAlign}` };
+                },
+              },
+            },
+          },
+        ];
+      },
+    }).configure({
       types: ["heading", "paragraph"],
       defaultAlignment: "left",
     }),
+    // Details / Summary / DetailsContent: renders <details> / <summary> HTML tags
+    // Ref: https://tiptap.dev/docs/editor/extensions/nodes/details
+    Details.configure({
+      renderToggleButton({ element, isOpen }) {
+        element.setAttribute(
+          "aria-label",
+          isOpen ? "Collapse details content" : "Expand details content",
+        );
+        element.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="10" height="10"><path d="M2 1 L8 5 L2 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      },
+    }),
+    DetailsSummary,
+    DetailsContent,
     Markdown.configure({
       markedOptions: {
         gfm: true,
@@ -109,7 +151,7 @@ window.editorBridge = {
   isReady: true,
   isUpdating: false,
 
-  // Load content from C# (accepts both Markdown and inline HTML)
+  // Load content from C#
   setContent: (content: string) => {
     window.editorBridge.isUpdating = true;
     editor.commands.setContent(content, {
@@ -137,7 +179,6 @@ window.editorBridge = {
   },
 
   // Formatting commands — Abstraction Layer for WinUI Toolbar
-  // C# calls these via ExecuteScriptAsync, completely decoupled from Tiptap internals
   // Ref: https://tiptap.dev/docs/editor/api/commands
   format: {
     toggleBold: () => editor.chain().focus().toggleBold().run(),

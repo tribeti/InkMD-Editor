@@ -1,5 +1,5 @@
 {
-  "name": "milkdown-editor",
+  "name": "editor",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -16,6 +16,7 @@
   "dependencies": {
     "@tiptap/core": "^3.22.5",
     "@tiptap/extension-code-block-lowlight": "^3.22.5",
+    "@tiptap/extension-details": "^3.22.5",
     "@tiptap/extension-image": "^3.22.5",
     "@tiptap/extension-link": "^3.22.5",
     "@tiptap/extension-list": "^3.22.5",
