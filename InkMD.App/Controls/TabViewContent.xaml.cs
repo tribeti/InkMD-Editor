@@ -199,7 +199,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
         catch (OperationCanceledException)
         {
-            webView.CoreWebView2.NavigationCompleted -= OnNavigationCompleted;
+            webView.CoreWebView2?.NavigationCompleted -= OnNavigationCompleted;
             cancellationToken.ThrowIfCancellationRequested();
             System.Diagnostics.Debug.WriteLine($"[TabViewContent] Navigation timed out for {(isSplit ? "split" : "preview")} WebView.");
         }

@@ -7,14 +7,23 @@
     "dev": "vite",
     "build": "tsc -b && vite build"
   },
-  "dependencies": {
-    "@milkdown/crepe": "^7.20.0",
-    "@milkdown/theme-nord": "^7.20.0"
-  },
   "devDependencies": {
     "@types/node": "^24.12.2",
     "globals": "^17.5.0",
     "typescript": "~6.0.2",
     "vite": "^8.0.10"
+  },
+  "dependencies": {
+    "@tiptap/core": "^3.22.5",
+    "@tiptap/extension-code-block-lowlight": "^3.22.5",
+    "@tiptap/extension-image": "^3.22.5",
+    "@tiptap/extension-link": "^3.22.5",
+    "@tiptap/extension-list": "^3.22.5",
+    "@tiptap/extension-table": "^3.22.5",
+    "@tiptap/extension-text-align": "^3.22.5",
+    "@tiptap/markdown": "^3.22.5",
+    "@tiptap/pm": "^3.22.5",
+    "@tiptap/starter-kit": "^3.22.5",
+    "lowlight": "^3.3.0"
   }
 }

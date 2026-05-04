@@ -1,8 +1,57 @@
+/* =============================================================
+   CSS Variables — can be overridden at runtime from C# via
+   ExecuteScriptAsync("window.editorBridge.setFontFamily('...')")
+   ============================================================= */
+:root {
+    --editor-font-family: "Segoe UI", Arial, sans-serif;
+    --editor-font-size: 1.05rem;
+    --editor-line-height: 1.7;
+    --editor-padding: 1.25rem 2.5rem;
+
+    /* Light mode colours */
+    --editor-bg: #ffffff;
+    --editor-text: #1a1a1a;
+    --editor-heading: #111111;
+    --editor-code-bg: #f0f0f0;
+    --editor-code-text: #ba1a1a;
+    --editor-code-block-bg: #f5f5f5;
+    --editor-blockquote-border: #cccccc;
+    --editor-blockquote-text: #555555;
+    --editor-hr: #e0e0e0;
+    --editor-link: #1a73e8;
+}
+
+html.dark {
+    color-scheme: dark;
+    --editor-bg: #1e1e1e;
+    --editor-text: #e6e6e6;
+    --editor-heading: #ffffff;
+    --editor-code-bg: #2a2a2a;
+    --editor-code-text: #ff6b6b;
+    --editor-code-block-bg: #252525;
+    --editor-blockquote-border: #555555;
+    --editor-blockquote-text: #aaaaaa;
+    --editor-hr: #3a3a3a;
+    --editor-link: #7aadff;
+}
+
+html.light {
+    color-scheme: light;
+}
+
+/* =============================================================
+   Base reset
+   ============================================================= */
 html,
 body {
     margin: 0;
     padding: 0;
     height: 100%;
+    background: var(--editor-bg);
+    color: var(--editor-text);
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
 }
 
 #app {
@@ -12,90 +61,322 @@ body {
     flex-direction: column;
 }
 
-#app .crepe-root,
-#app .milkdown {
-    flex-grow: 1;
-    min-height: 100%;
-}
-
+/* =============================================================
+   Tiptap ProseMirror — main editor area
+   ============================================================= */
 .ProseMirror {
+    flex-grow: 1;
+    outline: none;
     min-height: 100vh;
+    padding: var(--editor-padding);
+    font-family: var(--editor-font-family);
+    font-size: var(--editor-font-size);
+    line-height: var(--editor-line-height);
+    color: var(--editor-text);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
-html {
-    color-scheme: light dark;
+/* =============================================================
+   Typography
+   ============================================================= */
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+    color: var(--editor-heading);
+    font-family: var(--editor-font-family);
+    margin: 1.4em 0 0.4em;
+    line-height: 1.25;
+    font-weight: 700;
 }
 
+.ProseMirror h1 {
+    font-size: 2em;
+    margin-top: 0.6em;
+}
+
+.ProseMirror h2 {
+    font-size: 1.5em;
+}
+
+.ProseMirror h3 {
+    font-size: 1.25em;
+}
+
+.ProseMirror h4 {
+    font-size: 1.1em;
+}
+
+.ProseMirror h5,
+.ProseMirror h6 {
+    font-size: 1em;
+}
+
+.ProseMirror p {
+    margin: 0.6em 0;
+}
+
+.ProseMirror strong {
+    font-weight: 700;
+}
+
+.ProseMirror em {
+    font-style: italic;
+}
+
+.ProseMirror s {
+    text-decoration: line-through;
+}
+
+/* =============================================================
+   Inline Code
+   ============================================================= */
+.ProseMirror code {
+    background: var(--editor-code-bg);
+    color: var(--editor-code-text);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
+    font-size: 0.9em;
+    font-family: "Cascadia Code", "Consolas", "Fira Code", monospace;
+}
+
+/* =============================================================
+   Code Block — syntax highlighted by lowlight (highlight.js tokens)
+   Ref: https://tiptap.dev/docs/editor/extensions/nodes/code-block-lowlight
+   ============================================================= */
+.ProseMirror pre {
+  background: var(--editor-code-block-bg);
+  border-radius: 8px;
+  padding: 1em 1.25em;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.ProseMirror pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.9em;
+  font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+  /* Base text colour (overridden per-token below) */
+  color: var(--hljs-base);
+}
+
+/* ── Light mode token colours ── */
+:root {
+  --hljs-base:     #24292e;
+  --hljs-comment:  #6a737d;
+  --hljs-keyword:  #d73a49;
+  --hljs-string:   #032f62;
+  --hljs-number:   #005cc5;
+  --hljs-function: #6f42c1;
+  --hljs-attr:     #e36209;
+  --hljs-tag:      #22863a;
+  --hljs-literal:  #005cc5;
+}
+
+/* ── Dark mode token colours ── */
 html.dark {
-    color-scheme: dark;
-    background: #1e1e1e;
+  --hljs-base:     #e1e4e8;
+  --hljs-comment:  #6a737d;
+  --hljs-keyword:  #f97583;
+  --hljs-string:   #9ecbff;
+  --hljs-number:   #79b8ff;
+  --hljs-function: #b392f0;
+  --hljs-attr:     #ffab70;
+  --hljs-tag:      #85e89d;
+  --hljs-literal:  #79b8ff;
 }
 
-html.light {
-    color-scheme: light;
-    background: #ffffff;
+/* ── Token mappings ── */
+.hljs-comment,
+.hljs-quote        { color: var(--hljs-comment); font-style: italic; }
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst        { color: var(--hljs-keyword); font-weight: 600; }
+
+.hljs-string,
+.hljs-doctag,
+.hljs-regexp       { color: var(--hljs-string); }
+
+.hljs-number,
+.hljs-literal      { color: var(--hljs-number); }
+
+.hljs-title,
+.hljs-function,
+.hljs-section,
+.hljs-selector-id  { color: var(--hljs-function); font-weight: 600; }
+
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-selector-attr { color: var(--hljs-attr); }
+
+.hljs-tag,
+.hljs-name,
+.hljs-built_in     { color: var(--hljs-tag); }
+
+.hljs-type,
+.hljs-class .hljs-title { color: var(--hljs-function); }
+
+.hljs-meta,
+.hljs-meta .hljs-keyword { color: var(--hljs-attr); }
+
+.hljs-deletion     { color: var(--hljs-keyword); background: rgba(215,58,73,0.1); }
+.hljs-addition     { color: var(--hljs-tag);     background: rgba(34,134,58,0.1); }
+
+
+/* =============================================================
+   Blockquote
+   ============================================================= */
+.ProseMirror blockquote {
+    border-left: 4px solid var(--editor-blockquote-border);
+    margin: 1em 0;
+    padding: 0.5em 0 0.5em 1.25em;
+    color: var(--editor-blockquote-text);
+    font-style: italic;
 }
 
-html.dark .milkdown {
-    --crepe-color-background: #1e1e1e;
-    --crepe-color-on-background: #e6e6e6;
-    --crepe-color-surface: #121212;
-    --crepe-color-surface-low: #1c1c1c;
-    --crepe-color-on-surface: #d1d1d1;
-    --crepe-color-on-surface-variant: #a9a9a9;
-    --crepe-color-outline: #757575;
-    --crepe-color-primary: #b5b5b5;
-    --crepe-color-secondary: #4d4d4d;
-    --crepe-color-on-secondary: #d6d6d6;
-    --crepe-color-inverse: #e5e5e5;
-    --crepe-color-on-inverse: #2a2a2a;
-    --crepe-color-inline-code: #ff6666;
-    --crepe-color-error: #ff6666;
-    --crepe-color-hover: #232323;
-    --crepe-color-selected: #2f2f2f;
-    --crepe-color-inline-area: #2b2b2b;
-
-    --crepe-font-title: "Noto Serif", cambria, "Times New Roman", times, serif;
-    --crepe-font-default: "Noto Sans", arial, helvetica, sans-serif;
-    --crepe-font-code:
-        "Space Mono", Fira Code, menlo, monaco, "Courier New", courier,
-        monospace;
-
-    --crepe-shadow-1:
-        0px 1px 2px 0px rgba(255, 255, 255, 0.3),
-        0px 1px 3px 1px rgba(255, 255, 255, 0.15);
-    --crepe-shadow-2:
-        0px 1px 2px 0px rgba(255, 255, 255, 0.3),
-        0px 2px 6px 2px rgba(255, 255, 255, 0.15);
+/* =============================================================
+   Lists
+   ============================================================= */
+.ProseMirror ul,
+.ProseMirror ol {
+    padding-left: 1.6em;
+    margin: 0.6em 0;
 }
 
-html.light .milkdown {
-    --crepe-color-background: #ffffff;
-    --crepe-color-on-background: #000000;
-    --crepe-color-surface: #f7f7f7;
-    --crepe-color-surface-low: #ededed;
-    --crepe-color-on-surface: #1c1c1c;
-    --crepe-color-on-surface-variant: #4d4d4d;
-    --crepe-color-outline: #a8a8a8;
-    --crepe-color-primary: #333333;
-    --crepe-color-secondary: #cfcfcf;
-    --crepe-color-on-secondary: #000000;
-    --crepe-color-inverse: #f0f0f0;
-    --crepe-color-on-inverse: #1a1a1a;
-    --crepe-color-inline-code: #ba1a1a;
-    --crepe-color-error: #ba1a1a;
-    --crepe-color-hover: #e0e0e0;
-    --crepe-color-selected: #d5d5d5;
-    --crepe-color-inline-area: #cacaca;
+.ProseMirror li {
+    margin: 0.25em 0;
+}
 
-    --crepe-font-title: "Noto Serif", cambria, "Times New Roman", times, serif;
-    --crepe-font-default: "Noto Sans", arial, helvetica, sans-serif;
-    --crepe-font-code:
-        "Space Mono", Fira Code, menlo, monaco, "Courier New", courier,
-        monospace;
+/* =============================================================
+   Horizontal Rule
+   ============================================================= */
+.ProseMirror hr {
+    border: none;
+    border-top: 2px solid var(--editor-hr);
+    margin: 1.5em 0;
+}
 
-    --crepe-shadow-1:
-        0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
-    --crepe-shadow-2:
-        0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+/* =============================================================
+   Tables (GFM pipe tables)
+   ============================================================= */
+.ProseMirror table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+    font-size: 0.95em;
+    overflow-x: auto;
+    display: block;
+}
+
+.ProseMirror table th,
+.ProseMirror table td {
+    border: 1px solid var(--editor-hr);
+    padding: 0.45em 0.85em;
+    text-align: left;
+    vertical-align: top;
+}
+
+.ProseMirror table th {
+    background: var(--editor-code-bg);
+    font-weight: 600;
+}
+
+/* Zebra striping */
+.ProseMirror table tr:nth-child(even) td {
+    background: var(--editor-code-bg);
+    opacity: 0.6;
+}
+
+/* =============================================================
+   Task List (GFM Checklist) — - [ ] / - [x]
+   ============================================================= */
+.ProseMirror ul[data-type="taskList"] {
+    list-style: none;
+    padding-left: 0.25em;
+    margin: 0.6em 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5em;
+    margin: 0.3em 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label {
+    flex-shrink: 0;
+    margin-top: 0.2em;
+    cursor: pointer;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"] {
+    width: 1em;
+    height: 1em;
+    accent-color: var(--editor-link);
+    cursor: pointer;
+}
+
+.ProseMirror ul[data-type="taskList"] li > div {
+    flex: 1;
+}
+
+.ProseMirror ul[data-type="taskList"] li > div > p {
+    margin: 0;
+}
+
+/* Strike-through text for checked items */
+.ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* =============================================================
+   Links
+   ============================================================= */
+.ProseMirror a {
+    color: var(--editor-link);
+    text-decoration: underline;
+}
+
+/* =============================================================
+   Placeholder
+   ============================================================= */
+.ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: var(--editor-blockquote-text);
+    opacity: 0.5;
+    pointer-events: none;
+    height: 0;
+}
+
+/* =============================================================
+   Images — rendered by @tiptap/extension-image
+   Handles both ![alt](url) Markdown syntax and raw <img> HTML tags
+   ============================================================= */
+.ProseMirror img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Support align="center" on <p> tags wrapping images (common in GitHub README) */
+.ProseMirror p[style*="text-align: center"],
+.ProseMirror p[align="center"] {
+    text-align: center;
+}
+
+/* =============================================================
+   Selection
+   ============================================================= */
+.ProseMirror ::selection {
+    background: rgba(100, 150, 255, 0.25);
 }
