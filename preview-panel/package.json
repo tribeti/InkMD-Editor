@@ -25,6 +25,7 @@
     "@tiptap/markdown": "^3.22.5",
     "@tiptap/pm": "^3.22.5",
     "@tiptap/starter-kit": "^3.22.5",
-    "lowlight": "^3.3.0"
+    "lowlight": "^3.3.0",
+    "marked": "^18.0.3"
   }
 }

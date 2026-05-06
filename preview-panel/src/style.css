@@ -250,6 +250,7 @@ html.dark {
     color: var(--hljs-keyword);
     background: rgba(215, 58, 73, 0.1);
 }
+
 .hljs-addition {
     color: var(--hljs-tag);
     background: rgba(34, 134, 58, 0.1);
@@ -407,101 +408,50 @@ html.dark {
     background: rgba(100, 150, 255, 0.25);
 }
 
-/* =============================================================
-   Details / Summary — @tiptap/extension-details
-   Actual DOM structure rendered by the extension's nodeView:
-
-   div[data-type="details"]          ← outer wrapper, gets .is-open on click
-     button                          ← toggle arrow (direct child)
-     div                             ← contentDOM (plain div, no attributes)
-       div[data-type="detailsSummary"]
-       div[data-type="detailsContent"][hidden]  ← hidden toggled by JS
-
-   Key insight: detailsSummary/detailsContent are NOT direct children of
-   div[data-type="details"] — they sit inside an anonymous contentDOM div.
-   So Grid on the outer wrapper cannot reach them. Use flexbox instead.
-   ============================================================= */
-
-/* Outer wrapper — flex column */
 .ProseMirror div[data-type="details"] {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     border: 1px solid var(--editor-hr);
     border-radius: 6px;
     overflow: hidden;
     margin: 0.75em 0;
 }
 
-/* Header row: button + summary side by side */
-/* The button is a direct child; summary is inside contentDOM.
-   We pull them into the same visual row using position on the header. */
-
-/* contentDOM anonymous div — takes remaining width */
-.ProseMirror div[data-type="details"] > div {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0;
-}
-
-/* Summary — always visible header label */
-.ProseMirror div[data-type="detailsSummary"] {
-    display: flex;
-    align-items: center;
-    padding: 0.45em 0.85em;
-    background: var(--editor-code-bg);
-    font-weight: 600;
-    min-height: 2.2em;
-    cursor: default;
-}
-
-.ProseMirror div[data-type="detailsSummary"] p {
-    margin: 0;
-}
-
-/* Make the header row (button + summary) sit side by side */
-.ProseMirror div[data-type="details"] {
-    flex-direction: row; /* button | contentDOM */
-    flex-wrap: wrap; /* content wraps to next row */
-    align-items: stretch;
-}
-
-/* Toggle button — left column, spans only the header height naturally */
+/* Toggle button — left strip */
 .ProseMirror div[data-type="details"] > button {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     width: 2.2em;
+    flex-shrink: 0;
+    padding: 0.55em 0 0;
     border: none;
     border-right: 1px solid var(--editor-hr);
     background: var(--editor-code-bg);
     color: var(--editor-blockquote-text);
     cursor: pointer;
-    flex-shrink: 0;
-    padding: 0;
-    align-self: stretch;
     transition: background 0.15s ease;
-    /* Only span the header row height by aligning with summary */
-    max-height: none;
 }
 
 .ProseMirror div[data-type="details"] > button:hover {
     background: var(--editor-hr);
 }
 
-/* Arrow SVG */
+/* Arrow SVG — rotates 90° when open */
 .ProseMirror div[data-type="details"] > button svg {
     display: block;
+    flex-shrink: 0;
     transition: transform 0.2s ease;
     transform: rotate(0deg);
     pointer-events: none;
+    margin-top: 0.15em;
 }
 
 .ProseMirror div[data-type="details"].is-open > button svg {
     transform: rotate(90deg);
 }
 
-/* contentDOM div — right column (summary + content stacked vertically) */
+/* Anonymous contentDOM div — right column, stacks summary + content */
 .ProseMirror div[data-type="details"] > div {
     flex: 1;
     min-width: 0;
@@ -509,13 +459,42 @@ html.dark {
     flex-direction: column;
 }
 
-/* Content area — below summary, shown/hidden by JS via [hidden] */
+/* Summary — native <summary> tag, always visible header */
+.ProseMirror div[data-type="details"] > div > summary {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    /* hide native triangle */
+    padding: 0.45em 0.85em;
+    background: var(--editor-code-bg);
+    font-weight: 600;
+    min-height: 2.2em;
+    cursor: default;
+    user-select: none;
+}
+
+/* Remove native disclosure marker in WebKit/Blink */
+.ProseMirror div[data-type="details"] > div > summary::-webkit-details-marker {
+    display: none;
+}
+
+.ProseMirror div[data-type="details"] > div > summary p {
+    margin: 0;
+}
+
+/* Content area — below summary, JS toggles [hidden] to show/hide */
 .ProseMirror div[data-type="detailsContent"] {
     padding: 0.75em 1em;
     border-top: 1px solid var(--editor-hr);
 }
 
-/* The [hidden] attribute is set/removed by the extension JS */
 .ProseMirror div[data-type="detailsContent"][hidden] {
     display: none !important;
+}
+
+/* =============================================================
+   Selection
+   ============================================================= */
+.ProseMirror ::selection {
+    background: rgba(100, 150, 255, 0.25);
 }

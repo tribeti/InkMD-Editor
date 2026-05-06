@@ -13,6 +13,7 @@ import {
   DetailsContent,
 } from "@tiptap/extension-details";
 import { common, createLowlight } from "lowlight";
+import { marked } from "marked";
 import "./style.css";
 
 // Ref: https://github.com/wooorm/lowlight?tab=readme-ov-file#syntaxes
@@ -147,6 +148,87 @@ const editor = new Editor({
   },
 });
 
+function preprocessMarkdownWithDetails(markdown: string): string {
+  const segments: string[] = [];
+  let lastIndex = 0;
+  let i = 0;
+
+  while (i < markdown.length) {
+    const openMatch = markdown.indexOf("<details", i);
+    if (openMatch === -1) {
+      const rest = markdown.slice(lastIndex);
+      if (rest) segments.push(String(marked.parse(rest)));
+      break;
+    }
+
+    const before = markdown.slice(lastIndex, openMatch);
+    if (before) segments.push(String(marked.parse(before)));
+
+    const openTagEnd = markdown.indexOf(">", openMatch);
+    if (openTagEnd === -1) {
+      i = openMatch + 1;
+      lastIndex = openMatch;
+      continue;
+    }
+
+    let depth = 1;
+    let searchFrom = openTagEnd + 1;
+    let closeMatch = -1;
+
+    while (depth > 0 && searchFrom < markdown.length) {
+      const nextOpen = markdown.indexOf("<details", searchFrom);
+      const nextClose = markdown.indexOf("</details>", searchFrom);
+
+      if (nextClose === -1) break;
+
+      if (nextOpen !== -1 && nextOpen < nextClose) {
+        depth++;
+        searchFrom = nextOpen + 8;
+      } else {
+        depth--;
+        if (depth === 0) {
+          closeMatch = nextClose;
+        }
+        searchFrom = nextClose + 10;
+      }
+    }
+
+    if (closeMatch === -1) {
+      const rest = markdown.slice(openMatch);
+      segments.push(String(marked.parse(rest)));
+      lastIndex = markdown.length;
+      break;
+    }
+
+    const innerContent = markdown.slice(openTagEnd + 1, closeMatch);
+    const summaryMatch = innerContent.match(
+      /^[\s\S]*?<summary>([\s\S]*?)<\/summary>/,
+    );
+    let summaryHtml = "";
+    let bodyMarkdown = innerContent;
+
+    if (summaryMatch) {
+      summaryHtml = summaryMatch[1].trim();
+      bodyMarkdown = innerContent.slice(summaryMatch[0].length);
+    }
+
+    const bodyHtml = String(marked.parse(bodyMarkdown.trim()));
+
+    segments.push(
+      `<details><summary>${summaryHtml}</summary>${bodyHtml}</details>`,
+    );
+
+    lastIndex = closeMatch + 10;
+    i = lastIndex;
+  }
+
+  if (segments.length === 0) {
+    return String(marked.parse(markdown));
+  }
+
+  return segments.join("\n");
+}
+
 window.editorBridge = {
   isReady: true,
   isUpdating: false,
@@ -154,9 +236,10 @@ window.editorBridge = {
   // Load content from C#
   setContent: (content: string) => {
     window.editorBridge.isUpdating = true;
-    editor.commands.setContent(content, {
+    const processedHtml = preprocessMarkdownWithDetails(content);
+    editor.commands.setContent(processedHtml, {
       emitUpdate: false,
-      contentType: "markdown",
+      contentType: "html",
     });
     setTimeout(() => {
       window.editorBridge.isUpdating = false;
