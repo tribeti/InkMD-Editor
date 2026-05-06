@@ -148,13 +148,82 @@ const editor = new Editor({
   },
 });
 
+function blankCodeRanges(src: string): string {
+  const chars = src.split("");
+
+  const fenceRe = /^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\s*$/gm;
+  let m: RegExpExecArray | null;
+  while ((m = fenceRe.exec(src)) !== null) {
+    for (let k = m.index; k < m.index + m[0].length; k++) {
+      chars[k] = " ";
+    }
+  }
+
+  const inlineRe = /`+[^`]*`+/g;
+  while ((m = inlineRe.exec(src)) !== null) {
+    for (let k = m.index; k < m.index + m[0].length; k++) {
+      chars[k] = " ";
+    }
+  }
+
+  return chars.join("");
+}
+
+function extractDirectChildSummary(
+  html: string,
+): { summaryText: string; afterSummary: string } | null {
+  let depth = 0;
+  let pos = 0;
+
+  while (pos < html.length) {
+    const tagStart = html.indexOf("<", pos);
+    if (tagStart === -1) break;
+
+    const tagSlice = html.slice(tagStart);
+
+    if (/^<details[\s>]/i.test(tagSlice)) {
+      // Opening <details …> — increase nesting depth
+      depth++;
+      const tagEnd = html.indexOf(">", tagStart);
+      pos = tagEnd === -1 ? html.length : tagEnd + 1;
+      continue;
+    }
+
+    if (/^<\/details>/i.test(tagSlice)) {
+      // Closing </details> — decrease nesting depth
+      depth--;
+      pos = tagStart + 10;
+      continue;
+    }
+
+    if (depth === 0 && /^<summary[\s>]/i.test(tagSlice)) {
+      // Direct-child <summary> found
+      const summaryOpen = html.indexOf(">", tagStart);
+      if (summaryOpen === -1) break;
+      const contentStart = summaryOpen + 1;
+      const closeTag = html.indexOf("</summary>", contentStart);
+      if (closeTag === -1) break;
+      return {
+        summaryText: html.slice(contentStart, closeTag).trim(),
+        afterSummary: html.slice(closeTag + 10),
+      };
+    }
+
+    pos = tagStart + 1;
+  }
+
+  return null;
+}
+
 function preprocessMarkdownWithDetails(markdown: string): string {
+  const searchable = blankCodeRanges(markdown);
+
   const segments: string[] = [];
   let lastIndex = 0;
   let i = 0;
 
-  while (i < markdown.length) {
-    const openMatch = markdown.indexOf("<details", i);
+  while (i < searchable.length) {
+    const openMatch = searchable.indexOf("<details", i);
     if (openMatch === -1) {
       const rest = markdown.slice(lastIndex);
       if (rest) segments.push(String(marked.parse(rest)));
@@ -164,20 +233,23 @@ function preprocessMarkdownWithDetails(markdown: string): string {
     const before = markdown.slice(lastIndex, openMatch);
     if (before) segments.push(String(marked.parse(before)));
 
-    const openTagEnd = markdown.indexOf(">", openMatch);
+    const openTagEnd = searchable.indexOf(">", openMatch);
     if (openTagEnd === -1) {
       i = openMatch + 1;
       lastIndex = openMatch;
       continue;
     }
 
+    // Preserve the original opening tag verbatim (keeps `open` and other attrs)
+    const originalOpenTag = markdown.slice(openMatch, openTagEnd + 1);
+
     let depth = 1;
     let searchFrom = openTagEnd + 1;
     let closeMatch = -1;
 
-    while (depth > 0 && searchFrom < markdown.length) {
-      const nextOpen = markdown.indexOf("<details", searchFrom);
-      const nextClose = markdown.indexOf("</details>", searchFrom);
+    while (depth > 0 && searchFrom < searchable.length) {
+      const nextOpen = searchable.indexOf("<details", searchFrom);
+      const nextClose = searchable.indexOf("</details>", searchFrom);
 
       if (nextClose === -1) break;
 
@@ -201,21 +273,20 @@ function preprocessMarkdownWithDetails(markdown: string): string {
     }
 
     const innerContent = markdown.slice(openTagEnd + 1, closeMatch);
-    const summaryMatch = innerContent.match(
-      /^[\s\S]*?<summary>([\s\S]*?)<\/summary>/,
-    );
+    const summaryResult = extractDirectChildSummary(innerContent);
+
     let summaryHtml = "";
     let bodyMarkdown = innerContent;
 
-    if (summaryMatch) {
-      summaryHtml = summaryMatch[1].trim();
-      bodyMarkdown = innerContent.slice(summaryMatch[0].length);
+    if (summaryResult) {
+      summaryHtml = summaryResult.summaryText;
+      bodyMarkdown = summaryResult.afterSummary;
     }
 
     const bodyHtml = String(marked.parse(bodyMarkdown.trim()));
 
     segments.push(
-      `<details><summary>${summaryHtml}</summary>${bodyHtml}</details>`,
+      `${originalOpenTag}<summary>${summaryHtml}</summary>${bodyHtml}</details>`,
     );
 
     lastIndex = closeMatch + 10;
@@ -236,14 +307,15 @@ window.editorBridge = {
   // Load content from C#
   setContent: (content: string) => {
     window.editorBridge.isUpdating = true;
-    const processedHtml = preprocessMarkdownWithDetails(content);
-    editor.commands.setContent(processedHtml, {
-      emitUpdate: false,
-      contentType: "html",
-    });
-    setTimeout(() => {
+    try {
+      const processedHtml = preprocessMarkdownWithDetails(content);
+      editor.commands.setContent(processedHtml, {
+        emitUpdate: false,
+        contentType: "html",
+      });
+    } finally {
       window.editorBridge.isUpdating = false;
-    }, 100);
+    }
   },
 
   // Switch dark/light theme from WinUI
