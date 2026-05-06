@@ -139,7 +139,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
     }
 
-    // ─── Load Milkdown ──────────────────────────────────
+    // ─── Load preview panel ──────────────────────────────────
     private async Task EnsureWebViewReadyAsync(WebView2 webView, CancellationToken cancellationToken = default)
     {
         var envService = (App.Current as App)?.Services
@@ -152,12 +152,24 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         else
             await webView.EnsureCoreWebView2Async();
 
+        if (webView.CoreWebView2 is not null)
+        {
+#if DEBUG
+                webView.CoreWebView2.Settings.AreDevToolsEnabled = true;
+                webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
+#else
+            webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
+            webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+            webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+#endif
+        }
+
         cancellationToken.ThrowIfCancellationRequested();
 
         webView.WebMessageReceived -= WebView_WebMessageReceived;
         webView.WebMessageReceived += WebView_WebMessageReceived;
 
-        await webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
+        await webView.CoreWebView2?.AddScriptToExecuteOnDocumentCreatedAsync(
             """document.addEventListener('keydown',function(e){if (e.ctrlKey && (e.key === 's' || e.key === 'S')){ e.preventDefault();window.chrome?.webview?.postMessage({ type: 'saveRequest',saveAs: e.shiftKey});}},true);""");
 
         bool isSplit = ReferenceEquals(webView, MilkdownPreview_Split);
@@ -172,7 +184,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             _previewHostMapped = true;
         }
 
-        webView.CoreWebView2.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+        webView.CoreWebView2?.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
         var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         if (isSplit)
             _splitNavTcs = tcs;
@@ -185,7 +197,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             tcs.TrySetResult(args.IsSuccess);
         }
 
-        webView.CoreWebView2.NavigationCompleted += OnNavigationCompleted;
+        webView.CoreWebView2?.NavigationCompleted += OnNavigationCompleted;
 
         // Navigate to the Milkdown page
         webView.Source = new Uri("https://editor.local/index.html");

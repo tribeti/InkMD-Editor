@@ -7,16 +7,10 @@ import { TableKit } from "@tiptap/extension-table";
 import Link from "@tiptap/extension-link";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import TextAlign from "@tiptap/extension-text-align";
-import {
-  Details,
-  DetailsSummary,
-  DetailsContent,
-} from "@tiptap/extension-details";
 import { common, createLowlight } from "lowlight";
 import { marked } from "marked";
 import "./style.css";
 
-// Ref: https://github.com/wooorm/lowlight?tab=readme-ov-file#syntaxes
 const lowlight = createLowlight(common);
 
 declare global {
@@ -113,19 +107,6 @@ const editor = new Editor({
       types: ["heading", "paragraph"],
       defaultAlignment: "left",
     }),
-    // Details / Summary / DetailsContent: renders <details> / <summary> HTML tags
-    // Ref: https://tiptap.dev/docs/editor/extensions/nodes/details
-    Details.configure({
-      renderToggleButton({ element, isOpen }) {
-        element.setAttribute(
-          "aria-label",
-          isOpen ? "Collapse details content" : "Expand details content",
-        );
-        element.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="10" height="10"><path d="M2 1 L8 5 L2 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-      },
-    }),
-    DetailsSummary,
-    DetailsContent,
     Markdown.configure({
       markedOptions: {
         gfm: true,
@@ -148,158 +129,6 @@ const editor = new Editor({
   },
 });
 
-function blankCodeRanges(src: string): string {
-  const chars = src.split("");
-
-  const fenceRe = /^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\s*$/gm;
-  let m: RegExpExecArray | null;
-  while ((m = fenceRe.exec(src)) !== null) {
-    for (let k = m.index; k < m.index + m[0].length; k++) {
-      chars[k] = " ";
-    }
-  }
-
-  const inlineRe = /`+[^`]*`+/g;
-  while ((m = inlineRe.exec(src)) !== null) {
-    for (let k = m.index; k < m.index + m[0].length; k++) {
-      chars[k] = " ";
-    }
-  }
-
-  return chars.join("");
-}
-
-function extractDirectChildSummary(
-  html: string,
-): { summaryText: string; afterSummary: string } | null {
-  let depth = 0;
-  let pos = 0;
-
-  while (pos < html.length) {
-    const tagStart = html.indexOf("<", pos);
-    if (tagStart === -1) break;
-
-    const tagSlice = html.slice(tagStart);
-
-    if (/^<details[\s>]/i.test(tagSlice)) {
-      // Opening <details …> — increase nesting depth
-      depth++;
-      const tagEnd = html.indexOf(">", tagStart);
-      pos = tagEnd === -1 ? html.length : tagEnd + 1;
-      continue;
-    }
-
-    if (/^<\/details>/i.test(tagSlice)) {
-      // Closing </details> — decrease nesting depth
-      depth--;
-      pos = tagStart + 10;
-      continue;
-    }
-
-    if (depth === 0 && /^<summary[\s>]/i.test(tagSlice)) {
-      // Direct-child <summary> found
-      const summaryOpen = html.indexOf(">", tagStart);
-      if (summaryOpen === -1) break;
-      const contentStart = summaryOpen + 1;
-      const closeTag = html.indexOf("</summary>", contentStart);
-      if (closeTag === -1) break;
-      return {
-        summaryText: html.slice(contentStart, closeTag).trim(),
-        afterSummary: html.slice(closeTag + 10),
-      };
-    }
-
-    pos = tagStart + 1;
-  }
-
-  return null;
-}
-
-function preprocessMarkdownWithDetails(markdown: string): string {
-  const searchable = blankCodeRanges(markdown);
-
-  const segments: string[] = [];
-  let lastIndex = 0;
-  let i = 0;
-
-  while (i < searchable.length) {
-    const openMatch = searchable.indexOf("<details", i);
-    if (openMatch === -1) {
-      const rest = markdown.slice(lastIndex);
-      if (rest) segments.push(String(marked.parse(rest)));
-      break;
-    }
-
-    const before = markdown.slice(lastIndex, openMatch);
-    if (before) segments.push(String(marked.parse(before)));
-
-    const openTagEnd = searchable.indexOf(">", openMatch);
-    if (openTagEnd === -1) {
-      i = openMatch + 1;
-      lastIndex = openMatch;
-      continue;
-    }
-
-    // Preserve the original opening tag verbatim (keeps `open` and other attrs)
-    const originalOpenTag = markdown.slice(openMatch, openTagEnd + 1);
-
-    let depth = 1;
-    let searchFrom = openTagEnd + 1;
-    let closeMatch = -1;
-
-    while (depth > 0 && searchFrom < searchable.length) {
-      const nextOpen = searchable.indexOf("<details", searchFrom);
-      const nextClose = searchable.indexOf("</details>", searchFrom);
-
-      if (nextClose === -1) break;
-
-      if (nextOpen !== -1 && nextOpen < nextClose) {
-        depth++;
-        searchFrom = nextOpen + 8;
-      } else {
-        depth--;
-        if (depth === 0) {
-          closeMatch = nextClose;
-        }
-        searchFrom = nextClose + 10;
-      }
-    }
-
-    if (closeMatch === -1) {
-      const rest = markdown.slice(openMatch);
-      segments.push(String(marked.parse(rest)));
-      lastIndex = markdown.length;
-      break;
-    }
-
-    const innerContent = markdown.slice(openTagEnd + 1, closeMatch);
-    const summaryResult = extractDirectChildSummary(innerContent);
-
-    let summaryHtml = "";
-    let bodyMarkdown = innerContent;
-
-    if (summaryResult) {
-      summaryHtml = summaryResult.summaryText;
-      bodyMarkdown = summaryResult.afterSummary;
-    }
-
-    const bodyHtml = String(marked.parse(bodyMarkdown.trim()));
-
-    segments.push(
-      `${originalOpenTag}<summary>${summaryHtml}</summary>${bodyHtml}</details>`,
-    );
-
-    lastIndex = closeMatch + 10;
-    i = lastIndex;
-  }
-
-  if (segments.length === 0) {
-    return String(marked.parse(markdown));
-  }
-
-  return segments.join("\n");
-}
-
 window.editorBridge = {
   isReady: true,
   isUpdating: false,
@@ -308,8 +137,8 @@ window.editorBridge = {
   setContent: (content: string) => {
     window.editorBridge.isUpdating = true;
     try {
-      const processedHtml = preprocessMarkdownWithDetails(content);
-      editor.commands.setContent(processedHtml, {
+      const html = String(marked.parse(content));
+      editor.commands.setContent(html, {
         emitUpdate: false,
         contentType: "html",
       });

@@ -130,7 +130,6 @@ public sealed partial class MainMenu : UserControl
 
         try
         {
-            await InitializeWebViewAsync();
             var html = ViewModel.ConvertMarkdownToHtml(content);
             previewWebView.NavigateToString(html);
         }
@@ -304,14 +303,6 @@ public sealed partial class MainMenu : UserControl
         if (!success)
         {
             await _dialogService.ShowErrorAsync("File was not created. Please check the file name and destination folder.");
-        }
-    }
-
-    private async Task InitializeWebViewAsync()
-    {
-        if (previewWebView?.CoreWebView2 is null)
-        {
-            await previewWebView!.EnsureCoreWebView2Async();
         }
     }
 
