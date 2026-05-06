@@ -1,4 +1,4 @@
-import { Editor } from "@tiptap/core";
+import { Editor, Extension } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "@tiptap/markdown";
 import Image from "@tiptap/extension-image";
@@ -42,7 +42,9 @@ interface EditorBridge {
   };
 }
 
-const editor = new Editor({
+let editor: Editor;
+
+editor = new Editor({
   element: document.querySelector("#app") as HTMLElement,
   extensions: [
     StarterKit.configure({
@@ -53,6 +55,9 @@ const editor = new Editor({
     Image.configure({
       inline: true,
       allowBase64: true,
+      HTMLAttributes: {
+        referrerpolicy: "no-referrer",
+      },
     }),
     // TaskList + TaskItem: GFM checkbox lists
     // Ref: https://tiptap.dev/docs/editor/extensions/nodes/task-list
@@ -115,6 +120,34 @@ const editor = new Editor({
     }),
   ],
   content: "",
+  editorProps: {
+    // Intercept paste events so that plain-text markdown is rendered correctly
+    // instead of being inserted as literal text (raw syntax).
+    handlePaste(view, event) {
+      const clipboardData = event.clipboardData;
+      if (!clipboardData) return false;
+
+      // If the clipboard contains HTML we let Tiptap handle it natively
+      // (e.g. copying rich text from another app).
+      const html = clipboardData.getData("text/html");
+      if (html && html.trim().length > 0) return false;
+
+      const text = clipboardData.getData("text/plain");
+      if (!text || text.trim().length === 0) return false;
+
+      // Detect markdown heuristically: look for common markdown patterns.
+      // If none are found we let Tiptap's default handler insert plain text.
+      const markdownPattern =
+        /^#{1,6}\s|\*\*|__|\[.+?\]\(.+?\)|^[-*+]\s|^\d+\.\s|^>\s|`|!\[/m;
+      if (!markdownPattern.test(text)) return false;
+      event.preventDefault();
+      editor.commands.setContent(text, {
+        emitUpdate: true,
+        contentType: "markdown",
+      });
+      return true;
+    },
+  },
   onUpdate: ({ editor }) => {
     // Guard against self-triggered updates from setContent()
     if (window.editorBridge && window.editorBridge.isUpdating) {
