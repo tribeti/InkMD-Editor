@@ -2,13 +2,14 @@ import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "@tiptap/markdown";
 import Image from "@tiptap/extension-image";
-import { ListKit } from "@tiptap/extension-list";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
 import { TableKit } from "@tiptap/extension-table";
 import Link from "@tiptap/extension-link";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import TextAlign from "@tiptap/extension-text-align";
 import { common, createLowlight } from "lowlight";
-import { marked } from "marked";
+
 import "./style.css";
 
 const lowlight = createLowlight(common);
@@ -53,11 +54,10 @@ const editor = new Editor({
       inline: true,
       allowBase64: true,
     }),
-    // TaskList + TaskItem
+    // TaskList + TaskItem: GFM checkbox lists
     // Ref: https://tiptap.dev/docs/editor/extensions/nodes/task-list
-    ListKit.configure({
-      taskItem: { nested: true },
-    }),
+    TaskList,
+    TaskItem.configure({ nested: true }),
     TableKit.configure({
       table: { resizable: false },
     }),
@@ -134,13 +134,14 @@ window.editorBridge = {
   isUpdating: false,
 
   // Load content from C#
+  // Tiptap's Markdown extension parses GFM (incl. task lists) natively.
+  // No need to pre-convert via marked — pass raw markdown directly.
   setContent: (content: string) => {
     window.editorBridge.isUpdating = true;
     try {
-      const html = String(marked.parse(content));
-      editor.commands.setContent(html, {
+      editor.commands.setContent(content, {
         emitUpdate: false,
-        contentType: "html",
+        contentType: "markdown",
       });
     } finally {
       window.editorBridge.isUpdating = false;
