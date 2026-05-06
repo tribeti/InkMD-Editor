@@ -32,7 +32,7 @@ public partial class TabViewContentViewModel : ObservableObject, IDisposable
     public partial double FontSize { get; set; } = AppSettings.GetFontSize();
 
     [ObservableProperty]
-    public partial string Tag { get; set; } = "split";
+    public partial string Tag { get; set; } = AppSettings.GetDefaultViewMode();
 
     [ObservableProperty]
     public partial bool IsLoadingContent { get; set; }

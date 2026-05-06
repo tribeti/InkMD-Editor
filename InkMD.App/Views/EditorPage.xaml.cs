@@ -99,6 +99,19 @@ public sealed partial class EditorPage : Page
                 tabContent.SetViewMode(msg.NewMode);
         }));
 
+        _subscriptions.Add(bus.Subscribe<DefaultViewModeChangedMessage>().Subscribe(msg =>
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                foreach (var tab in Tabs.TabItems.OfType<TabViewItem>())
+                {
+                    if (tab.Content is TabViewContent tabContent)
+                        tabContent.SetViewMode(msg.NewMode);
+                }
+                UpdateMenuVisibility();
+            });
+        }));
+
         _subscriptions.Add(bus.Subscribe<EditCommandMessage>().Subscribe(msg => HandleEditCommand(msg.Command)));
     }
 
