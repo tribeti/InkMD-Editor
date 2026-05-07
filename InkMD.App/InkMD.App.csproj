@@ -22,7 +22,7 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<!--link web editor (tinh nang vip vcl)-->
-		<Content Include="..\milkdown-editor\dist\**\*">
+		<Content Include="..\preview-panel\dist\**\*">
 			<Link>dist\%(RecursiveDir)%(Filename)%(Extension)</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>

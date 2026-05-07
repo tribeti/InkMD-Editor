@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="InkMD.App.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -58,6 +58,18 @@
                 SpinButtonPlacementMode="Inline"
                 ValueChanged="FontSizeBox_ValueChanged"
                 Value="14" />
+        </controls:SettingsCard>
+
+        <controls:SettingsCard
+            x:Name="DefaultViewModeCard"
+            Description="Choose the default editor display mode when opening a new tab."
+            Header="Default View Mode"
+            HeaderIcon="{ui:FontIcon Glyph=&#xE8A1;}">
+            <ComboBox x:Name="DefaultViewModeComboBox" SelectionChanged="DefaultViewModeComboBox_SelectionChanged">
+                <ComboBoxItem Tag="md">Markdown (Source only)</ComboBoxItem>
+                <ComboBoxItem Tag="split">Split View</ComboBoxItem>
+                <ComboBoxItem Tag="preview">Preview (WYSIWYG)</ComboBoxItem>
+            </ComboBox>
         </controls:SettingsCard>
     </StackPanel>
 </Page>

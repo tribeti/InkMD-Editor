@@ -1,16 +1,17 @@
-import { Editor } from "@tiptap/core";
+import { Editor, Extension } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "@tiptap/markdown";
 import Image from "@tiptap/extension-image";
-import { ListKit } from "@tiptap/extension-list";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
 import { TableKit } from "@tiptap/extension-table";
 import Link from "@tiptap/extension-link";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import TextAlign from "@tiptap/extension-text-align";
 import { common, createLowlight } from "lowlight";
+
 import "./style.css";
 
-// Ref: https://github.com/wooorm/lowlight?tab=readme-ov-file#syntaxes
 const lowlight = createLowlight(common);
 
 declare global {
@@ -41,7 +42,9 @@ interface EditorBridge {
   };
 }
 
-const editor = new Editor({
+let editor: Editor;
+
+editor = new Editor({
   element: document.querySelector("#app") as HTMLElement,
   extensions: [
     StarterKit.configure({
@@ -52,12 +55,14 @@ const editor = new Editor({
     Image.configure({
       inline: true,
       allowBase64: true,
+      HTMLAttributes: {
+        referrerpolicy: "no-referrer",
+      },
     }),
-    // TaskList + TaskItem: GFM task list syntax (- [ ] / - [x])
+    // TaskList + TaskItem: GFM checkbox lists
     // Ref: https://tiptap.dev/docs/editor/extensions/nodes/task-list
-    ListKit.configure({
-      taskItem: { nested: true },
-    }),
+    TaskList,
+    TaskItem.configure({ nested: true }),
     TableKit.configure({
       table: { resizable: false },
     }),
@@ -70,16 +75,40 @@ const editor = new Editor({
       },
     }),
     // CodeBlockLowlight: syntax-highlighted code blocks via lowlight (highlight.js)
-    // Replaces StarterKit's plain CodeBlock. Language is auto-detected from the fence info.
     // Ref: https://tiptap.dev/docs/editor/extensions/nodes/code-block-lowlight
     CodeBlockLowlight.configure({
       lowlight,
       defaultLanguage: "plaintext",
     }),
     // TextAlign: adds text-align support to headings and paragraphs
-    // Enables <p align="center"> and toolbar alignment commands
     // Ref: https://tiptap.dev/docs/editor/extensions/functionality/text-align
-    TextAlign.configure({
+    TextAlign.extend({
+      addGlobalAttributes() {
+        return [
+          {
+            types: ["heading", "paragraph"],
+            attributes: {
+              textAlign: {
+                default: this.options.defaultAlignment,
+                parseHTML: (element) =>
+                  element.getAttribute("align") ||
+                  element.style.textAlign ||
+                  this.options.defaultAlignment,
+                renderHTML: (attributes) => {
+                  if (
+                    !attributes.textAlign ||
+                    attributes.textAlign === this.options.defaultAlignment
+                  ) {
+                    return {};
+                  }
+                  return { style: `text-align: ${attributes.textAlign}` };
+                },
+              },
+            },
+          },
+        ];
+      },
+    }).configure({
       types: ["heading", "paragraph"],
       defaultAlignment: "left",
     }),
@@ -91,6 +120,33 @@ const editor = new Editor({
     }),
   ],
   content: "",
+  editorProps: {
+    // Intercept paste events so that plain-text markdown is rendered correctly
+    // instead of being inserted as literal text (raw syntax).
+    handlePaste(view, event) {
+      const clipboardData = event.clipboardData;
+      if (!clipboardData) return false;
+
+      // If the clipboard contains HTML we let Tiptap handle it natively
+      // (e.g. copying rich text from another app).
+      const html = clipboardData.getData("text/html");
+      if (html && html.trim().length > 0) return false;
+
+      const text = clipboardData.getData("text/plain");
+      if (!text || text.trim().length === 0) return false;
+
+      // Detect markdown heuristically: look for common markdown patterns.
+      // If none are found we let Tiptap's default handler insert plain text.
+      const markdownPattern =
+        /^#{1,6}\s|\*\*|__|\[.+?\]\(.+?\)|^[-*+]\s|^\d+\.\s|^>\s|`|!\[/m;
+      if (!markdownPattern.test(text)) return false;
+      event.preventDefault();
+      editor.commands.insertContent(text, {
+        contentType: "markdown",
+      });
+      return true;
+    },
+  },
   onUpdate: ({ editor }) => {
     // Guard against self-triggered updates from setContent()
     if (window.editorBridge && window.editorBridge.isUpdating) {
@@ -109,16 +165,19 @@ window.editorBridge = {
   isReady: true,
   isUpdating: false,
 
-  // Load content from C# (accepts both Markdown and inline HTML)
+  // Load content from C#
+  // Tiptap's Markdown extension parses GFM (incl. task lists) natively.
+  // No need to pre-convert via marked — pass raw markdown directly.
   setContent: (content: string) => {
     window.editorBridge.isUpdating = true;
-    editor.commands.setContent(content, {
-      emitUpdate: false,
-      contentType: "markdown",
-    });
-    setTimeout(() => {
+    try {
+      editor.commands.setContent(content, {
+        emitUpdate: false,
+        contentType: "markdown",
+      });
+    } finally {
       window.editorBridge.isUpdating = false;
-    }, 100);
+    }
   },
 
   // Switch dark/light theme from WinUI
@@ -137,7 +196,6 @@ window.editorBridge = {
   },
 
   // Formatting commands — Abstraction Layer for WinUI Toolbar
-  // C# calls these via ExecuteScriptAsync, completely decoupled from Tiptap internals
   // Ref: https://tiptap.dev/docs/editor/api/commands
   format: {
     toggleBold: () => editor.chain().focus().toggleBold().run(),

@@ -22,6 +22,7 @@ public sealed partial class SettingsPage : Page
 
         LoadSavedTheme();
         LoadSavedFontAndSize();
+        LoadSavedDefaultViewMode();
     }
 
     private void LoadSavedFontAndSize()
@@ -87,5 +88,22 @@ public sealed partial class SettingsPage : Page
             Frame.GoBack();
         else
             Frame.Navigate(typeof(EditorPage));
+    }
+
+    private void LoadSavedDefaultViewMode()
+    {
+        var saved = AppSettings.GetDefaultViewMode();
+        DefaultViewModeComboBox.SelectedItem = DefaultViewModeComboBox.Items
+            .OfType<ComboBoxItem>()
+            .FirstOrDefault(item => item.Tag as string == saved);
+    }
+
+    private void DefaultViewModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DefaultViewModeComboBox.SelectedItem is ComboBoxItem { Tag: string modeTag })
+        {
+            AppSettings.SetDefaultViewMode(modeTag);
+            RxMessageBus.Default.Publish(new DefaultViewModeChangedMessage(modeTag));
+        }
     }
 }
