@@ -141,8 +141,7 @@ editor = new Editor({
         /^#{1,6}\s|\*\*|__|\[.+?\]\(.+?\)|^[-*+]\s|^\d+\.\s|^>\s|`|!\[/m;
       if (!markdownPattern.test(text)) return false;
       event.preventDefault();
-      editor.commands.setContent(text, {
-        emitUpdate: true,
+      editor.commands.insertContent(text, {
         contentType: "markdown",
       });
       return true;
