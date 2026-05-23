@@ -158,7 +158,7 @@
                             SelectionChanged="TemplateGridView_SelectionChanged"
                             SelectionMode="Single">
                             <GridView.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:MdTemplate">
                                     <Border
                                         Width="100"
                                         Height="50"
@@ -171,7 +171,7 @@
                                             FontWeight="SemiBold"
                                             HorizontalTextAlignment="Center"
                                             MaxLines="2"
-                                            Text="{Binding DisplayName}"
+                                            Text="{x:Bind DisplayName}"
                                             TextWrapping="Wrap" />
                                     </Border>
                                 </DataTemplate>

@@ -452,25 +452,19 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             }
 
             _viewModeCts = new CancellationTokenSource();
-            var token = _viewModeCts.Token;
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await Task.Delay(150, token);
-                    DispatcherQueue.TryEnqueue(async () =>
-                    {
-                        if (token.IsCancellationRequested)
-                            return;
-
-                        await InitializeWebViewsAsync(token);
-                        RenderPreviewIfReady(ViewModel.CurrentContent ?? string.Empty);
-                    });
-                }
-                catch (OperationCanceledException) { }
-            });
+            InitializeWebViewDelayedAsync(_viewModeCts.Token);
         }
+    }
+
+    private async void InitializeWebViewDelayedAsync(CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(150, token);
+            await InitializeWebViewsAsync(token);
+            RenderPreviewIfReady(ViewModel.CurrentContent ?? string.Empty);
+        }
+        catch (OperationCanceledException) { }
     }
 
     /// <summary>
