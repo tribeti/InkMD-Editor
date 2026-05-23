@@ -12,9 +12,16 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.Base" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.Foundation" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" />
 		<PackageReference Include="System.Reactive" VersionOverride="6.1.0" />
+		<!--trim AI pack-->
+		<PackageReference Include="Microsoft.WindowsAppSDK.AI" VersionOverride="*">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" VersionOverride="*">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 </Project>
