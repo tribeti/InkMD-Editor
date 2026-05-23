@@ -8,6 +8,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1600, 1000));
+        AppWindow.SetIcon("Assets/Square400x400Logo.ico");
         InitializeComponent();
         AppWindow.TitleBar.PreferredTheme = TitleBarTheme.UseDefaultAppMode;
         AppWindow.Title = "InkMD Editor";
