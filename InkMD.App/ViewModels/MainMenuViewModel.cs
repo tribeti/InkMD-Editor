@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
-namespace InkMD_Editor.ViewModels;
+namespace InkMD.App.ViewModels;
 
 public partial class MainMenuViewModel(IFileService fileService) : ObservableObject
 {
@@ -104,7 +104,9 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
             return;
         }
         var templates = await TemplateService.GetAllTemplatesAsync();
-        Templates = new ObservableCollection<MdTemplate>(templates);
+        Templates.Clear();
+        foreach (var t in templates)
+            Templates.Add(t);
         TemplatesLoaded = true;
     }
 
@@ -144,7 +146,9 @@ public partial class MainMenuViewModel(IFileService fileService) : ObservableObj
             return;
         }
         var icons = await TemplateService.GetAllIconsAsync();
-        IconItems = new ObservableCollection<IconItem>(icons);
+        IconItems.Clear();
+        foreach (var icon in icons)
+            IconItems.Add(icon);
         IconsLoaded = true;
     }
 

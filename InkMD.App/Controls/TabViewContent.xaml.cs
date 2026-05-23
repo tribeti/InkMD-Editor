@@ -152,24 +152,27 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         else
             await webView.EnsureCoreWebView2Async();
 
-        if (webView.CoreWebView2 is not null)
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (webView.CoreWebView2 is not { } coreWebView)
         {
-#if DEBUG
-                webView.CoreWebView2.Settings.AreDevToolsEnabled = true;
-                webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
-#else
-            webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
-            webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
-            webView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
-#endif
+            System.Diagnostics.Debug.WriteLine("WebView2 failed to initialize.");
+            return;
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
+#if DEBUG
+    coreWebView.Settings.AreDevToolsEnabled = true;
+    coreWebView.Settings.AreDefaultContextMenusEnabled = true;
+#else
+        coreWebView.Settings.AreDevToolsEnabled = false;
+        coreWebView.Settings.AreDefaultContextMenusEnabled = false;
+        coreWebView.Settings.AreBrowserAcceleratorKeysEnabled = false;
+#endif
 
         webView.WebMessageReceived -= WebView_WebMessageReceived;
         webView.WebMessageReceived += WebView_WebMessageReceived;
 
-        await webView.CoreWebView2?.AddScriptToExecuteOnDocumentCreatedAsync(
+        await coreWebView.AddScriptToExecuteOnDocumentCreatedAsync(
             """document.addEventListener('keydown',function(e){if (e.ctrlKey && (e.key === 's' || e.key === 'S')){ e.preventDefault();window.chrome?.webview?.postMessage({ type: 'saveRequest',saveAs: e.shiftKey});}},true);""");
 
         bool isSplit = ReferenceEquals(webView, MilkdownPreview_Split);
@@ -184,7 +187,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             _previewHostMapped = true;
         }
 
-        webView.CoreWebView2?.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+        coreWebView.MemoryUsageTargetLevel = CoreWebView2MemoryUsageTargetLevel.Normal;
+
         var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         if (isSplit)
             _splitNavTcs = tcs;
@@ -197,9 +201,8 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             tcs.TrySetResult(args.IsSuccess);
         }
 
-        webView.CoreWebView2?.NavigationCompleted += OnNavigationCompleted;
+        coreWebView.NavigationCompleted += OnNavigationCompleted;
 
-        // Navigate to the Milkdown page
         webView.Source = new Uri("https://editor.local/index.html");
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -211,7 +214,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         }
         catch (OperationCanceledException)
         {
-            webView.CoreWebView2?.NavigationCompleted -= OnNavigationCompleted;
+            coreWebView.NavigationCompleted -= OnNavigationCompleted;
             cancellationToken.ThrowIfCancellationRequested();
             System.Diagnostics.Debug.WriteLine($"[TabViewContent] Navigation timed out for {(isSplit ? "split" : "preview")} WebView.");
         }
@@ -393,6 +396,10 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             _pendingPreviewContent = null;
             _ = RenderInMilkdown(content);
         }
+        else
+        {
+            _pendingPreviewContent = content;
+        }
     }
 
     public string GetContent() => CurrentEditBox?.GetText() ?? ViewModel.CurrentContent ?? string.Empty;
@@ -449,25 +456,19 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             }
 
             _viewModeCts = new CancellationTokenSource();
-            var token = _viewModeCts.Token;
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await Task.Delay(150, token);
-                    DispatcherQueue.TryEnqueue(async () =>
-                    {
-                        if (token.IsCancellationRequested)
-                            return;
-
-                        await InitializeWebViewsAsync(token);
-                        RenderPreviewIfReady(ViewModel.CurrentContent ?? string.Empty);
-                    });
-                }
-                catch (OperationCanceledException) { }
-            });
+            InitializeWebViewDelayedAsync(_viewModeCts.Token);
         }
+    }
+
+    private async void InitializeWebViewDelayedAsync(CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(150, token);
+            await InitializeWebViewsAsync(token);
+            RenderPreviewIfReady(ViewModel.CurrentContent ?? string.Empty);
+        }
+        catch (OperationCanceledException) { }
     }
 
     /// <summary>

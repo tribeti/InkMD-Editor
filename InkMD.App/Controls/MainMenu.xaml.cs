@@ -1,9 +1,9 @@
 using CommunityToolkit.WinUI.Controls;
 using InkMD.App.Services;
+using InkMD.App.ViewModels;
 using InkMD.Core.Messages;
 using InkMD.Core.Models;
 using InkMD.Core.Services;
-using InkMD_Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -130,6 +130,15 @@ public sealed partial class MainMenu : UserControl
 
         try
         {
+            var envService = ((App)Application.Current).Services
+                .GetService(typeof(WebView2EnvironmentService)) as WebView2EnvironmentService;
+
+            var sharedEnv = envService?.Environment;
+            if (sharedEnv is not null)
+                await previewWebView.EnsureCoreWebView2Async(sharedEnv);
+            else
+                await previewWebView.EnsureCoreWebView2Async();
+
             var html = ViewModel.ConvertMarkdownToHtml(content);
             previewWebView.NavigateToString(html);
         }
@@ -317,7 +326,7 @@ public sealed partial class MainMenu : UserControl
         }
         catch (Exception ex)
         {
-            throw new Exception($"Error load: {ex.Message}", ex);
+            System.Diagnostics.Debug.WriteLine($"[MainMenu] CleanupWebView error: {ex.Message}");
         }
     }
 
@@ -367,7 +376,7 @@ public sealed partial class MainMenu : UserControl
         }
         catch (Exception ex)
         {
-            throw new Exception($"Error during cleanup in Dispose: {ex.Message}", ex);
+            System.Diagnostics.Debug.WriteLine($"[MainMenu] Dispose error: {ex.Message}");
         }
     }
 }

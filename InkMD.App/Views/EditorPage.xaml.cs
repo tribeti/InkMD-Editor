@@ -450,11 +450,13 @@ public sealed partial class EditorPage : Page
             FileExplorerPanel.Visibility = Visibility.Collapsed;
             ExplorerSplitter.Visibility = Visibility.Collapsed;
             ExplorerColumn.MinWidth = 0;
+            ExplorerColumn.Width = new GridLength(0);
         }
         else
         {
             FileBtn.CornerRadius = new CornerRadius(8, 0, 0, 8);
             ExplorerColumn.MinWidth = 200;
+            ExplorerColumn.Width = GridLength.Auto;
             ExplorerSplitter.Visibility = Visibility.Visible;
             FileExplorerPanel.Visibility = Visibility.Visible;
         }
