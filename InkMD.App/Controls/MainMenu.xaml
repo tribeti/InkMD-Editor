@@ -268,8 +268,8 @@
                                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                 CornerRadius="8">
                                 <Image
-                                    Width="80"
-                                    Height="80"
+                                    Width="60"
+                                    Height="60"
                                     Margin="0,0,0,8"
                                     HorizontalAlignment="Center"
                                     Source="{x:Bind ImagePath}"

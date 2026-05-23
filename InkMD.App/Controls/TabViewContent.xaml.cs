@@ -396,6 +396,10 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
             _pendingPreviewContent = null;
             _ = RenderInMilkdown(content);
         }
+        else
+        {
+            _pendingPreviewContent = content;
+        }
     }
 
     public string GetContent() => CurrentEditBox?.GetText() ?? ViewModel.CurrentContent ?? string.Empty;
