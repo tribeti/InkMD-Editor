@@ -1,4 +1,4 @@
-import { Editor, Extension } from "@tiptap/core";
+import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "@tiptap/markdown";
 import Image from "@tiptap/extension-image";
@@ -41,6 +41,20 @@ interface EditorBridge {
     redo: () => void;
   };
 }
+
+document.addEventListener(
+  "keydown",
+  (e) => {
+    if (e.ctrlKey && (e.key === "s" || e.key === "S")) {
+      e.preventDefault();
+      window.chrome?.webview?.postMessage({
+        type: "saveRequest",
+        saveAs: e.shiftKey,
+      });
+    }
+  },
+  true,
+);
 
 let editor: Editor;
 
@@ -128,15 +142,13 @@ editor = new Editor({
       if (!clipboardData) return false;
 
       // If the clipboard contains HTML we let Tiptap handle it natively
-      // (e.g. copying rich text from another app).
       const html = clipboardData.getData("text/html");
       if (html && html.trim().length > 0) return false;
 
       const text = clipboardData.getData("text/plain");
       if (!text || text.trim().length === 0) return false;
 
-      // Detect markdown heuristically: look for common markdown patterns.
-      // If none are found we let Tiptap's default handler insert plain text.
+      // Detect markdown heuristically
       const markdownPattern =
         /^#{1,6}\s|\*\*|__|\[.+?\]\(.+?\)|^[-*+]\s|^\d+\.\s|^>\s|`|!\[/m;
       if (!markdownPattern.test(text)) return false;
@@ -166,8 +178,6 @@ window.editorBridge = {
   isUpdating: false,
 
   // Load content from C#
-  // Tiptap's Markdown extension parses GFM (incl. task lists) natively.
-  // No need to pre-convert via marked — pass raw markdown directly.
   setContent: (content: string) => {
     window.editorBridge.isUpdating = true;
     try {
@@ -187,7 +197,6 @@ window.editorBridge = {
   },
 
   // Change editor font — call from WinUI Settings page
-  // Example (C#): ExecuteScriptAsync("window.editorBridge.setFontFamily('Consolas')")
   setFontFamily: (fontFamily: string) => {
     document.documentElement.style.setProperty(
       "--editor-font-family",
@@ -195,8 +204,7 @@ window.editorBridge = {
     );
   },
 
-  // Formatting commands — Abstraction Layer for WinUI Toolbar
-  // Ref: https://tiptap.dev/docs/editor/api/commands
+  // Formatting commands
   format: {
     toggleBold: () => editor.chain().focus().toggleBold().run(),
     toggleItalic: () => editor.chain().focus().toggleItalic().run(),
@@ -213,6 +221,15 @@ window.editorBridge = {
     redo: () => editor.chain().focus().redo().run(),
   },
 };
+
+const win = window as any;
+if (win.__initialContent) {
+  editor.commands.setContent(win.__initialContent, {
+    emitUpdate: false,
+    contentType: "markdown",
+  });
+  win.__initialContent = null;
+}
 
 // Notify WinUI host that the editor bridge is fully ready (event-driven, no polling)
 if (window.chrome?.webview) {
