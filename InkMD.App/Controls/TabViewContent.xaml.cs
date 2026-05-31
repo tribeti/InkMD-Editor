@@ -260,11 +260,11 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
                 injectedPending = true;
             }
 
-            navigationStarted = true;
             webView.Source = new Uri("https://editor.local/index.html");
+            navigationStarted = true;
 
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            cts.CancelAfter(TimeSpan.FromSeconds(8));
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
 
             try
             {
