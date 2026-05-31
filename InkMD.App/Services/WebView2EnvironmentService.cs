@@ -21,6 +21,11 @@ public sealed class WebView2EnvironmentService
     public CoreWebView2Environment? Environment => _environment;
 
     /// <summary>
+    /// True once InitializeAsync has completed successfully.
+    /// </summary>
+    public bool IsInitialized => _environment is not null;
+
+    /// <summary>
     /// Pre-warm the shared <see cref="CoreWebView2Environment"/>.
     /// Safe to call multiple times — initialization only happens once.
     /// </summary>

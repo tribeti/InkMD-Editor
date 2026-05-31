@@ -48,5 +48,14 @@ public partial class App : Application
         MainWindow = Services.GetRequiredService<MainWindow>();
         Services.GetRequiredService<ThemeService>().ApplyTheme(MainWindow);
         MainWindow.Activate();
+
+        var dispatcherQueue = MainWindow.DispatcherQueue;
+        dispatcherQueue.TryEnqueue(async () =>
+        {
+            await System.Threading.Tasks.Task.Delay(200);
+
+            if (!Services.GetRequiredService<WebView2EnvironmentService>().IsInitialized)
+                return;
+        });
     }
 }
