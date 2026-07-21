@@ -27,6 +27,10 @@ interface EditorBridge {
   setContent: (content: string) => void;
   setTheme: (theme: string) => void;
   setFontFamily: (fontFamily: string) => void;
+  insertContent: (markdown: string) => void;
+  cut: () => void;
+  copy: () => void;
+  paste: () => void;
   format: {
     toggleBold: () => void;
     toggleItalic: () => void;
@@ -135,8 +139,6 @@ editor = new Editor({
   ],
   content: "",
   editorProps: {
-    // Intercept paste events so that plain-text markdown is rendered correctly
-    // instead of being inserted as literal text (raw syntax).
     handlePaste(view, event) {
       const clipboardData = event.clipboardData;
       if (!clipboardData) return false;
@@ -202,6 +204,22 @@ window.editorBridge = {
       "--editor-font-family",
       fontFamily,
     );
+  },
+
+  // Insert markdown content at the current cursor position
+  insertContent: (markdown: string) => {
+    editor.commands.insertContent(markdown, { contentType: "markdown" });
+  },
+
+  // Clipboard commands forwarded from WinUI host
+  cut: () => {
+    document.execCommand("cut");
+  },
+  copy: () => {
+    document.execCommand("copy");
+  },
+  paste: () => {
+    document.execCommand("paste");
   },
 
   // Formatting commands
