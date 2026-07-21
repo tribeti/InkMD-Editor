@@ -128,17 +128,20 @@
             <AppBarToggleButton
                 x:Name="BoldButton"
                 Command="{x:Bind ViewModel.BoldCommand}"
-                Icon="{ui:FontIcon Glyph=&#xE8DD;}" />
+                Icon="{ui:FontIcon Glyph=&#xE8DD;}"
+                ToolTipService.ToolTip="Bold (Ctrl + N)" />
             <AppBarToggleButton
                 x:Name="ItalicButton"
                 Command="{x:Bind ViewModel.ItalicCommand}"
-                Icon="{ui:FontIcon Glyph=&#xE8DB;}" />
+                Icon="{ui:FontIcon Glyph=&#xE8DB;}"
+                ToolTipService.ToolTip="Italic (Ctrl + I)" />
             <AppBarToggleButton
                 x:Name="StrikethroughButton"
                 Command="{x:Bind ViewModel.StrikethroughCommand}"
-                Icon="{ui:FontIcon Glyph=&#xEDE0;}" />
+                Icon="{ui:FontIcon Glyph=&#xEDE0;}"
+                ToolTipService.ToolTip="Strikethrough" />
 
-            <AppBarButton Icon="Pictures" Label="Pictures">
+            <AppBarButton Icon="Pictures" ToolTipService.ToolTip="Pictures">
                 <AppBarButton.Flyout>
                     <MenuFlyout Placement="BottomEdgeAlignedLeft">
                         <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xEC4E;}" Text="This device" />
@@ -147,12 +150,11 @@
                     </MenuFlyout>
                 </AppBarButton.Flyout>
             </AppBarButton>
-            <AppBarButton Icon="{ui:FontIcon Glyph=&#xF156;}" Label="Shapes" />
             <AppBarButton
                 Click="AppBarButton_Click"
                 Icon="{ui:FontIcon Glyph=&#xED58;}"
-                Label="Icons" />
-            <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" Label="Templates">
+                ToolTipService.ToolTip="Icons" />
+            <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" ToolTipService.ToolTip="Templates">
                 <AppBarButton.Flyout>
                     <Flyout x:Name="TemplateFlyout" Opening="TemplateFlyout_Opening">
                         <GridView
@@ -192,7 +194,7 @@
             <AppBarButton
                 Click="HyperLink_Click"
                 Icon="{ui:FontIcon Glyph=&#xE71B;}"
-                Label="Hyperlink" />
+                ToolTipService.ToolTip="Hyperlink" />
 
             <AppBarElementContainer VerticalAlignment="Center">
                 <controls:Segmented
