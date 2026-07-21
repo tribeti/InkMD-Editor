@@ -9,8 +9,6 @@
     xmlns:local="using:InkMD.App.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:storage="using:Windows.Storage"
-    xmlns:ui="using:CommunityToolkit.WinUI"
-    xmlns:vm="using:InkMD.App.ViewModels"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
@@ -26,18 +24,22 @@
         </MenuFlyout>
 
         <DataTemplate x:Key="FolderTemplate" x:DataType="TreeViewNode">
-            <StackPanel Margin="0,4,8,0" Orientation="Horizontal">
+            <StackPanel
+                Margin="0,4,8,0"
+                Orientation="Horizontal"
+                Spacing="10">
                 <FontIcon Glyph="&#xED41;" />
-                <TextBlock Margin="0,0,10,0" />
                 <TextBlock Text="{x:Bind ((storage:StorageFolder)Content).DisplayName}" />
             </StackPanel>
         </DataTemplate>
 
         <!--  DataTemplate for files  -->
         <DataTemplate x:Key="FileTemplate" x:DataType="TreeViewNode">
-            <StackPanel Margin="0,4,8,0" Orientation="Horizontal">
+            <StackPanel
+                Margin="0,4,8,0"
+                Orientation="Horizontal"
+                Spacing="10">
                 <FontIcon Glyph="&#xE8A5;" />
-                <TextBlock Margin="0,0,10,0" />
                 <TextBlock Text="{x:Bind ((storage:StorageFile)Content).Name}" />
             </StackPanel>
         </DataTemplate>
@@ -56,9 +58,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
-            <customcontrols:MainMenu x:Name="mainMenu" />
-        </Grid>
+        <customcontrols:MainMenu x:Name="mainMenu" Grid.Row="0" />
 
         <Grid x:Name="Body" Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -132,7 +132,7 @@
                         Collapsed="TreeView_Collapsed"
                         Expanding="TreeView_Expanding"
                         ItemInvoked="TreeView_ItemInvoked"
-                        ItemTemplateSelector="{ThemeResource ExplorerItemTemplateSelector}"
+                        ItemTemplateSelector="{StaticResource ExplorerItemTemplateSelector}"
                         SelectionMode="Single" />
                 </ScrollViewer>
             </RelativePanel>
@@ -149,15 +149,14 @@
                 </controls:GridSplitter.RenderTransform>
             </controls:GridSplitter>
 
-            <Grid Grid.Column="2">
-                <TabView
-                    x:Name="Tabs"
-                    VerticalAlignment="Stretch"
-                    AddTabButtonClick="TabView_AddButtonClick"
-                    SelectionChanged="TabView_SelectionChanged"
-                    TabCloseRequested="TabView_TabCloseRequested"
-                    TabWidthMode="SizeToContent" />
-            </Grid>
+            <TabView
+                x:Name="Tabs"
+                Grid.Column="2"
+                VerticalAlignment="Stretch"
+                AddTabButtonClick="TabView_AddButtonClick"
+                SelectionChanged="TabView_SelectionChanged"
+                TabCloseRequested="TabView_TabCloseRequested"
+                TabWidthMode="SizeToContent" />
         </Grid>
 
         <Grid
@@ -165,16 +164,16 @@
             Grid.Row="2"
             Padding="8,0"
             Background="Transparent"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="0,1,0,0">
-            <RelativePanel HorizontalAlignment="Left">
-                <Button
-                    Margin="8"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Click="Button_Click">
-                    <FontIcon Glyph="&#xE713;" />
-                </Button>
-            </RelativePanel>
+            <Button
+                Margin="8"
+                HorizontalAlignment="Left"
+                Background="Transparent"
+                BorderThickness="0"
+                Click="Button_Click">
+                <FontIcon Glyph="&#xE713;" />
+            </Button>
         </Grid>
     </Grid>
 </Page>

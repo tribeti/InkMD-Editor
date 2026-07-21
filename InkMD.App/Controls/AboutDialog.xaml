@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:InkMD.App.Controls"
     CloseButtonText="OK"
-    CornerRadius="8"
+    CornerRadius="{ThemeResource OverlayCornerRadius}"
     DefaultButton="Close">
 
     <ContentDialog.Resources>
@@ -35,7 +35,7 @@
                 Background="{ThemeResource LayerFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                 BorderThickness="1"
-                CornerRadius="8">
+                CornerRadius="{ThemeResource OverlayCornerRadius}">
                 <Image
                     Width="100"
                     Height="100"

@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using InkMD.App;
 using InkMD.App.Services;
 using InkMD.Core.Helpers;
 using InkMD.Core.Messages;

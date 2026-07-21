@@ -8,9 +8,13 @@
     xmlns:local="using:InkMD.App.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:InkMD.Core.Models"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <x:Double x:Key="ContentDialogMaxWidth">9999999</x:Double>
+        <x:Double x:Key="ContentDialogMaxHeight">9999999</x:Double>
+    </UserControl.Resources>
 
     <UserControl.KeyboardAccelerators>
         <KeyboardAccelerator
@@ -124,17 +128,20 @@
             <AppBarToggleButton
                 x:Name="BoldButton"
                 Command="{x:Bind ViewModel.BoldCommand}"
-                Icon="{ui:FontIcon Glyph=&#xE8DD;}" />
+                Icon="{ui:FontIcon Glyph=&#xE8DD;}"
+                ToolTipService.ToolTip="Bold (Ctrl + N)" />
             <AppBarToggleButton
                 x:Name="ItalicButton"
                 Command="{x:Bind ViewModel.ItalicCommand}"
-                Icon="{ui:FontIcon Glyph=&#xE8DB;}" />
+                Icon="{ui:FontIcon Glyph=&#xE8DB;}"
+                ToolTipService.ToolTip="Italic (Ctrl + I)" />
             <AppBarToggleButton
                 x:Name="StrikethroughButton"
                 Command="{x:Bind ViewModel.StrikethroughCommand}"
-                Icon="{ui:FontIcon Glyph=&#xEDE0;}" />
+                Icon="{ui:FontIcon Glyph=&#xEDE0;}"
+                ToolTipService.ToolTip="Strikethrough" />
 
-            <AppBarButton Icon="Pictures" Label="Pictures">
+            <AppBarButton Icon="Pictures" ToolTipService.ToolTip="Pictures">
                 <AppBarButton.Flyout>
                     <MenuFlyout Placement="BottomEdgeAlignedLeft">
                         <MenuFlyoutItem Icon="{ui:FontIcon Glyph=&#xEC4E;}" Text="This device" />
@@ -143,12 +150,11 @@
                     </MenuFlyout>
                 </AppBarButton.Flyout>
             </AppBarButton>
-            <AppBarButton Icon="{ui:FontIcon Glyph=&#xF156;}" Label="Shapes" />
             <AppBarButton
                 Click="AppBarButton_Click"
                 Icon="{ui:FontIcon Glyph=&#xED58;}"
-                Label="Icons" />
-            <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" Label="Templates">
+                ToolTipService.ToolTip="Icons" />
+            <AppBarButton Icon="{ui:FontIcon Glyph=&#xECAA;}" ToolTipService.ToolTip="Templates">
                 <AppBarButton.Flyout>
                     <Flyout x:Name="TemplateFlyout" Opening="TemplateFlyout_Opening">
                         <GridView
@@ -159,13 +165,13 @@
                             SelectionMode="Single">
                             <GridView.ItemTemplate>
                                 <DataTemplate x:DataType="models:MdTemplate">
-                                    <Border
+                                    <Grid
                                         Width="100"
                                         Height="50"
                                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="4">
+                                        CornerRadius="{ThemeResource OverlayCornerRadius}">
                                         <TextBlock
                                             VerticalAlignment="Center"
                                             FontWeight="SemiBold"
@@ -173,7 +179,7 @@
                                             MaxLines="2"
                                             Text="{x:Bind DisplayName}"
                                             TextWrapping="Wrap" />
-                                    </Border>
+                                    </Grid>
                                 </DataTemplate>
                             </GridView.ItemTemplate>
                             <GridView.ItemsPanel>
@@ -188,7 +194,7 @@
             <AppBarButton
                 Click="HyperLink_Click"
                 Icon="{ui:FontIcon Glyph=&#xE71B;}"
-                Label="Hyperlink" />
+                ToolTipService.ToolTip="Hyperlink" />
 
             <AppBarElementContainer VerticalAlignment="Center">
                 <controls:Segmented
@@ -223,11 +229,6 @@
             PrimaryButtonText="Add (New File)"
             SecondaryButtonText="Insert (Current Doc)">
 
-            <ContentDialog.Resources>
-                <x:Double x:Key="ContentDialogMaxWidth">9999999</x:Double>
-                <x:Double x:Key="ContentDialogMaxHeight">9999999</x:Double>
-            </ContentDialog.Resources>
-
             <Grid Width="1200" Height="800">
                 <WebView2 x:Name="previewWebView" />
             </Grid>
@@ -237,11 +238,6 @@
             x:Name="IconsDialog"
             CloseButtonText="OK"
             FullSizeDesired="True">
-
-            <ContentDialog.Resources>
-                <x:Double x:Key="ContentDialogMaxWidth">9999999</x:Double>
-                <x:Double x:Key="ContentDialogMaxHeight">9999999</x:Double>
-            </ContentDialog.Resources>
 
             <Grid>
                 <Grid.RowDefinitions>
@@ -266,7 +262,7 @@
                                 Margin="8"
                                 Padding="8"
                                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
-                                CornerRadius="8">
+                                CornerRadius="{ThemeResource OverlayCornerRadius}">
                                 <Image
                                     Width="60"
                                     Height="60"
@@ -301,7 +297,7 @@
                     Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                     BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                     BorderThickness="1"
-                    CornerRadius="8">
+                    CornerRadius="{ThemeResource OverlayCornerRadius}">
                     <ScrollViewer
                         Padding="16"
                         HorizontalScrollBarVisibility="Auto"
