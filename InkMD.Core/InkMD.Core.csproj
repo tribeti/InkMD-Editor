@@ -13,7 +13,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" />
-		<PackageReference Include="System.Reactive" VersionOverride="6.1.0" />
+		<PackageReference Include="System.Reactive" VersionOverride="7.0.0" />
 		<!--trim AI pack-->
 		<PackageReference Include="Microsoft.WindowsAppSDK.AI" VersionOverride="*">
 			<PrivateAssets>all</PrivateAssets>

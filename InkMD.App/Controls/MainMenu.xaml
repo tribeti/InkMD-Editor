@@ -8,9 +8,13 @@
     xmlns:local="using:InkMD.App.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:InkMD.Core.Models"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <x:Double x:Key="ContentDialogMaxWidth">9999999</x:Double>
+        <x:Double x:Key="ContentDialogMaxHeight">9999999</x:Double>
+    </UserControl.Resources>
 
     <UserControl.KeyboardAccelerators>
         <KeyboardAccelerator
@@ -159,13 +163,13 @@
                             SelectionMode="Single">
                             <GridView.ItemTemplate>
                                 <DataTemplate x:DataType="models:MdTemplate">
-                                    <Border
+                                    <Grid
                                         Width="100"
                                         Height="50"
                                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="4">
+                                        CornerRadius="{ThemeResource OverlayCornerRadius}">
                                         <TextBlock
                                             VerticalAlignment="Center"
                                             FontWeight="SemiBold"
@@ -173,7 +177,7 @@
                                             MaxLines="2"
                                             Text="{x:Bind DisplayName}"
                                             TextWrapping="Wrap" />
-                                    </Border>
+                                    </Grid>
                                 </DataTemplate>
                             </GridView.ItemTemplate>
                             <GridView.ItemsPanel>
@@ -223,11 +227,6 @@
             PrimaryButtonText="Add (New File)"
             SecondaryButtonText="Insert (Current Doc)">
 
-            <ContentDialog.Resources>
-                <x:Double x:Key="ContentDialogMaxWidth">9999999</x:Double>
-                <x:Double x:Key="ContentDialogMaxHeight">9999999</x:Double>
-            </ContentDialog.Resources>
-
             <Grid Width="1200" Height="800">
                 <WebView2 x:Name="previewWebView" />
             </Grid>
@@ -237,11 +236,6 @@
             x:Name="IconsDialog"
             CloseButtonText="OK"
             FullSizeDesired="True">
-
-            <ContentDialog.Resources>
-                <x:Double x:Key="ContentDialogMaxWidth">9999999</x:Double>
-                <x:Double x:Key="ContentDialogMaxHeight">9999999</x:Double>
-            </ContentDialog.Resources>
 
             <Grid>
                 <Grid.RowDefinitions>
@@ -266,7 +260,7 @@
                                 Margin="8"
                                 Padding="8"
                                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
-                                CornerRadius="8">
+                                CornerRadius="{ThemeResource OverlayCornerRadius}">
                                 <Image
                                     Width="60"
                                     Height="60"
@@ -301,7 +295,7 @@
                     Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                     BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                     BorderThickness="1"
-                    CornerRadius="8">
+                    CornerRadius="{ThemeResource OverlayCornerRadius}">
                     <ScrollViewer
                         Padding="16"
                         HorizontalScrollBarVisibility="Auto"

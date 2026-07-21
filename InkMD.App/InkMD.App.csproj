@@ -12,6 +12,7 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<Nullable>enable</Nullable>
 		<LangVersion>preview</LangVersion>
+		<EnabledXamlOptionalChanges>DefaultStyleOptimizations,OptimizeApplyStyles,IconNoGridOptimization,DeferContextFlyoutInit</EnabledXamlOptionalChanges>
 	</PropertyGroup>
 
 	<ItemGroup>
