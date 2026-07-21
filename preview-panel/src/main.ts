@@ -139,8 +139,6 @@ editor = new Editor({
   ],
   content: "",
   editorProps: {
-    // Intercept paste events so that plain-text markdown is rendered correctly
-    // instead of being inserted as literal text (raw syntax).
     handlePaste(view, event) {
       const clipboardData = event.clipboardData;
       if (!clipboardData) return false;
@@ -164,7 +162,7 @@ editor = new Editor({
     },
   },
   onUpdate: ({ editor }) => {
-    // Guard against self-triggered updates from setContent()
+    // Guard against self-triggered updates from setContent()k
     if (window.editorBridge && window.editorBridge.isUpdating) {
       return;
     }
@@ -221,17 +219,7 @@ window.editorBridge = {
     document.execCommand("copy");
   },
   paste: () => {
-    // Use the Clipboard API for paste; falls back to execCommand
-    navigator.clipboard
-      .readText()
-      .then((text) => {
-        if (text) {
-          editor.commands.insertContent(text);
-        }
-      })
-      .catch(() => {
-        document.execCommand("paste");
-      });
+    document.execCommand("paste");
   },
 
   // Formatting commands

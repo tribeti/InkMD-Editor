@@ -584,7 +584,10 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void InsertText(string text)
     {
-        if (CurrentEditBox is not null && !string.IsNullOrWhiteSpace(text))
+        if (string.IsNullOrWhiteSpace(text))
+            return;
+
+        if (CurrentEditBox is not null)
         {
             CurrentEditBox.AddLine(CurrentEditBox.CurrentLineIndex, text);
             return;
