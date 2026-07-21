@@ -495,49 +495,81 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public void MarkAsClean() => ViewModel.MarkAsClean();
     public void Undo()
     {
-        if (CurrentEditBox is not null) { CurrentEditBox.Undo(); return; }
+        if (CurrentEditBox is not null)
+        {
+            CurrentEditBox.Undo();
+            return;
+        }
         _ = RunPreviewScriptAsync("window.editorBridge?.format.undo()");
     }
 
     public void Redo()
     {
-        if (CurrentEditBox is not null) { CurrentEditBox.Redo(); return; }
+        if (CurrentEditBox is not null)
+        {
+            CurrentEditBox.Redo();
+            return;
+        }
         _ = RunPreviewScriptAsync("window.editorBridge?.format.redo()");
     }
 
     public void Cut()
     {
-        if (CurrentEditBox is not null) { CurrentEditBox.Cut(); return; }
+        if (CurrentEditBox is not null)
+        {
+            CurrentEditBox.Cut();
+            return;
+        }
         _ = RunPreviewScriptAsync("window.editorBridge?.cut()");
     }
 
     public void Copy()
     {
-        if (CurrentEditBox is not null) { CurrentEditBox.Copy(); return; }
+        if (CurrentEditBox is not null)
+        {
+            CurrentEditBox.Copy();
+            return;
+        }
         _ = RunPreviewScriptAsync("window.editorBridge?.copy()");
     }
 
     public void Paste()
     {
-        if (CurrentEditBox is not null) { CurrentEditBox.Paste(); return; }
+        if (CurrentEditBox is not null)
+        {
+            CurrentEditBox.Paste();
+            return;
+        }
         _ = RunPreviewScriptAsync("window.editorBridge?.paste()");
     }
 
     public void ApplyBold()
     {
-        if (CurrentEditBox is not null) { ToggleFormattingStyle("**"); return; }
+        if (CurrentEditBox is not null)
+        {
+            ToggleFormattingStyle("**");
+            return;
+        }
         _ = RunPreviewScriptAsync("window.editorBridge?.format.toggleBold()");
     }
 
     public void ApplyItalic()
     {
-        if (CurrentEditBox is not null) { ToggleFormattingStyle("*"); return; }
+        if (CurrentEditBox is not null)
+        {
+            ToggleFormattingStyle("*");
+            return;
+        }
         _ = RunPreviewScriptAsync("window.editorBridge?.format.toggleItalic()");
     }
 
     public void ApplyStrikethrough()
     {
-        if (CurrentEditBox is not null) { ToggleStrikethrough(); return; }
+        if (CurrentEditBox is not null)
+        {
+            ToggleStrikethrough();
+            return;
+        }
         _ = RunPreviewScriptAsync("window.editorBridge?.format.toggleStrike()");
     }
 
@@ -552,7 +584,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void InsertText(string text)
     {
-        if (CurrentEditBox is not null)
+        if (CurrentEditBox is not null && !string.IsNullOrWhiteSpace(text))
         {
             CurrentEditBox.AddLine(CurrentEditBox.CurrentLineIndex, text);
             return;
