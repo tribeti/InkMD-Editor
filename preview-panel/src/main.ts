@@ -162,7 +162,7 @@ editor = new Editor({
     },
   },
   onUpdate: ({ editor }) => {
-    // Guard against self-triggered updates from setContent()k
+    // Guard against self-triggered updates from setContent()
     if (window.editorBridge && window.editorBridge.isUpdating) {
       return;
     }

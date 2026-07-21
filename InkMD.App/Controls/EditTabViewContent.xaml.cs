@@ -58,7 +58,7 @@ public sealed partial class EditTabViewContent : UserControl, IEditableContent
 
     public void InsertText(string text)
     {
-        if (string.IsNullOrWhiteSpace(text) || EditBox is null)
+        if (string.IsNullOrEmpty(text) || EditBox is null)
             return;
 
         EditBox.AddLine(EditBox.CurrentLineIndex, text);

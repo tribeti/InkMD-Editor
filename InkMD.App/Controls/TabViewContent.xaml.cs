@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TextControlBoxNS;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace InkMD.App.Controls;
 
@@ -533,14 +534,24 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
         _ = RunPreviewScriptAsync("window.editorBridge?.copy()");
     }
 
-    public void Paste()
+    public async void Paste()
     {
         if (CurrentEditBox is not null)
         {
             CurrentEditBox.Paste();
             return;
         }
-        _ = RunPreviewScriptAsync("window.editorBridge?.paste()");
+
+        var clipContent = Clipboard.GetContent();
+        if (clipContent.Contains(StandardDataFormats.Text))
+        {
+            var text = await clipContent.GetTextAsync();
+            if (!string.IsNullOrEmpty(text))
+            {
+                var escaped = JsonSerializer.Serialize(text);
+                await RunPreviewScriptAsync($"window.editorBridge?.insertContent({escaped})");
+            }
+        }
     }
 
     public void ApplyBold()
@@ -584,7 +595,7 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void InsertText(string text)
     {
-        if (string.IsNullOrWhiteSpace(text))
+        if (string.IsNullOrEmpty(text))
             return;
 
         if (CurrentEditBox is not null)
