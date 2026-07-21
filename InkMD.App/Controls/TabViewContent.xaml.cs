@@ -493,14 +493,53 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
     public void SetFilePath(string filePath, string fileName) => ViewModel.SetFilePath(filePath, fileName);
     public bool IsDirty() => ViewModel.IsDirty;
     public void MarkAsClean() => ViewModel.MarkAsClean();
-    public void Undo() => CurrentEditBox?.Undo();
-    public void Redo() => CurrentEditBox?.Redo();
-    public void Cut() => CurrentEditBox?.Cut();
-    public void Copy() => CurrentEditBox?.Copy();
-    public void Paste() => CurrentEditBox?.Paste();
-    public void ApplyBold() => ToggleFormattingStyle("**");
-    public void ApplyItalic() => ToggleFormattingStyle("*");
-    public void ApplyStrikethrough() => ToggleStrikethrough();
+    public void Undo()
+    {
+        if (CurrentEditBox is not null) { CurrentEditBox.Undo(); return; }
+        _ = RunPreviewScriptAsync("window.editorBridge?.format.undo()");
+    }
+
+    public void Redo()
+    {
+        if (CurrentEditBox is not null) { CurrentEditBox.Redo(); return; }
+        _ = RunPreviewScriptAsync("window.editorBridge?.format.redo()");
+    }
+
+    public void Cut()
+    {
+        if (CurrentEditBox is not null) { CurrentEditBox.Cut(); return; }
+        _ = RunPreviewScriptAsync("window.editorBridge?.cut()");
+    }
+
+    public void Copy()
+    {
+        if (CurrentEditBox is not null) { CurrentEditBox.Copy(); return; }
+        _ = RunPreviewScriptAsync("window.editorBridge?.copy()");
+    }
+
+    public void Paste()
+    {
+        if (CurrentEditBox is not null) { CurrentEditBox.Paste(); return; }
+        _ = RunPreviewScriptAsync("window.editorBridge?.paste()");
+    }
+
+    public void ApplyBold()
+    {
+        if (CurrentEditBox is not null) { ToggleFormattingStyle("**"); return; }
+        _ = RunPreviewScriptAsync("window.editorBridge?.format.toggleBold()");
+    }
+
+    public void ApplyItalic()
+    {
+        if (CurrentEditBox is not null) { ToggleFormattingStyle("*"); return; }
+        _ = RunPreviewScriptAsync("window.editorBridge?.format.toggleItalic()");
+    }
+
+    public void ApplyStrikethrough()
+    {
+        if (CurrentEditBox is not null) { ToggleStrikethrough(); return; }
+        _ = RunPreviewScriptAsync("window.editorBridge?.format.toggleStrike()");
+    }
 
     public IEnumerable<string> GetContentToSaveFile()
     {
@@ -513,9 +552,33 @@ public sealed partial class TabViewContent : UserControl, IEditableContent
 
     public void InsertText(string text)
     {
-        if (CurrentEditBox is null)
+        if (CurrentEditBox is not null)
+        {
+            CurrentEditBox.AddLine(CurrentEditBox.CurrentLineIndex, text);
             return;
-        CurrentEditBox.AddLine(CurrentEditBox.CurrentLineIndex, text);
+        }
+
+        var escaped = JsonSerializer.Serialize(text);
+        _ = RunPreviewScriptAsync($"window.editorBridge?.insertContent({escaped})");
+    }
+
+    /// <summary>
+    /// Executes a JavaScript snippet on the active preview WebView.
+    /// Returns silently if no preview is ready.
+    /// </summary>
+    private async Task RunPreviewScriptAsync(string script)
+    {
+        if (CurrentPreviewView?.CoreWebView2 is not { } coreWv || !IsPreviewReady)
+            return;
+
+        try
+        {
+            await coreWv.ExecuteScriptAsync(script);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[TabViewContent] RunPreviewScript error: {ex.Message}");
+        }
     }
 
     // ─── View mode ───────────────────────────────────────────────────
