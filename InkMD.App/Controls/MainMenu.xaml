@@ -129,7 +129,7 @@
                 x:Name="BoldButton"
                 Command="{x:Bind ViewModel.BoldCommand}"
                 Icon="{ui:FontIcon Glyph=&#xE8DD;}"
-                ToolTipService.ToolTip="Bold (Ctrl + N)" />
+                ToolTipService.ToolTip="Bold (Ctrl + B)" />
             <AppBarToggleButton
                 x:Name="ItalicButton"
                 Command="{x:Bind ViewModel.ItalicCommand}"
